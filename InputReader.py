@@ -32,11 +32,12 @@ def read_signups_helper(characters, kruisvaarders):
                 print(f"Please add {row} to the {kruisvaarders_filename}.")
                 is_kruisvaarder = False
             else:
-                is_kruisvaarder = bool(kruisvaarders[charname])
+                is_kruisvaarder = kruisvaarders[charname]
 
-            wowclass, wowrole = characters[charname]
-            signup = Character(charname, wowclass, wowrole, is_kruisvaarder, cur_status)
-            signups.append(signup)
+            if cur_status in ['Accepted', 'Tentative']:
+                wowclass, wowrole = characters[charname]
+                signup = Character(charname, wowclass, wowrole, is_kruisvaarder, cur_status)
+                signups.append(signup)
     return signups
 
 
@@ -49,8 +50,9 @@ def read_characters():
 
 def read_kruisvaarders():
     chars = defaultdict()
-    for row in [row.split() for row in open(kruisvaarders_filename, 'r').readlines()]:
-        chars[row[0].lower()] = row[1]
+    for row in [row.strip().split(' ') for row in open(kruisvaarders_filename, 'r').readlines() if len(row.strip())]:
+        if row:
+            chars[row[0].lower()] = bool(row[1])
     return chars
 
 
@@ -67,7 +69,6 @@ def _read_signup(row):
     if not (len(matches)):
         print(f"Failed to process {row}. Please contact Groovypanda")
         exit(1)
-    else:
-        charname = re.findall(regex, row)[0]
 
+    charname = re.findall(regex, row)[0]
     return charname.lower()
