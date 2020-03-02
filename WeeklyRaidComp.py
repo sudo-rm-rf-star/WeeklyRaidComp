@@ -5,14 +5,17 @@
 import random
 from InputReader import read_signups
 
+# If you feel crazy and don't want to go as 40 you can change me...
 expected_raid_size = 40
 
+# How many of each role do you want?
 chars_per_role = {
     'tank': 4,
     'healer': 9,
     'dps': 27
 }
 
+# How does your ideal team setup look like?
 pref_per_class_role = {
     ('druid', 'dps'): 1,
     ('rogue', 'dps'): 4,
@@ -40,7 +43,7 @@ def evaluate(signup, desperate_roles=None):
         return False
     if chars_per_role[signup.role] == 0:
         return False
-    if (pref_per_class_role[(signup.clss, signup.role)] == 0 or not signup.is_kruisvaarder) and not signup.role not in desperate_roles:
+    if (pref_per_class_role[(signup.clss, signup.role)] == 0 or not signup.is_kruisvaarder) and signup.role not in desperate_roles:
         return False
     return True
 
@@ -52,13 +55,12 @@ def pick(signup):
 
 def make_roster():
     signups = read_signups()
-    print(f"{len(signups)} geinterreseerden")
     random.shuffle(signups)  # Introduce some randomness
     attendees = []
     benched = []
 
     while len(signups) > 0:
-        signup = signups.pop()
+        signup = signups.pop(0)
         should_pick = evaluate(signup)
         if should_pick and len(attendees) < expected_raid_size:
             attendees.append(signup)
@@ -66,9 +68,10 @@ def make_roster():
         else:
             benched.append(signup)
 
+
     desperate_roles = [role for (role, num_unfilled) in chars_per_role.items() if num_unfilled > 0]
-    while expected_raid_size != len(attendees):
-        signup = benched.pop()
+    while len(attendees) < expected_raid_size:
+        signup = benched.pop(0)
         should_pick = evaluate(signup, desperate_roles=desperate_roles)
         if should_pick:
             attendees.append(signup)
