@@ -1,15 +1,30 @@
+# coding=utf-8
+import re
+from collections import defaultdict
+from Character import Character
+
+characters_filename = 'data/char-class-role.csv'
+signups_filename = 'data/signups.txt'
+kruisvaarders_filename = 'data/kruisvaarders.txt'
+statuses = ['Accepted', 'Declined', 'Tentative']
+
+
 def read_signups():
+    characters = read_characters()
+    ksvaarders = read_kruisvaarders()
+    return read_signups_helper(characters, ksvaarders)
+
 
 def read_signups_helper(characters, kruisvaarders):
     cur_status = None
-    characters = []
+    signups = []
     for row in open(signups_filename, 'r').readlines():
         row = row.strip()
-        status = read_status(row)
+        status = _read_status(row)
         if status:
             cur_status = status
         else:
-            charname = read_signup(row)
+            charname = _read_signup(row)
             if not charname in characters:
                 print(f"Please add {row} to the {characters_filename}.")
                 exit(1)
@@ -20,9 +35,10 @@ def read_signups_helper(characters, kruisvaarders):
                 is_kruisvaarder = bool(kruisvaarders[charname])
 
             wowclass, wowrole = characters[charname]
-            character = Character(charname, wowclass, wowrole, is_kruisvaarder, cur_status)
-            characters.append(character)
-    return characters
+            signup = Character(charname, wowclass, wowrole, is_kruisvaarder, cur_status)
+            signups.append(signup)
+    return signups
+
 
 def read_characters():
     chars = defaultdict()
@@ -30,8 +46,28 @@ def read_characters():
         chars[row[0].lower()] = (row[1], row[2])
     return chars
 
+
 def read_kruisvaarders():
     chars = defaultdict()
     for row in [row.split() for row in open(kruisvaarders_filename, 'r').readlines()]:
         chars[row[0].lower()] = row[1]
     return chars
+
+
+def _read_status(row):
+    for status in statuses:
+        if status in row:
+            return status
+    return None
+
+
+def _read_signup(row):
+    regex = r"[\wóòé']+"
+    matches = re.findall(regex, row)
+    if not (len(matches)):
+        print(f"Failed to process {row}. Please contact Groovypanda")
+        exit(1)
+    else:
+        charname = re.findall(regex, row)[0]
+
+    return charname.lower()
