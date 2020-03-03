@@ -1,4 +1,5 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
+
 import re
 from collections import defaultdict
 from Character import Character
@@ -18,18 +19,20 @@ def read_signups():
 def read_signups_helper(characters, kruisvaarders):
     cur_status = None
     signups = []
-    for row in open(signups_filename, 'r').readlines():
+    for row in open(signups_filename, 'r', encoding='utf-8').readlines():
         row = row.strip()
         status = _read_status(row)
         if status:
             cur_status = status
         else:
             charname = _read_signup(row)
+            print(characters)
             if not charname in characters:
-                print(f"Please add {row} to the {characters_filename}.")
+                print(row, charname)
+                print(f"Please add {charname} to the {characters_filename}.")
                 exit(1)
             if not charname in kruisvaarders:
-                print(f"Please add {row} to the {kruisvaarders_filename}.")
+                print(f"Please add {charname} to the {kruisvaarders_filename}.")
                 is_kruisvaarder = False
             else:
                 is_kruisvaarder = kruisvaarders[charname]
@@ -41,26 +44,26 @@ def read_signups_helper(characters, kruisvaarders):
     return signups
 
 
+def _read_status(row):
+    for status in statuses:
+        if status in row:
+            return status
+    return None
+
+
 def read_characters():
     chars = defaultdict()
-    for row in [row.split() for row in open(characters_filename, 'r').readlines()]:
+    for row in [row.split() for row in open(characters_filename, 'r', encoding='utf-8').readlines()]:
         chars[row[0].lower()] = (row[1], row[2])
     return chars
 
 
 def read_kruisvaarders():
     chars = defaultdict()
-    for row in [row.strip().split(' ') for row in open(kruisvaarders_filename, 'r').readlines() if len(row.strip())]:
+    for row in [row.strip().split(' ') for row in open(kruisvaarders_filename, 'r', encoding='utf-8').readlines() if len(row.strip())]:
         if row:
             chars[row[0].lower()] = bool(row[1])
     return chars
-
-
-def _read_status(row):
-    for status in statuses:
-        if status in row:
-            return status
-    return None
 
 
 def _read_signup(row):

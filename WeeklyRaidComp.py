@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# coding=utf-8
+# -*- coding: utf-8 -*-
 
 
 import random
@@ -43,7 +43,8 @@ def evaluate(signup, desperate_roles=None):
         return False
     if chars_per_role[signup.role] == 0:
         return False
-    if (pref_per_class_role[(signup.clss, signup.role)] == 0 or not signup.is_kruisvaarder) and signup.role not in desperate_roles:
+    if (pref_per_class_role[
+            (signup.clss, signup.role)] == 0 or not signup.is_kruisvaarder) and signup.role not in desperate_roles:
         return False
     return True
 
@@ -68,7 +69,6 @@ def make_roster():
         else:
             benched.append(signup)
 
-
     desperate_roles = [role for (role, num_unfilled) in chars_per_role.items() if num_unfilled > 0]
     while len(attendees) < expected_raid_size:
         signup = benched.pop(0)
@@ -81,6 +81,7 @@ def make_roster():
 
     return attendees, benched
 
+
 def print_roster(attendees, benched):
     attendees.sort(key=lambda char: (char.role, char.clss))
     benched.sort(key=lambda char: (char.role, char.clss))
@@ -88,6 +89,7 @@ def print_roster(attendees, benched):
     print("\n".join(map(str, attendees)))
     print(f"==== Bank - {len(benched)} spelers ====")
     print("\n".join(map(str, benched)))
+
 
 if __name__ == '__main__':
     attendees, benched = make_roster()
