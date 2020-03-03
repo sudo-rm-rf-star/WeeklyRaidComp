@@ -26,9 +26,7 @@ def read_signups_helper(characters, kruisvaarders):
             cur_status = status
         else:
             charname = _read_signup(row)
-            print(characters)
             if not charname in characters:
-                print(row, charname)
                 print(f"Please add {charname} to the {characters_filename}.")
                 exit(1)
             if not charname in kruisvaarders:
