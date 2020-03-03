@@ -1,3 +1,1 @@
 # WeeklyRaidComp
-# WeeklyRaidComp
-# WeeklyRaidComp
