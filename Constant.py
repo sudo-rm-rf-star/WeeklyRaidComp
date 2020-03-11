@@ -2,16 +2,20 @@
 expected_raid_size = 40
 out_filename = "roster.xlsx"
 
-min_per_role = {
-    'tank': 3,
-    'healer': 8,
-    'dps': 26
+role_weight = 0.6
+class_role_weight = 0.2
+guild_role_weight = 0.2
+
+guild_role_priority = {
+    'Hertog': 1,
+    'Kruisvaarder': 1,
+    'Ridder': 1
 }
 
-max_per_role = {
-    'tank': 5,
-    'healer': 10,
-    'dps': 30
+pref_per_role = {
+    'tank': 4,
+    'healer': 9,
+    'dps': 27
 }
 
 min_per_class_role = {
@@ -45,7 +49,7 @@ max_per_class_role = {
         'warrior': 6,
         'hunter': 6,
         'warlock': 6,
-        'mage': 9,
+        'mage': 8,
         'priest': 0,
     },
     'healer': {

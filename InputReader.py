@@ -1,24 +1,34 @@
-# -*- coding: utf-8 -*-
-
 import re
+from pandas import DataFrame, read_csv, merge
+import os
 from collections import defaultdict
-from Character import Character
 
-characters_filename = 'data/char-class-role.csv'
-signups_filename = 'data/signups.txt'
-kruisvaarders_filename = 'data/kruisvaarders.txt'
+signups_filename = 'data/signups-test.txt'
+guild_members_filename = 'data/guild-members.csv'
 statuses = ['Accepted', 'Declined', 'Tentative']
 
 
+def get_signees():
+    guild_members = read_csv(guild_members_filename)
+    signup_statuses = read_signups()
+    assert_guild_members_completeness(guild_members, signup_statuses)
+    signees = merge(signup_statuses, guild_members, on=['name'], how='left')
+    return signees
+
+
+def assert_guild_members_completeness(guild_members, signup_statuses):
+    guild_members = set(guild_members['name'])
+    signees = set(signup_statuses['name'])
+    non_existent_guild_members = signees.difference(guild_members)
+    if len(non_existent_guild_members) > 0:
+        print(f"Please add {', '.join(non_existent_guild_members)} to {guild_members_filename} before proceeding.")
+        exit(1)
+
+
 def read_signups():
-    characters = read_characters()
-    ksvaarders = read_kruisvaarders()
-    return read_signups_helper(characters, ksvaarders)
-
-
-def read_signups_helper(characters, kruisvaarders):
     cur_status = None
     signups = []
+    standby_counts = read_standby_count()
     for row in open(signups_filename, 'r', encoding='utf-8').readlines():
         row = row.strip()
         status = _read_status(row)
@@ -26,20 +36,20 @@ def read_signups_helper(characters, kruisvaarders):
             cur_status = status
         else:
             charname = _read_signup(row)
-            if not charname in characters:
-                print(f"Please add {charname} to the {characters_filename}.")
-                exit(1)
-            if not charname in kruisvaarders:
-                print(f"Please add {charname} to the {kruisvaarders_filename}.")
-                is_kruisvaarder = False
-            else:
-                is_kruisvaarder = kruisvaarders[charname]
-
             if cur_status in ['Accepted', 'Tentative']:
-                wowclass, wowrole = characters[charname]
-                signup = Character(charname, wowclass, wowrole, is_kruisvaarder, cur_status)
-                signups.append(signup)
-    return signups
+                signups.append({'name': charname, 'signup_state': cur_status, 'standby_count': standby_counts[charname]})
+    return DataFrame(signups)
+
+
+def read_standby_count():
+    dirname = 'history'
+    standby_count = defaultdict(int)
+    for filename in os.listdir(dirname):
+        if filename.endswith('.csv'):
+            for name in [row.strip().split(',')[-1] for row in open(os.path.join(dirname, filename)).readlines()][1:]:
+                if name:
+                    standby_count[name] += 1
+    return standby_count
 
 
 def _read_status(row):
@@ -47,21 +57,6 @@ def _read_status(row):
         if status in row:
             return status
     return None
-
-
-def read_characters():
-    chars = defaultdict()
-    for row in [row.split() for row in open(characters_filename, 'r', encoding='utf-8').readlines()]:
-        chars[row[0].lower()] = (row[1], row[2])
-    return chars
-
-
-def read_kruisvaarders():
-    chars = defaultdict()
-    for row in [row.strip().split(' ') for row in open(kruisvaarders_filename, 'r', encoding='utf-8').readlines() if len(row.strip())]:
-        if row:
-            chars[row[0].lower()] = bool(row[1])
-    return chars
 
 
 def _read_signup(row):
@@ -72,4 +67,4 @@ def _read_signup(row):
         exit(1)
 
     charname = re.findall(regex, row)[0]
-    return charname.lower()
+    return charname.capitalize()
