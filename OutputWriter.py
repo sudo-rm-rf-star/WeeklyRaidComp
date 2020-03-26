@@ -27,15 +27,13 @@ def write_roster(attendees, standby):
             for _, char in chars.iterrows():
                 _write_cell(row_num+1, col_num, color, char['name'].capitalize())
                 row_num += 1
-        return row_num
 
     for col_num, role in enumerate(['tank', 'healer', 'dps']):
-        row_count = _write_characters(col_num, attendees[attendees['role'] == role])
-        _write_heading(col_num, f"{role} ({row_count})")
+        _write_characters(col_num, attendees[attendees['role'] == role])
+        _write_heading(col_num, f"{role}")
 
     col_num = 3
-    _write_heading(col_num, "standby")
-    row_count = _write_characters(col_num, standby)
-    _write_heading(col_num, f"Standby ({row_count})")
+    _write_heading(col_num, "Standby")
+    _write_characters(col_num, standby)
 
     workbook.close()
