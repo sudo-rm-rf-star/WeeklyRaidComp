@@ -1,8 +1,11 @@
+import os
+
 expected_raid_size = 40
 
-raid = 'bwl'
+USE_SIGNUP_HISTORY = False
+out_filename = "data/roster.xlsx"
+kruisvaarders_filename = 'data/kruisvaarders.txt'
 
-out_filename = "roster.xlsx"
 
 pref_per_role = {
     'bwl': {
@@ -17,12 +20,6 @@ pref_per_role = {
     }
 }
 
-# notities mertin
-# pref 2 pallys (don't care on role)
-# pref feral druids
-# pref boomkin
-# pref 2 dwarf priest
-# spreek met wisear
 min_per_class_role = {
     'bwl': {
         'dps': {
@@ -122,7 +119,7 @@ color_per_class = {
     'rogue': '#FFF569',
     'warrior': '#C79C6E',
     'paladin': '#F58CBA',
-    #'priest': '#FFFFFF',
+    # 'priest': '#FFFFFF',
     'priest': '#D3D3D3',
     'druid': '#FF7D0A',
     'warlock': '#9482C9',
