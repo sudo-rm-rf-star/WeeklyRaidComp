@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 
 kruisvaarders_filename = 'data/kruisvaarders.txt'
-raid_dir = 'data/raids'
+raid_dir = 'data/raids/input'
 statuses = ['Accepted', 'Declined', 'Tentative']
 
 parse_mapping = {
@@ -31,7 +31,8 @@ def read_raids():
         with open(os.path.join(raid_dir, filename), encoding='utf-8') as signups_file:
             signups_raw = signups_file.read()
             for (name, date, signees) in parse_raids(signups_raw):
-                if not any((o_name, o_date, _) for (o_name, o_date, _) in raids if name == o_name and date == o_date): # O(n^2), I don't even care.
+                if not any((o_name, o_date, _) for (o_name, o_date, _) in raids if
+                           name == o_name and date == o_date):  # O(n^2), I don't even care.
                     raids.append((name, date, signees))
     return raids
 
@@ -62,9 +63,11 @@ def parse_raids(blob):
 
     return raids
 
+
 def get_kruisvaarders():
     with open(kruisvaarders_filename, encoding='utf-8') as kruisvaarders_file:
         return [x.strip() for x in kruisvaarders_file.readlines()]
+
 
 def parse_raid(blob):
     signups = []
@@ -79,7 +82,8 @@ def parse_raid(blob):
                 charname, roleclass = tuple(charcol.split('--')[2:])
                 role, clazz = parse_mapping.get(roleclass, ('dps', roleclass.lower()))
                 charname = _get_charname(charname.strip('*'))
-                signups.append({'name': charname, 'class': clazz, 'role': role, 'signup_status': 'Accepted', 'is_kruisvaarder': charname in kruisvaarders})
+                signups.append({'name': charname, 'class': clazz, 'role': role, 'signup_status': 'Accepted',
+                                'is_kruisvaarder': charname in kruisvaarders})
     for line in blob[-4:]:
         parts = line.split(',')
         signup_status = parts[0]
@@ -87,7 +91,7 @@ def parse_raid(blob):
             if part:
                 charname = _get_charname(part.split('--')[-2].strip('*'))
                 signups.append(
-                    {'name': charname, 'class': 'unknown', 'role': 'unknown', 'signup_status': signup_status,'is_kruisvaarder': charname in kruisvaarders})
+                    {'name': charname, 'signup_status': signup_status, 'is_kruisvaarder': charname in kruisvaarders})
 
     return raid_name, raid_date, signups
 

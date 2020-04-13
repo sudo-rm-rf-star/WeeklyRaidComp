@@ -1,6 +1,5 @@
 from pandas import DataFrame
-from Constant import pref_per_role, min_per_class_role, max_per_class_role
-from RosterWriter import RosterWriter
+from Constant import pref_per_role, min_per_class_role, max_per_class_role, VERBOSE
 
 
 class Roster:
@@ -10,11 +9,11 @@ class Roster:
     @staticmethod
     def compose(raid):
         signees = DataFrame(raid.signees)
-        signees['roster_status'] = 'Bench'
         signees.loc[signees['signup_status'] == 'Absence', 'roster_status'] = 'Absence'
+        signees.loc[signees['signup_status'] != 'Absence', 'roster_status'] = 'Bench'
 
         def eligible():
-            return signees[(signees['is_kruisvaarder']) & (signees['signup_status'] == 'Accepted')]
+            return signees[(signees['is_kruisvaarder'] == 1) & (signees['signup_status'] == 'Accepted')]
 
         for role, signees_for_role in eligible().groupby('role'):
             for clazz, signees_for_class in signees_for_role.groupby("class"):
@@ -27,6 +26,8 @@ class Roster:
         for role, signees_for_role in eligible().groupby('role'):
             lowest_standby_loc = signees_for_role.sort_values('standby_count', ascending=True).head(n=1).index[0]
             signees.at[lowest_standby_loc, 'score'] = -1
+            if VERBOSE:
+                print(signees_for_role.sort_values('standby_count', ascending=True).head(n=3))
 
         for role, signees_for_role in eligible().groupby('role'):
             pref_count = pref_per_role[raid.name][role]
@@ -38,9 +39,6 @@ class Roster:
                 signees.at[j, "roster_status"] = 'Accepted'
 
         return Roster(signees)
-
-    def write(self, raid_name, raid_date):
-        RosterWriter(raid_name, raid_date).write_roster(self.signees)
 
 
 def _calculate_importance(cur, mini, maxi):

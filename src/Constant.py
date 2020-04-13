@@ -3,6 +3,7 @@ from raids import BWLConstants
 from raids import ZGConstants
 
 USE_SIGNUP_HISTORY = False
+VERBOSE = False
 
 pref_per_role = {
     'mc': MCConstants.pref_per_role,
@@ -32,5 +33,6 @@ color_per_class = {
     'druid': '#FF7D0A',
     'warlock': '#9482C9',
     'hunter': '#ABD473',
-    'unknown': '#FFFFFF'
 }
+
+DEFAULT_COLOR = '#FFFFFF'

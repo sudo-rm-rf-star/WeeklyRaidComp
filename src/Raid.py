@@ -1,8 +1,10 @@
-from pandas import DataFrame
+from pandas import DataFrame, concat
 from RaidReader import read_raids
 from AttendanceReader import get_standby_count
+from RosterWriter import RosterWriter
 from Roster import Roster
 from datetime import datetime
+from Constant import pref_per_role
 import sys
 
 
@@ -18,6 +20,16 @@ class Raid:
     @staticmethod
     def all_raids():
         return [Raid(tpl[0], tpl[1], tpl[2]) for tpl in read_raids()]
+
+    # Split raid into k equally sized raids based on class-roles.
+    def split_in(self, k):
+        raids = [DataFrame() for _ in range(k)]
+        for role, signees_for_role in self.signees.groupby('role'):
+            for clazz, signees_for_clazz_role in signees_for_role.groupby('class'):
+                for i, signee in signees_for_clazz_role.iterrows():
+                    raid_index = i % k
+                    raids[raid_index] = raids[raid_index].append(signee, ignore_index=True)
+        return [Raid(self.name, self.date, raid) for raid in raids]
 
     @staticmethod
     def upcoming(name):
@@ -36,11 +48,19 @@ class Raid:
 
     @staticmethod
     def write_upcoming_roster(name):
-        raid = Raid.upcoming(name)
-        raid.to_roster().write(raid.name, raid.date)
+        raids = [Raid.upcoming(name)]
+        if _raid_size(name) == 20:
+            raids = raids[0].split_in(2)
+
+        rosters = [raid.to_roster() for raid in raids]
+        RosterWriter(raid_name, raids[0].date).write_rosters(rosters)
 
     def __str__(self):
         return f"{self.name}, {self.date}"
+
+
+def _raid_size(name):
+    return sum(pref_per_role[name].values())
 
 
 if __name__ == '__main__':
