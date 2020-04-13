@@ -2,8 +2,8 @@ import re
 from datetime import datetime
 import os
 
-signups_filename = f"data/signups.csv"
 kruisvaarders_filename = 'data/kruisvaarders.txt'
+raid_dir = 'data/raids'
 statuses = ['Accepted', 'Declined', 'Tentative']
 
 parse_mapping = {
@@ -20,15 +20,20 @@ parse_mapping = {
 
 raid_abbrev = {
     'Molten Core': 'mc',
-    'Blackwing Lair': 'bwl'
+    'Blackwing Lair': 'bwl',
+    "Zul'Gurub": 'zg'
 }
 
 
 def read_raids():
-    filename = [file for file in os.listdir('data') if file.endswith('.csv')][0]
-    with open(os.path.join('data', filename), encoding='utf-8') as signups_file:
-        signups_raw = signups_file.read()
-        return parse_raids(signups_raw)
+    raids = []
+    for filename in os.listdir(raid_dir):
+        with open(os.path.join(raid_dir, filename), encoding='utf-8') as signups_file:
+            signups_raw = signups_file.read()
+            for (name, date, signees) in parse_raids(signups_raw):
+                if not any((o_name, o_date, _) for (o_name, o_date, _) in raids if name == o_name and date == o_date): # O(n^2), I don't even care.
+                    raids.append((name, date, signees))
+    return raids
 
 
 def read_raid(filename):
@@ -80,7 +85,7 @@ def parse_raid(blob):
         signup_status = parts[0]
         for part in parts[1:]:
             if part:
-                charname = part.split('--')[-2].strip('*')
+                charname = _get_charname(part.split('--')[-2].strip('*'))
                 signups.append(
                     {'name': charname, 'class': 'unknown', 'role': 'unknown', 'signup_status': signup_status,'is_kruisvaarder': charname in kruisvaarders})
 
@@ -95,15 +100,11 @@ def _read_status(row):
 
 
 def _get_charname(row):
-    regex = r"[\wóòé']+"
+    regex = r"[a-zA-ZöÓòéëû]+"
     matches = re.findall(regex, row)
     if not (len(matches)):
         print(f"Failed to process {row}. Please contact Groovypanda")
         exit(1)
 
     charname = re.findall(regex, row)[0]
-    return charname.capitalize()
-
-
-if __name__ == '__main__':
-    read_raids('data/615919624034451470.csv')
+    return charname.strip().capitalize()

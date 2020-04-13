@@ -4,10 +4,14 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from RaidReader import read_raids
 from Constant import USE_SIGNUP_HISTORY
-import os
 
 
 # https://classic.warcraftlogs.com/guild/attendance/510080
+zoneId = {
+    'bwl': 1002,
+    'mc': 1000
+}
+
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
@@ -16,19 +20,19 @@ def chunks(lst, n):
 
 
 def get_raid_attendance_html(raid):
-    zoneId = {
-        'bwl': 1002,
-        'mc': 1000
-    }
     return requests.get(f'https://classic.warcraftlogs.com/guild/attendance-table/510080/0/{zoneId[raid]}').text
 
 
 hdr_rex = r'var createdDate = new Date\(([0-9]*)\)'
-row_rex = r'<tr><td[^>]*>([a-zA-ZöÓòéë]*)'
+row_rex = r'<tr><td[^>]*>([a-zA-ZöÓòéëû]*)'
 col_rex = '(present|absent)'
 
 
 def get_raid_attendance_history(raid):
+    if raid not in zoneId:
+        print(f"There's no history yet for {raid}")
+        return {}, {}
+
     raid_attendance_html = get_raid_attendance_html(raid)
     dates = list(
         map(lambda x: datetime.fromtimestamp(float(x) / 1000).date(), re.findall(hdr_rex, raid_attendance_html)))
@@ -72,7 +76,3 @@ def get_standby_count(raid, raid_date, week_count_cutoff=12):
         standby_count[charname] = len({date for date in standby_dates if date > history_cutoff})
 
     return standby_count
-
-
-if __name__ == '__main__':
-    print(get_standby_count('mc', datetime(2020, 4, 1).date()))

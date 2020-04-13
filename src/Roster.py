@@ -1,18 +1,17 @@
 from pandas import DataFrame
-from Constant import pref_per_role, min_per_class_role, max_per_class_role, kruisvaarders_filename
-from RosterWriter import write_roster
+from Constant import pref_per_role, min_per_class_role, max_per_class_role
+from RosterWriter import RosterWriter
 
 
 class Roster:
-    def __init__(self, accepted, benched):
-        self.accepted = accepted
-        self.benched = benched
-        self.signees = None
+    def __init__(self, signees):
+        self.signees = signees
 
     @staticmethod
     def compose(raid):
         signees = DataFrame(raid.signees)
-        signees['accepted'] = False
+        signees['roster_status'] = 'Bench'
+        signees.loc[signees['signup_status'] == 'Absence', 'roster_status'] = 'Absence'
 
         def eligible():
             return signees[(signees['is_kruisvaarder']) & (signees['signup_status'] == 'Accepted')]
@@ -32,16 +31,16 @@ class Roster:
         for role, signees_for_role in eligible().groupby('role'):
             pref_count = pref_per_role[raid.name][role]
             accepted_for_role = signees_for_role.sort_values('score', ascending=False).iloc[:pref_count]
+            accepted_count = accepted_for_role.shape[0]
+            if accepted_count < pref_count:
+                print(f'Only found {accepted_count}/{pref_count} for {role}')
             for j, accepted_signee in accepted_for_role.iterrows():
-                signees.at[j, "accepted"] = True
+                signees.at[j, "roster_status"] = 'Accepted'
 
-        accepted = signees[signees['accepted']]
-        standby = signees[~signees['accepted']]
-        print(signees)
-        return Roster(accepted, standby)
+        return Roster(signees)
 
-    def write(self):
-        write_roster(self.accepted, self.benched)
+    def write(self, raid_name, raid_date):
+        RosterWriter(raid_name, raid_date).write_roster(self.signees)
 
 
 def _calculate_importance(cur, mini, maxi):
