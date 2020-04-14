@@ -1,5 +1,6 @@
 from pandas import DataFrame
-from Constant import pref_per_role, min_per_class_role, max_per_class_role, VERBOSE
+from logic.Constant import pref_per_role, min_per_class_role, max_per_class_role, VERBOSE
+from logging import getLogger
 
 
 class Roster:
@@ -34,7 +35,7 @@ class Roster:
             accepted_for_role = signees_for_role.sort_values('score', ascending=False).iloc[:pref_count]
             accepted_count = accepted_for_role.shape[0]
             if accepted_count < pref_count:
-                print(f'Only found {accepted_count}/{pref_count} for {role}')
+                getLogger().warning(f'Only found {accepted_count}/{pref_count} for {role}')
             for j, accepted_signee in accepted_for_role.iterrows():
                 signees.at[j, "roster_status"] = 'Accepted'
 

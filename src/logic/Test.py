@@ -1,5 +1,5 @@
 import unittest
-from Roster import _calculate_importance
+from logic.Roster import _calculate_importance
 
 
 class TestRoster(unittest.TestCase):

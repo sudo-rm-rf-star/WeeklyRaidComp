@@ -1,5 +1,5 @@
 import xlsxwriter
-from Constant import color_per_class, DEFAULT_COLOR
+from logic.Constant import color_per_class, DEFAULT_COLOR
 import os
 
 raid_dir = 'data/raids/output'
@@ -7,11 +7,15 @@ raid_dir = 'data/raids/output'
 
 class RosterWriter:
     def __init__(self, raid_name, raid_date):
-        workbook = xlsxwriter.Workbook(filename=os.path.join(raid_dir, f'{raid_name}_{raid_date}.xlsx'))
+        self.filename = os.path.join(raid_dir, f'{raid_name}_{raid_date}.xlsx')
+        workbook = xlsxwriter.Workbook(filename=self.filename)
         self.workbook = workbook
         self.workbook.set_properties({
             'title': f"{raid_name} {raid_date}"
         })
+
+    def get_filename(self):
+        return self.filename
 
     def write_rosters(self, rosters):
         for i, roster in enumerate(rosters):

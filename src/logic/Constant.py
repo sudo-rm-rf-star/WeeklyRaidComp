@@ -5,6 +5,8 @@ from raids import ZGConstants
 USE_SIGNUP_HISTORY = False
 VERBOSE = False
 
+supported_raids = ['mc', 'bwl', 'zg']
+
 pref_per_role = {
     'mc': MCConstants.pref_per_role,
     'bwl': BWLConstants.pref_per_role,
@@ -36,3 +38,27 @@ color_per_class = {
 }
 
 DEFAULT_COLOR = '#FFFFFF'
+
+parse_mapping = {
+    'Tank': ('tank', 'warrior'),
+    'HolyPaladin': ('healer', 'paladin'),
+    'ProtPaladin': ('tank', 'paladin'),
+    'Retri': ('dps', 'paladin'),
+    'RestoDruid': ('healer', 'druid'),
+    'Priest': ('healer', 'priest'),
+    'Shadow': ('dps', 'priest'),
+    'Feral': ('dps', 'druid'),
+    'Bear': ('tank', 'druid')
+}
+
+raid_abbrev_long = {
+    'Molten Core': 'mc',
+    'Blackwing Lair': 'bwl',
+    "Zul'Gurub": 'zg'
+}
+
+raid_abbrev_short = {
+    'moltencore': 'mc',
+    'blackwinglair': 'bwl',
+    "zulgurub": 'zg'
+}

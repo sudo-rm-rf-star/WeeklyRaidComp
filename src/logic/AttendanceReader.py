@@ -2,8 +2,9 @@ import re
 import requests
 from datetime import datetime, timedelta
 from collections import defaultdict
-from RaidReader import read_raids
-from Constant import USE_SIGNUP_HISTORY
+from logic.RaidReader import read_raids
+from logic.Constant import USE_SIGNUP_HISTORY
+from logging import getLogger
 
 
 # https://classic.warcraftlogs.com/guild/attendance/510080
@@ -30,7 +31,7 @@ col_rex = '(present|absent)'
 
 def get_raid_attendance_history(raid):
     if raid not in zoneId:
-        print(f"There's no history yet for {raid}")
+        getLogger().warning(f"There's no history yet for {raid.upper()}")
         return {}, {}
 
     raid_attendance_html = get_raid_attendance_html(raid)
