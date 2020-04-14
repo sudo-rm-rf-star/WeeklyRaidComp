@@ -1,5 +1,5 @@
 # bot.py
-from src.disc.commands import make_roster, save_raids
+from src.disc.commands import make_roster, save_raids, post_raid_info
 from src.disc.logger import _setup_logger
 
 import discord
@@ -27,6 +27,7 @@ def run():
         commands = {
             '!makeRoster': make_roster,
             '!saveRaids': save_raids,
+            '!postRaidInfo': post_raid_info
         }
 
         msg_content = message.content.strip()

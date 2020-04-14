@@ -1,28 +1,24 @@
 import discord
-from src.logic.Constant import raid_abbrev_short, supported_raids
+from src.logic.Constant import supported_raids
+from src.disc.constants import RAID_INFO_EMBEDS
 from src.logic.Raid import Raid
-from collections import defaultdict
+from src.disc.commands_util import send_file, store_raid, get_channel, get_bot, delete_bot_messages
 from datetime import datetime
-import os
 import json
-
-RAID_STORAGE = os.path.join('data', 'raids', 'input')
-GUILD = os.getenv('DISCORD_GUILD')
 
 
 async def save_raids(client, message, *argv):
     if len(argv) != 0:
         return f'Expected 0 arguments.'
 
-    guild = discord.utils.get(client.guilds, name=GUILD)
-    raid_helper = discord.utils.get(guild.members, name='Raid-Helper')
-    events_channel = discord.utils.get(guild.channels, name='events')
+    raid_helper = get_bot(client, 'Raid-Helper')
+    events_channel = get_channel(client, 'events')
     count = 0
     async for message in events_channel.history():
         if message.author == raid_helper:
             count += 1
             store_raid(message)
-    return f"Succesffully stored {count} raids."
+    return f"Successfully stored {count} raids."
 
 
 async def make_roster(client, message, *argv):
@@ -43,40 +39,13 @@ async def make_roster(client, message, *argv):
         await send_file(filename, message.author, content=f"Successfully made a roster for {raid_name.upper()}:")
 
 
-async def send_file(filename, recipient, content=""):
-    file = discord.File(filename)
-    await recipient.send(content=content, file=file)
+async def post_raid_info(client, message, *argv):
+    if len(argv):
+        return f'Expected no arguments'
 
+    text_channel = get_channel(client, 'raid-info')
+    await delete_bot_messages(client, text_channel)
+    with open(RAID_INFO_EMBEDS) as raid_info_file:
+        for embed_str in json.loads(raid_info_file.read()):
+            await text_channel.send(embed=discord.Embed.from_dict(embed_str))
 
-def store_raid(message):
-    rows = [field.value for embed in message.embeds for field in embed.fields]
-    title_i = 0
-    date_i = 3
-    accepted_i = 5
-    other_i = 15
-    title = ''.join([chars[-1] for chars in rows[title_i].split('_')][:-1])
-    if title not in raid_abbrev_short:
-        return
-
-    title = raid_abbrev_short[title]
-    date = rows[date_i].split(']')[0].split('[')[-1]
-    signees = defaultdict(list)
-
-    for entries in rows[accepted_i:other_i]:
-        for entry in entries.splitlines()[1:]:
-            cols = entry.split(' ')
-            signup_choice = cols[0].split(':')[1]
-            charname = cols[-1].split('**')[1]
-            signees[signup_choice].append(charname)
-
-    for entry in rows[other_i].splitlines()[1:]:
-        signup_choice = entry.split(':')[1]
-        for charname in entry.split('**')[1::2]:
-            signees[signup_choice].append(charname)
-
-    with open(os.path.join(RAID_STORAGE, f'{title}_{date}.csv'), 'w+') as out_file:
-        out_file.write(json.dumps({
-            'name': title,
-            'date': date,
-            'signees': signees
-        }))
