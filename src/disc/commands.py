@@ -17,9 +17,12 @@ async def save_raids(client, message, *argv):
     guild = discord.utils.get(client.guilds, name=GUILD)
     raid_helper = discord.utils.get(guild.members, name='Raid-Helper')
     events_channel = discord.utils.get(guild.channels, name='events')
+    count = 0
     async for message in events_channel.history():
         if message.author == raid_helper:
+            count += 1
             store_raid(message)
+    return f"Succesffully stored {count} raids."
 
 
 async def make_roster(client, message, *argv):
