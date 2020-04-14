@@ -1,6 +1,6 @@
 import discord
-from logic.Constant import raid_abbrev_short, supported_raids
-from logic.Raid import Raid
+from src.logic.Constant import raid_abbrev_short, supported_raids
+from src.logic.Raid import Raid
 from collections import defaultdict
 from datetime import datetime
 import os

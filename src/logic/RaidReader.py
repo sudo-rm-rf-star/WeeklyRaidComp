@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from logic.Constant import raid_abbrev_long, parse_mapping
+from src.logic.Constant import parse_mapping
 import os
 import json
 

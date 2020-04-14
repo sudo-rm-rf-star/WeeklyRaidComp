@@ -1,6 +1,6 @@
 # bot.py
-from disc.commands import make_roster, save_raids
-from disc.logger import _setup_logger
+from src.disc.commands import make_roster, save_raids
+from src.disc.logger import _setup_logger
 
 import discord
 from dotenv import load_dotenv

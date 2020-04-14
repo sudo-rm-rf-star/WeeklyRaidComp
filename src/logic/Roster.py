@@ -1,5 +1,5 @@
 from pandas import DataFrame
-from logic.Constant import pref_per_role, min_per_class_role, max_per_class_role, VERBOSE
+from src.logic.Constant import pref_per_role, min_per_class_role, max_per_class_role, VERBOSE
 from logging import getLogger
 
 

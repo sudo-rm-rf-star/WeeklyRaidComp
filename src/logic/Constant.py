@@ -1,6 +1,6 @@
-from raids import MCConstants
-from raids import BWLConstants
-from raids import ZGConstants
+from src.raids import MCConstants
+from src.raids import BWLConstants
+from src.raids import ZGConstants
 
 USE_SIGNUP_HISTORY = False
 VERBOSE = False

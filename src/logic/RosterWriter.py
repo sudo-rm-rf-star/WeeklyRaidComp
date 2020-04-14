@@ -1,5 +1,5 @@
 import xlsxwriter
-from logic.Constant import color_per_class, DEFAULT_COLOR
+from src.logic.Constant import color_per_class, DEFAULT_COLOR
 import os
 
 raid_dir = 'data/raids/output'

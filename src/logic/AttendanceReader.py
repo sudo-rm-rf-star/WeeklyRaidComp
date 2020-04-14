@@ -2,8 +2,8 @@ import re
 import requests
 from datetime import datetime, timedelta
 from collections import defaultdict
-from logic.RaidReader import read_raids
-from logic.Constant import USE_SIGNUP_HISTORY
+from src.logic.RaidReader import read_raids
+from src.logic.Constant import USE_SIGNUP_HISTORY
 from logging import getLogger
 
 
