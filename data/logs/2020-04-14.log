@@ -202,3 +202,8 @@ WARNING:root:Only found 2/3 for tank
 WARNING:root:Only found 7/11 for dps
 WARNING:root:Only found 3/6 for healer
 WARNING:root:Only found 1/3 for tank
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+INFO:discord.gateway:Shard ID None has sent the IDENTIFY payload.
+INFO:discord.gateway:Shard ID None has connected to Gateway: ["gateway-prd-main-8m94",{"micros":59927,"calls":["discord-sessions-prd-1-25",{"micros":55988,"calls":["start_session",{"micros":45652,"calls":["api-prd-main-tmcr",{"micros":41496,"calls":["get_user",{"micros":2783},"add_authorized_ip",{"micros":2194},"get_guilds",{"micros":2178},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":7631,"calls":[]}]}]}] (Session ID: 76db0cc9b54d94ee5b2d60d6a25a01d6).
