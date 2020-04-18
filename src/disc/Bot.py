@@ -1,5 +1,5 @@
 # Bot.py
-from src.disc.Commands import make_roster, post_raid_info, show_roster, unsupported
+from src.disc.Commands import make_roster, post_raid_info, show_roster, unsupported, accept_player, bench_player, remove_player
 from src.disc.CommandUtils import officer_rank, anyone
 from src.disc.ServerUtils import get_user
 import src.disc.Logger as Log
@@ -16,9 +16,9 @@ import traceback
 commands = {
     '!roster': {
         'create': (make_roster, officer_rank),
-        'bench': (unsupported, officer_rank),
-        'accept': (unsupported, officer_rank),
-        'decline': (unsupported, officer_rank),
+        'bench': (bench_player, officer_rank),
+        'accept': (accept_player, officer_rank),
+        'remove': (remove_player, officer_rank),
         'show': (show_roster, anyone),
         'upcoming': (unsupported, anyone),
         'help': (unsupported, anyone)
@@ -76,4 +76,4 @@ def find_command(argv):
 async def execute_command(client, message, command, argv):
     command, authority_check = command
     authority_check(client, message.author)
-    await command(client, message, *argv[2:])
+    await command(client, message, ' '.join(argv[2:]))

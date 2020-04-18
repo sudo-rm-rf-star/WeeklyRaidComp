@@ -4,6 +4,7 @@ import json
 from datetime import datetime, date
 from src.common.Constants import FILE_DATETIME_FORMAT, STORAGE_SUFFIX
 from src.common.Utils import from_datetime, to_datetime
+from src.exceptions.EventDoesNotExistException import EventDoesNotExistException
 from src.exceptions.InvalidArgumentException import InvalidArgumentException
 
 
@@ -30,9 +31,9 @@ class RaidAndRosterFileHandler:
                     raise InvalidArgumentException(f'There are two raids for {name_arg} on {datetime_arg}. Please specify time.')
             return min(raid_datetimes)
         except ValueError:
-            raise InvalidArgumentException(f'Could not find any upcoming raids for {name_arg}')
+            raise EventDoesNotExistException(f'Could not find any upcoming raids for {name_arg}')
 
-    def load(self, raid_name, raid_datetime=None):
+    def load(self, raid_name, raid_datetime=None, file_index=None):
         if raid_datetime is None or isinstance(raid_datetime, date) and not isinstance(raid_datetime, datetime):
             raid_datetime = self.upcoming_datetime(raid_name, raid_datetime)
         rs_dict = json.load(self._open_file(raid_name, raid_datetime, mode='r'))
@@ -42,17 +43,17 @@ class RaidAndRosterFileHandler:
     def load_all(self):
         return [self.load(raid_name, raid_datetime) for raid_name, raid_datetime in self.all_raid_datetimes()]
 
-    def save(self, rs_dict):
+    def save(self, rs_dict, file_index=None):
         raid_datetime = rs_dict['datetime']
-        rs_dict['datetime'] = from_datetime(raid_datetime)
         rs_dict['datetime'] = from_datetime(raid_datetime)
         with self._open_file(rs_dict['name'], raid_datetime, mode='w+') as file:
             json.dump(rs_dict, file)
 
-    def _open_file(self, raid_name, raid_datetime, mode='r'):
+    def _open_file(self, raid_name, raid_datetime, mode='r', file_index=''):
         try:
-            return open(os.path.join(self.dir, f'{raid_name}_{raid_datetime.strftime(FILE_DATETIME_FORMAT)}{STORAGE_SUFFIX}'),
+            file_index = '_' + file_index if file_index else ''
+            return open(os.path.join(self.dir, f'{raid_name}_{raid_datetime.strftime(FILE_DATETIME_FORMAT)}{str(file_index)}{STORAGE_SUFFIX}'),
                         mode=mode,
                         encoding='utf-8')
         except FileNotFoundError:
-            raise InvalidArgumentException(f'Could not find {raid_name} on {raid_datetime}.')
+            raise EventDoesNotExistException(f'Could not find {raid_name} on {raid_datetime}.')

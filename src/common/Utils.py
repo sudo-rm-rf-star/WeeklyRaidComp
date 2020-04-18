@@ -4,24 +4,24 @@ from src.exceptions.CommandFailedException import CommandFailedException
 import re
 
 
-def to_datetime(x):
-    return datetime.strptime(x, DATETIME_FORMAT)
+def to_datetime(x, fmt=DATETIME_FORMAT):
+    return datetime.strptime(x, fmt)
 
 
-def from_datetime(x):
-    return x.strftime(DATETIME_FORMAT)
+def from_datetime(x, fmt=DATETIME_FORMAT):
+    return x.strftime(fmt)
 
 
 def to_date(x):
-    return datetime.strptime(x, DATE_FORMAT)
+    return to_datetime(x, DATE_FORMAT)
 
 
 def from_date(x):
-    return x.strftime(DATE_FORMAT)
+    return from_datetime(x, DATE_FORMAT)
 
 
 def from_time(x):
-    return x.strftime(TIME_FORMAT)
+    return from_datetime(x, TIME_FORMAT)
 
 
 def parse_name(row):
