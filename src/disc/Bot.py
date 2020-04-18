@@ -74,6 +74,7 @@ def find_command(argv):
 
 
 async def execute_command(client, message, command, argv):
+    await message.delete()
     command, authority_check = command
     authority_check(client, message.author)
     await command(client, message, ' '.join(argv[2:]))
