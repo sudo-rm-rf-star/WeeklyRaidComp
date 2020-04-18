@@ -1,7 +1,7 @@
 pref_per_role = {
     'tank': 3,
-    'healer': 6,
-    'dps': 11
+    'healer': 4,
+    'dps': 13
 }
 
 min_per_class_role = {

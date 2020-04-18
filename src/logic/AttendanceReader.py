@@ -3,12 +3,13 @@ import requests
 from datetime import datetime, timedelta
 from collections import defaultdict
 from src.logic.RaidReader import read_raids
-from src.logic.Constant import USE_SIGNUP_HISTORY
+from src.common.Constants import USE_SIGNUP_HISTORY
 from logging import getLogger
 
 
 # https://classic.warcraftlogs.com/guild/attendance/510080
 zoneId = {
+    'zg': 1003,
     'bwl': 1002,
     'mc': 1000
 }

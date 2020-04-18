@@ -6,7 +6,19 @@ from pathlib import Path
 LOG_PATH = Path(f'data/logs/{datetime.now().date()}.log')
 
 
-def _setup_logger():
+def info(msg):
+    logging.getLogger().info(msg)
+
+
+def warn(msg):
+    logging.getLogger().warning(msg)
+
+
+def error(msg):
+    logging.getLogger().error(msg)
+
+
+def setup():
     stdout_handler = logging.StreamHandler()
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     file_handler = logging.handlers.WatchedFileHandler(LOG_PATH)

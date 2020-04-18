@@ -1,6 +1,6 @@
-import re
 from datetime import datetime
-from src.logic.Constant import parse_mapping
+from src.common.Constants import signup_status_to_role_class
+from src.common.Utils import parse_name
 import os
 import json
 
@@ -38,9 +38,9 @@ def parse_raid(blob):
     raid_date = datetime(yyyy, mm, dd).date()
     for signup_state, chars in raid['signees'].items():
         for char in chars:
-            charname = _get_charname(char)
+            charname = parse_name(char)
             if signup_state not in ['Bench', 'Late', 'Absence', 'Tentative']:
-                role, clazz = parse_mapping.get(signup_state, ('dps', signup_state.lower()))
+                role, clazz = signup_status_to_role_class[signup_state]
                 signups.append({'name': charname, 'class': clazz, 'role': role, 'signup_status': 'Accepted',
                                 'is_kruisvaarder': charname in kruisvaarders})
             else:
@@ -55,14 +55,3 @@ def _read_status(row):
         if status in row:
             return status
     return None
-
-
-def _get_charname(row):
-    regex = r"[a-zA-ZöÓòéëû]+"
-    matches = re.findall(regex, row)
-    if not (len(matches)):
-        print(f"Failed to process {row}. Please contact Groovypanda")
-        exit(1)
-
-    charname = re.findall(regex, row)[0]
-    return charname.strip().capitalize()

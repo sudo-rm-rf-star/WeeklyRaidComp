@@ -1,9 +1,8 @@
 from pandas import DataFrame
 from src.logic.RaidReader import read_raids
 from src.logic.AttendanceReader import get_standby_count
-from src.logic.RosterWriter import RosterWriter
 from src.logic.Roster import Roster
-from src.logic.Constant import pref_per_role
+from src.common.Constants import pref_per_role
 from datetime import datetime
 from logging import getLogger
 
@@ -14,8 +13,8 @@ class Raid:
         self.date = date
         self.signees = DataFrame(signees)
 
-    def to_roster(self):
-        return Roster.compose(self)
+    def to_roster(self, roster_index=None):
+        return Roster.compose(self, roster_index)
 
     @staticmethod
     def all_raids():
@@ -57,6 +56,10 @@ class Raid:
 
     @staticmethod
     def write_roster(name, date=None):
+        pass
+
+    @staticmethod
+    def get_rosters(name, date=None):
         raid = Raid.get(name, date)
         if raid is None:
             return False, None
@@ -65,10 +68,8 @@ class Raid:
         if _raid_size(name) == 20:
             raids = raids[0].split_in(2)
 
-        rosters = [raid.to_roster() for raid in raids]
-        roster_writer = RosterWriter(name, raids[0].date)
-        roster_writer.write_rosters(rosters)
-        return True, roster_writer.filename
+        rosters = [raid.to_roster(i) for i, raid in enumerate(raids)]
+        return rosters
 
     def __str__(self):
         return f"{self.name}, {self.date}"

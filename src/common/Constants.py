@@ -1,11 +1,37 @@
+import os
 from src.raids import MCConstants
 from src.raids import BWLConstants
 from src.raids import ZGConstants
 
+BOT_NAME = 'DokBot'
+MAINTAINER = 'Dok'
+RAID_STORAGE = os.path.join('data', 'raids')
+ROSTER_STORAGE = os.path.join('data', 'rosters')
+RAID_INFO_EMBEDS = os.path.join('data', 'embeds', 'raid-info.json')
+EVENTS_CHANNEL = 'raid-events'
+RAID_HELPER_BOT = 'Raid-Helper'
+GUILD = 'De Rode Ridders'
+DATE_FORMAT = '%d-%m-%Y'
 USE_SIGNUP_HISTORY = False
 VERBOSE = False
+OFFICER_RANK = 'Hertog'
+SUPPORTED_RAIDS = ['mc', 'bwl', 'zg']
 
-supported_raids = ['mc', 'bwl', 'zg']
+role_to_emoji_name = {
+    'tank': 'Tanks',
+    'healer': 'Healer',
+    'ranged': 'Ranged',
+    'melee': 'Melee'
+}
+
+CALENDAR_EMOJI = 'CMcalendar'
+CLOCK_EMOJI = 'CMclock'
+SIGNUPS_EMOJI = 'signups'
+TEAM_EMOJI = 'group'
+BENCH_EMOJI = "Bench"
+MISSING_EMOJI = "Missing"
+
+WEEKDAYS = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag']
 
 pref_per_role = {
     'mc': MCConstants.pref_per_role,
@@ -39,16 +65,26 @@ color_per_class = {
 
 DEFAULT_COLOR = '#FFFFFF'
 
-parse_mapping = {
+signup_status_to_role_class = {
     'Tank': ('tank', 'warrior'),
+    'Warrior': ('melee', 'warrior'),
+
     'HolyPaladin': ('healer', 'paladin'),
     'ProtPaladin': ('tank', 'paladin'),
-    'Retri': ('dps', 'paladin'),
+    'Retri': ('melee', 'paladin'),
+
     'RestoDruid': ('healer', 'druid'),
+    'Feral': ('melee', 'druid'),
+    'Bear': ('tank', 'druid'),
+    'Balance': ('ranged', 'druid'),
+
     'Priest': ('healer', 'priest'),
-    'Shadow': ('dps', 'priest'),
-    'Feral': ('dps', 'druid'),
-    'Bear': ('tank', 'druid')
+    'Shadow': ('ranged', 'priest'),
+
+    'Hunter': ('ranged', 'hunter'),
+    'Mage': ('ranged', 'mage'),
+    'Warlock': ('ranged', 'warlock'),
+    'Rogue': ('melee', 'rogue')
 }
 
 raid_abbrev_long = {
@@ -62,3 +98,5 @@ raid_abbrev_short = {
     'blackwinglair': 'bwl',
     "zulgurub": 'zg'
 }
+
+abbrev_to_full = {v: k for k, v in raid_abbrev_long.items()}
