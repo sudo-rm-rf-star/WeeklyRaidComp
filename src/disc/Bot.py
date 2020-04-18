@@ -3,14 +3,15 @@ from src.disc.Commands import make_roster, post_raid_info, show_roster, unsuppor
 from src.disc.CommandUtils import officer_rank, anyone
 from src.disc.ServerUtils import get_user
 import src.disc.Logger as Log
-from src.disc.exceptions.InvalidCommandException import InvalidCommandException
-from src.disc.exceptions.BotException import BotException
+from src.exceptions.InvalidCommandException import InvalidCommandException
+from src.exceptions.BotException import BotException
 from src.common.Constants import MAINTAINER
 
 import discord
 from dotenv import load_dotenv
 import logging
 import os
+import traceback
 
 commands = {
     '!roster': {
@@ -53,10 +54,10 @@ def run():
             if command:
                 await execute_command(client, message, command, argv)
         except BotException as e:
-            Log.error(f"{message.author}, {message.content}, {e}")
+            Log.error(f"{message.author}, {message.content}, {e}, {traceback.print_exc()}")
             await message.author.send(e.message)
         except Exception as e:
-            Log.error(f"{message.author}, {message.content}, {e}")
+            Log.error(f"{message.author}, {message.content}, {e}, {traceback.print_exc()}")
             await get_user(client, MAINTAINER).send(str(e))
 
     client.run(token)
@@ -74,5 +75,5 @@ def find_command(argv):
 
 async def execute_command(client, message, command, argv):
     command, authority_check = command
-    authority_check(message.author)
+    authority_check(client, message.author)
     await command(client, message, *argv[2:])

@@ -1,25 +1,27 @@
-from pandas import DataFrame
-from src.common.Constants import pref_per_role, min_per_class_role, max_per_class_role, VERBOSE, ROSTER_STORAGE, \
-    DATE_FORMAT, abbrev_to_full
 from collections import defaultdict
-import os
-import json
-from datetime import datetime
+from pandas import DataFrame
+
+from src.filehandlers.AttendanceReader import get_standby_count
+from src.filehandlers.RosterFileHandler import RosterFileHandler
+from src.filehandlers.WhitelistedFileHandler import get_whitelisted
+from src.common.Constants import pref_per_role, min_per_class_role, max_per_class_role, VERBOSE, abbrev_to_full, \
+    signup_choice_to_role_class, player_count
+from src.common.Utils import parse_name, now
 
 
 class Roster:
-    def __init__(self, raid_name, raid_date, signees, accepted, bench, absence, missing_roles, created_at=None,
+    def __init__(self, raid_name, raid_datetime, signees, accepted, bench, absence, missing_roles, created_at=None,
                  updated_at=None,
-                 roster_index=None):
+                 index=None):
         self.raid_name = raid_name
-        self.raid_date = raid_date
+        self.raid_datetime = raid_datetime
         self.signees = signees
         self.accepted = accepted
         self.bench = bench
         self.absence = absence
         self.missing_roles = missing_roles
-        self.index = roster_index
-        self.created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S") if created_at is None else created_at
+        self.index = index
+        self.created_at = now() if not created_at else created_at
         self.updated_at = self.created_at if updated_at is None else updated_at
 
     def accept_player(self, player):
@@ -85,79 +87,41 @@ class Roster:
         return success, f"{message} - {self}"
 
     def __str__(self):
-        return f"{abbrev_to_full[self.raid_name]} ({self.raid_date})"
+        return f"{abbrev_to_full[self.raid_name]} ({self.raid_datetime})"
 
     @staticmethod
-    def compose(raid, roster_index=None):
-        signees = DataFrame(raid.signees)
-        signees.loc[signees['signup_status'] == 'Absence', 'roster_status'] = 'Absence'
-        signees.loc[signees['signup_status'] != 'Absence', 'roster_status'] = 'Bench'
-        signees.loc[signees['role'] == 'ranged', 'role'] = 'dps'
-        signees.loc[signees['role'] == 'melee', 'role'] = 'dps'
-        missing_roles = {}
+    def compose(raid):
+        roster_count = 2 if player_count[raid.name] == 20 else 1
+        signees_per_roster = _get_signees(raid, roster_count)
+        return [_compose_roster(raid, signees_per_roster[i], i) for i in range(roster_count)]
 
-        def eligible():
-            return signees[(signees['is_kruisvaarder'] == 1) & (signees['signup_status'] == 'Accepted')]
-
-        for role, signees_for_role in eligible().groupby('role'):
-            for clazz, signees_for_class in signees_for_role.groupby("class"):
-                for i, (j, signee) in enumerate(
-                        signees_for_class.sort_values('standby_count', ascending=False).iterrows()):
-                    score = _calculate_importance(i, min_per_class_role[raid.name][role][clazz],
-                                                  max_per_class_role[raid.name][role][clazz])
-                    signees.at[j, "score"] = score
-
-        for role, signees_for_role in eligible().groupby('role'):
-            lowest_standby_loc = signees_for_role.sort_values('standby_count', ascending=True).head(n=1).index[0]
-            signees.at[lowest_standby_loc, 'score'] = -1
-            if VERBOSE:
-                print(signees_for_role.sort_values('standby_count', ascending=True).head(n=3))
-
-        for role, signees_for_role in eligible().groupby('role'):
-            pref_count = pref_per_role[raid.name][role]
-            accepted_for_role = signees_for_role.sort_values('score', ascending=False).iloc[:pref_count]
-            accepted_count = accepted_for_role.shape[0]
-            if accepted_count < pref_count:
-                missing_roles[role] = pref_count - accepted_count
-            for j, accepted_signee in accepted_for_role.iterrows():
-                signees.at[j, "roster_status"] = 'Accepted'
-
-        chars_per_status = _chars_per_status(signees)
-        accepted = chars_per_status['Accepted']
-        bench = chars_per_status['Bench']
-        absence = chars_per_status['Absence']
-        return Roster(raid.name, raid.date, raid.signees['name'].tolist(), accepted, bench, absence, missing_roles,
-                      roster_index)
+    def load(self, raid_name, raid_datetime=None):
+        roster = RosterFileHandler().load(raid_name, raid_datetime)
+        return Roster(raid_name=roster['name'],
+                      raid_datetime=roster['datetime'],
+                      signees=roster['signees'],
+                      accepted=roster['accepted'],
+                      bench=roster['bench'],
+                      absence=roster['absence'],
+                      missing_roles=roster['missing_roles'],
+                      created_at=roster['created_at'],
+                      updated_at=roster['updated_at'],
+                      index=roster['index'])
 
     def save(self):
-        with _open_roster_file(self.raid_name, self.raid_date) as out_file:
-            out_file.write(json.dumps({
-                'name': self.raid_name,
-                'date': self.raid_date,
-                'signees': self.signees,
-                'accepted': self.accepted,
-                'bench': self.bench,
-                'absence': self.absence,
-                'missing_roles': self.missing_roles,
-                'created_at': self.created_at,
-                'updated_at': self.updated_at,
-                'index': self.index
-            }))
-
-    @staticmethod
-    def load(raid_name, raid_date=None):
-        if raid_date is None:
-            raid_date = upcoming_date(raid_name)
-
-        roster = json.loads(_open_roster_file(raid_name, raid_date, mode='w+').read())
-        return Roster(roster['name'], roster['date'], roster['signees'], roster['accepted'], roster['bench'],
-                      roster['absence'], roster['missing_roles'], roster['created_at'], roster['updated_at'],
-                      roster['index'])
-
-
-def _open_roster_file(raid_name, raid_date, mode='r'):
-    return open(os.path.join(ROSTER_STORAGE, f'{raid_name}_{raid_date.strftime(fmt=DATE_FORMAT)}.csv'), mode=mode,
-                encoding='utf-8')
+        self.updated_at = now()
+        RosterFileHandler().save({
+            'name': self.raid_name,
+            'datetime': self.raid_datetime,
+            'signees': self.signees,
+            'accepted': self.accepted,
+            'bench': self.bench,
+            'absence': self.absence,
+            'missing_roles': self.missing_roles,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'index': self.index
+        })
 
 
 def _calculate_importance(cur, mini, maxi):
@@ -175,14 +139,77 @@ def _chars_per_status(signees):
     return status_to_char
 
 
-def all_raid_dates():
-    return [tuple(file.split('_')) for file in os.listdir(ROSTER_STORAGE)]
+def _get_signees(raid, roster_count):
+    signees = []
+    standby_counts = get_standby_count(raid.name, raid.datetime)
+    whitelisted = get_whitelisted()
+
+    for signup_choice, chars in raid.signees_per_choice.items():
+        for char in chars:
+            charname = parse_name(char)
+            if signup_choice not in ['Bench', 'Late', 'Absence', 'Tentative']:
+                role, clazz = signup_choice_to_role_class[signup_choice]
+                player_signup_choice = 'Accepted'
+            else:
+                player_signup_choice = signup_choice
+                role, clazz = None, None
+
+            role = 'dps' if role == 'ranged' or role == 'melee' else role
+            roster_status = 'Bench' if signup_choice != 'Absence' else player_signup_choice
+
+            signees.append({'name': charname, 'class': clazz, 'role': role,
+                            'signup_choice': player_signup_choice, 'roster_status': roster_status,
+                            'whitelisted': charname in whitelisted,
+                            'standby_count': standby_counts.get(char, None)})
+
+    signees = DataFrame(signees)
+    signees_per_roster = [DataFrame()] * roster_count
+    for role, signees_for_role in signees.groupby('role'):
+        for clazz, signees_for_clazz_role in signees_for_role.groupby('class'):
+            for i, signee in signees_for_clazz_role.iterrows():
+                roster_index = i % roster_count
+                signees_per_roster[roster_index] = signees_per_roster[roster_index].append(signee, ignore_index=True)
+    return signees_per_roster
 
 
-def upcoming_raid_dates():
-    raid_dates = [(name, datetime.strptime(date, DATE_FORMAT)) for name, date in all_raid_dates()]
-    return [(name, date.strftime(DATE_FORMAT)) for name, date in raid_dates if date.date() > datetime.now().date()]
+def _compose_roster(raid, signees, roster_index=None):
+    missing_roles = {}
 
+    def eligible():
+        return signees[(signees['whitelisted'] == 1) & (signees['signup_choice'] == 'Accepted')]
 
-def upcoming_date(raid_name):
-    return min([date for name, date in upcoming_raid_dates() if name == raid_name.lower()], key=lambda x: datetime.strptime(x[1], DATE_FORMAT))
+    for role, signees_for_role in eligible().groupby('role'):
+        for clazz, signees_for_class in signees_for_role.groupby("class"):
+            for i, (j, signee) in enumerate(
+                    signees_for_class.sort_values('standby_count', ascending=False).iterrows()):
+                score = _calculate_importance(i, min_per_class_role[raid.name][role][clazz],
+                                              max_per_class_role[raid.name][role][clazz])
+                signees.at[j, "score"] = score
+
+    for role, signees_for_role in eligible().groupby('role'):
+        lowest_standby_loc = signees_for_role.sort_values('standby_count', ascending=True).head(n=1).index[0]
+        signees.at[lowest_standby_loc, 'score'] = -1
+        if VERBOSE:
+            print(signees_for_role.sort_values('standby_count', ascending=True).head(n=3))
+
+    for role, signees_for_role in eligible().groupby('role'):
+        pref_count = pref_per_role[raid.name][role]
+        accepted_for_role = signees_for_role.sort_values('score', ascending=False).iloc[:pref_count]
+        accepted_count = accepted_for_role.shape[0]
+        if accepted_count < pref_count:
+            missing_roles[role] = pref_count - accepted_count
+        for j, accepted_signee in accepted_for_role.iterrows():
+            signees.at[j, "roster_status"] = 'Accepted'
+
+    chars_per_status = _chars_per_status(signees)
+    accepted = chars_per_status['Accepted']
+    bench = chars_per_status['Bench']
+    absence = chars_per_status['Absence']
+    return Roster(raid_name=raid.name,
+                  raid_datetime=raid.datetime,
+                  signees=raid.signees(),
+                  accepted=accepted,
+                  bench=bench,
+                  absence=absence,
+                  missing_roles=missing_roles,
+                  index=roster_index)

@@ -1,20 +1,19 @@
 import discord
-from datetime import datetime
 
 from src.disc.ServerUtils import get_emoji
-from src.common.Constants import signup_status_to_role_class, role_to_emoji_name, CALENDAR_EMOJI, \
-    CLOCK_EMOJI, abbrev_to_full, WEEKDAYS, TEAM_EMOJI, MISSING_EMOJI, BENCH_EMOJI
-from src.common.Utils import parse_name
+from src.common.Constants import signup_choice_to_role_class, role_to_emoji_name, CALENDAR_EMOJI, CLOCK_EMOJI, \
+    abbrev_to_full, WEEKDAYS, TEAM_EMOJI, MISSING_EMOJI, BENCH_EMOJI
+from src.common.Utils import parse_name, from_date, from_time
 
 EMPTY_FIELD = '\u200e'
 
 
 class RosterFormatter:
-    def __init__(self, client, raid_helper_msg, roster):
+    def __init__(self, client, raid, roster):
         self.client = client
-        self.rhm = raid_helper_msg
+        self.raid = raid
         self.roster = roster
-        self.char_to_choice = {parse_name(char): choice for char, choice in self.rhm.get_choice_per_signee().items()}
+        self.char_to_choice = {parse_name(char): choice for char, choice in self.raid.get_choice_per_signee().items()}
         self.char_to_role = {parse_name(char): role for char, role in self._char_to_role().items()}
 
     def roster_to_embed(self):
@@ -27,11 +26,11 @@ class RosterFormatter:
         return discord.Embed.from_dict(embed)
 
     def get_title(self):
-        return f'{abbrev_to_full[self.rhm.get_short_title()]} op {WEEKDAYS[self.rhm.get_weekday()]}'
+        return f'{abbrev_to_full[self.raid.name]} op {WEEKDAYS[self.raid.get_weekday()]}'
 
     def get_description(self):
         team_description = '' if self.roster.index is None else f'{self._get_emoji(TEAM_EMOJI)} Team {self.roster.index + 1}\n'
-        return f'{team_description}{self._get_emoji(CALENDAR_EMOJI)} {self.rhm.get_date()}\n{self._get_emoji(CLOCK_EMOJI)} {self.rhm.get_time()}'
+        return f'{team_description}{self._get_emoji(CALENDAR_EMOJI)} {from_date(self.raid.get_date())}\n{self._get_emoji(CLOCK_EMOJI)} {from_time(self.raid.get_time())}'
 
     def get_fields(self):
         return [
@@ -52,14 +51,12 @@ class RosterFormatter:
         ]
 
     def get_footer(self):
-        fmt = "%Y-%m-%d %H:%M:%S"
-        now = datetime.now()
-        return {'text': f'Created at: {now.strftime(fmt)}.Last updated at: {now.strftime(fmt)}'}
+        return {'text': f'Created at: {self.roster.created_at}.Last updated at: {self.roster.updated_at}'}
 
     def format_role_field(self, role):
         accepted_for_role = [char for char in self.roster.accepted if self.get_role_for_player(char) == role]
         emoji_and_player = {(self.get_emoji_for_player(signee), signee) for signee in accepted_for_role}
-        signee_fields = '\n'.join([f"{emoji} **{player}**" for emoji, player in sorted(emoji_and_player)])
+        signee_fields = '\n'.join([f"{emoji} **{player}**" for emoji, player in emoji_and_player])
 
         emoji_name = role_to_emoji_name[role]
         value = f'{self._get_emoji(role_to_emoji_name[role])} **__{emoji_name}__** ({len(accepted_for_role)}):\n{signee_fields}'
@@ -88,7 +85,7 @@ class RosterFormatter:
     def _char_to_role(self):
         char_to_role = {}
         for signee, signup_choice in self.char_to_choice.items():
-            char_to_role[signee] = signup_status_to_role_class[signup_choice][0]
+            char_to_role[signee] = signup_choice_to_role_class[signup_choice][0]
         return char_to_role
 
     def _get_emoji(self, name):

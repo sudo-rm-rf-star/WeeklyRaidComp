@@ -1,9 +1,11 @@
 import re
 import requests
-from datetime import datetime, timedelta
+from datetime import timedelta
 from collections import defaultdict
-from src.logic.RaidReader import read_raids
+from src.logic.Raid import Raid
 from src.common.Constants import USE_SIGNUP_HISTORY
+from src.common.Utils import now
+from datetime import datetime
 from logging import getLogger
 
 
@@ -51,21 +53,21 @@ def get_raid_attendance_history(raid):
     return raid_presence, raid_absence
 
 
-def get_raid_signup_history(raid):
+def get_raid_signup_history(raid_name):
     signup_history = defaultdict(set)
-    for (raid_name, raid_date, signees) in read_raids():
-        if raid == raid_name and raid_date < datetime.now().date():
-            for signee in signees:
-                signup_history[signee['name']].add(raid_date)
+    for raid in Raid.load_all():
+        if raid_name == raid.name and raid.datetime < now():
+            for signee in raid.signees():
+                signup_history[signee['name']].add(raid.datetime)
     return signup_history
 
 
-def get_standby_count(raid, raid_date, week_count_cutoff=12):
+def get_standby_count(raid, raid_datetime, week_count_cutoff=12):
     signup_history = get_raid_signup_history(raid)
     presence_history, absence_history = get_raid_attendance_history(raid)
     standby_count = {}
     all_chars = set(signup_history.keys()).union(set(presence_history.keys()))
-    history_cutoff = raid_date - timedelta(days=week_count_cutoff * 7)
+    history_cutoff = raid_datetime - timedelta(days=week_count_cutoff * 7)
 
     for charname in all_chars:
         if USE_SIGNUP_HISTORY:

@@ -7,15 +7,21 @@ BOT_NAME = 'DokBot'
 MAINTAINER = 'Dok'
 RAID_STORAGE = os.path.join('data', 'raids')
 ROSTER_STORAGE = os.path.join('data', 'rosters')
+STORAGE_SUFFIX = '.csv'
+WHITELISTED_FILE = os.path.join('data', 'whitelisted.txt')
 RAID_INFO_EMBEDS = os.path.join('data', 'embeds', 'raid-info.json')
 EVENTS_CHANNEL = 'raid-events'
 RAID_HELPER_BOT = 'Raid-Helper'
 GUILD = 'De Rode Ridders'
 DATE_FORMAT = '%d-%m-%Y'
+TIME_FORMAT = '%H:%M'
+DATETIME_FORMAT = DATE_FORMAT + " " + TIME_FORMAT
+FILE_DATETIME_FORMAT = DATETIME_FORMAT.replace(' ', '_').replace(':', '')
 USE_SIGNUP_HISTORY = False
 VERBOSE = False
 OFFICER_RANK = 'Hertog'
 SUPPORTED_RAIDS = ['mc', 'bwl', 'zg']
+WHITELISTED_RANK = 'Kruisvaarder'
 
 role_to_emoji_name = {
     'tank': 'Tanks',
@@ -37,6 +43,10 @@ pref_per_role = {
     'mc': MCConstants.pref_per_role,
     'bwl': BWLConstants.pref_per_role,
     'zg': ZGConstants.pref_per_role
+}
+
+player_count = {
+    raid: sum(key_counts.values()) for raid, key_counts in pref_per_role.items()
 }
 
 min_per_class_role = {
@@ -65,7 +75,7 @@ color_per_class = {
 
 DEFAULT_COLOR = '#FFFFFF'
 
-signup_status_to_role_class = {
+signup_choice_to_role_class = {
     'Tank': ('tank', 'warrior'),
     'Warrior': ('melee', 'warrior'),
 

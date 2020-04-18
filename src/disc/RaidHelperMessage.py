@@ -1,9 +1,7 @@
-import os
-import json
 from collections import defaultdict
 from src.common.Constants import raid_abbrev_short
-from src.common.Constants import RAID_STORAGE
-from src.common.Utils import parse_date
+from src.common.Utils import to_datetime
+from src.logic.Raid import Raid
 
 
 class RaidHelperMessage:
@@ -20,14 +18,10 @@ class RaidHelperMessage:
     def get_time_field(self):
         return self.fields[4]
 
-    def get_time(self):
-        return self.get_time_field().split('[')[1].split('**')[1]
-
-    def get_date(self):
-        return self.get_date_field().split(']')[0].split('[')[-1]
-
-    def get_weekday(self):
-        return parse_date(self.get_date()).weekday()
+    def get_datetime(self):
+        raid_date = self.get_date_field().split(']')[0].split('[')[-1]
+        raid_time = self.get_time_field().split('[')[1].split('**')[1]
+        return to_datetime(f'{raid_date} {raid_time}')
 
     def get_title(self):
         return ''.join([chars[-1] for chars in self.get_title_field().split('_')][:-1])
@@ -62,13 +56,5 @@ class RaidHelperMessage:
                 signees[signee] = choice
         return signees
 
-    def save(self):
-        title = self.get_short_title()
-        date = self.get_date()
-        signees = self.get_signees_per_choice()
-        with open(os.path.join(RAID_STORAGE, f'{title}_{date}.csv'), 'w+') as out_file:
-            out_file.write(json.dumps({
-                'name': title,
-                'date': date,
-                'signees': signees
-            }))
+    def to_raid(self):
+        return Raid(self.get_short_title(), self.get_datetime(), self.get_signees_per_choice())
