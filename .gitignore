@@ -5,3 +5,7 @@ venv*/
 *~lock*
 logs/
 *.xlsx
+data/logs/
+data/raids/
+data/rosters/
+data/whitelisted.txt
