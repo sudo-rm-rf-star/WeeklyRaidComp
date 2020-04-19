@@ -1,11 +1,12 @@
 from collections import defaultdict
 
-from src.common.Constants import pref_per_role, min_per_class_role, max_per_class_role, VERBOSE, abbrev_to_full
+from src.common.Constants import pref_per_role, min_per_class_role, max_per_class_role, VERBOSE
+from src.common.Utils import parse_name
 
 
 class Roster:
     def __init__(self, signees, accepted, bench, absence, missing_roles):
-        self.signees = signees
+        self.signees = [parse_name(signee) for signee in signees]
         self.accepted = accepted
         self.bench = bench
         self.absence = absence

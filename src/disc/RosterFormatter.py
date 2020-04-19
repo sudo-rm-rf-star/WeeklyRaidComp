@@ -2,7 +2,7 @@ import discord
 
 from src.disc.ServerUtils import get_emoji
 from src.common.Constants import signup_choice_to_role_class, role_to_emoji_name, CALENDAR_EMOJI, CLOCK_EMOJI, \
-    abbrev_to_full, WEEKDAYS, TEAM_EMOJI, MISSING_EMOJI, BENCH_EMOJI, DATETIMESEC_FORMAT
+    abbrev_to_full, WEEKDAYS, TEAM_EMOJI, MISSING_EMOJI, BENCH_EMOJI, DATETIMESEC_FORMAT, SIGNUPS_EMOJI
 from src.common.Utils import parse_name, from_date, from_time, from_datetime
 
 EMPTY_FIELD = '\u200e'
@@ -33,7 +33,7 @@ class RosterFormatter:
 
     def get_fields(self, roster_index):
         roster = self.rosters.get(roster_index)
-        team_description = '' if self.rosters.count == 1 is None else f'{self._get_emoji(TEAM_EMOJI)} **__Team {roster_index + 1}__**\n'
+        team_description = f'{self._get_emoji(TEAM_EMOJI)} **__Team {roster_index + 1}__** ({len(roster.accepted)})\n'
         return [
             _field(team_description, inline=False),
             self.format_role_field(roster, 'tank'),
@@ -58,7 +58,7 @@ class RosterFormatter:
 
     def format_role_field(self, roster, role):
         accepted_for_role = [char for char in roster.accepted if self.get_role_for_player(char) == role]
-        emoji_and_player = {(self.get_emoji_for_player(signee), signee) for signee in accepted_for_role}
+        emoji_and_player = sorted([(self.get_emoji_for_player(signee), signee) for signee in accepted_for_role])
         signee_fields = '\n'.join([f"{emoji} **{player}**" for emoji, player in emoji_and_player])
 
         emoji_name = role_to_emoji_name[role]

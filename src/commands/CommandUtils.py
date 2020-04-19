@@ -22,7 +22,8 @@ def get_update_roster_args(argv):
     if 'player' not in arg_dict:
         raise InvalidArgumentException("This command requires a player name to be given.")
 
-    return arg_dict['raid_name'], arg_dict.get('raid_datetime', None), arg_dict['player'], arg_dict.get('roster_index', 0)
+    return arg_dict['raid_name'], arg_dict.get('raid_datetime', None), arg_dict['player'], arg_dict.get('roster_index',
+                                                                                                        0)
 
 
 def _get_args(argv):
@@ -38,8 +39,6 @@ def _get_args(argv):
     args = argv.split('-')
 
     raid_name = args[0].strip()
-    if raid_name not in SUPPORTED_RAIDS:
-        raise InvalidArgumentException(f"Expected a valid raid: {', '.join(SUPPORTED_RAIDS)}")
     arguments = {
         'raid_name': raid_name
     }
@@ -55,37 +54,12 @@ def parse_named_args(arg):
         if startswith == 'd':
             return 'raid_datetime', get_datetime(arg)
         elif startswith == 't':
-            return 'roster_index', int(arg) - 1
+            return 'roster_index',
         elif startswith == 'p':
             return 'player', arg
         else:
             raise InvalidArgumentException(f"Received invalid argument -{arg}")
 
-
-def get_datetime(arg):
-    args = arg.split(' ')
-    if len(args) == 0:
-        raise InvalidArgumentException(f'Could not find a date.')
-    elif len(args) == 1:
-        raid_date_arg = args[0]
-        try:
-            raid_datetime = to_date(raid_date_arg)
-        except ValueError:
-            raise InvalidArgumentException(
-                f'Invalid date "{arg}" was given. Please format your date as {from_date(today())}.')
-
-    elif len(args) == 2:
-        raid_datetime_arg = f'{args[0]} {args[1]}'
-        try:
-            raid_datetime = to_datetime(raid_datetime_arg)
-        except ValueError:
-            raise InvalidArgumentException(
-                f'Invalid datetime "{arg}" was given. Please format your date as {from_datetime(now())}.')
-    else:
-        raise InvalidArgumentException(
-            f'Invalid datetime {arg} given. Please format your date as {from_datetime(now())}.')
-
-    return raid_datetime
 
 
 async def send_file(filename, recipient, content=""):
@@ -107,25 +81,8 @@ async def update_raids(client):
             rhm.to_raid().save()
 
 
-async def update_datastores(client):
-    await update_raids(client)
-    update_whitelisted(client)
-
-
 def get_roster_embed(client, rosters, raid):
     roster_formatter = RosterFormatter(client, raid, rosters)
     return roster_formatter.roster_to_embed()
 
 
-def officer_rank(client, author):
-    return check_authority(client, author, OFFICER_RANK)
-
-
-def anyone(*args):
-    return True
-
-
-def check_authority(client, author, required_rank):
-    member = get_user_by_id(client, author.id)
-    if required_rank not in [role.name for role in member.roles]:
-        raise NotAuthorizedException(author, required_rank)
