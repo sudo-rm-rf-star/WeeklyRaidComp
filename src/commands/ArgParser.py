@@ -24,8 +24,6 @@ class ArgParser:
                 f"Expected {len(mandatory_argnames)} arguments, but found {len(mandatory_args)}.")
 
         optional_args += ['' for _ in range(len(optional_argnames) - len(optional_args))]
-        print(mandatory_argnames, mandatory_args)
-        print(optional_argnames, optional_args)
 
         return {argname: parse_argvalue(argname, argvalue) for argname, argvalue
                 in zip(mandatory_argnames + optional_argnames, mandatory_args + optional_args)}
@@ -47,7 +45,7 @@ def parse_argvalue(argname, argval):
         'raid_name': get_raidname,
         'raid_datetime': get_datetime,
         'team_index': get_roster_index
-    }.get(argname, lambda _: None)
+    }.get(argname, lambda _: argval)
     return argparser(argval)
 
 

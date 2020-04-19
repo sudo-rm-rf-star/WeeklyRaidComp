@@ -44,10 +44,6 @@ class RosterFormatter:
             self.format_role_field(roster, 'ranged'),
             _empty_field(),
 
-            _empty_field(),
-            _empty_field(),
-            _empty_field(),
-
             self.format_bench_field(roster),
             self.format_missing_field(roster)
         ]
@@ -58,7 +54,7 @@ class RosterFormatter:
 
     def format_role_field(self, roster, role):
         accepted_for_role = [char for char in roster.accepted if self.get_role_for_player(char) == role]
-        emoji_and_player = sorted([(self.get_emoji_for_player(signee), signee) for signee in accepted_for_role])
+        emoji_and_player = sorted([(self.get_emoji_for_player(signee), signee) for signee in accepted_for_role], key=lambda x: x[0].name)
         signee_fields = '\n'.join([f"{emoji} **{player}**" for emoji, player in emoji_and_player])
 
         emoji_name = role_to_emoji_name[role]
@@ -88,7 +84,8 @@ class RosterFormatter:
     def _char_to_role(self):
         char_to_role = {}
         for signee, signup_choice in self.char_to_choice.items():
-            char_to_role[signee] = signup_choice_to_role_class[signup_choice][0]
+            if signup_choice in signup_choice_to_role_class:
+                char_to_role[signee] = signup_choice_to_role_class[signup_choice][0]
         return char_to_role
 
     def _get_emoji(self, name):

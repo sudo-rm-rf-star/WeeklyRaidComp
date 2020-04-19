@@ -15,7 +15,7 @@ class CreateRosterCommand(RosterCommand):
         super(RosterCommand, self).__init__('roster', subname, description, argformat)
 
     async def run(self, client, message, **kwargs):
-        return self._run(client, message, **kwargs)
+        return await self._run(client, message, **kwargs)
 
     async def _run(self, client, message, raid_name, raid_datetime):
         await self.update_datastores(client)
@@ -25,5 +25,5 @@ class CreateRosterCommand(RosterCommand):
         except EventDoesNotExistException:
             raid = Raid.load(raid_name, raid_datetime)
             rosters = Rosters.compose(raid)
-            self.post_roster(client, rosters)
+            await self.post_roster(client, rosters)
             return f"Created a roster for {abbrev_to_full[rosters.raid_name]} on {from_datetime(rosters.raid_datetime)}"

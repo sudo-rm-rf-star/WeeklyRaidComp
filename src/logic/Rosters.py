@@ -67,6 +67,8 @@ class Rosters:
         })
 
     def get(self, i):
+        if i is None:
+            i = 0
         assert i < self.count
         return self.rosters[i]
 

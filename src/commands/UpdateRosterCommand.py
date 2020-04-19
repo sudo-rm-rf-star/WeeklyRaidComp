@@ -15,7 +15,7 @@ class UpdateRosterCommand(RosterCommand):
         raise InternalBotException("Please specify logic for this command.")
 
     async def run(self, client, message, **kwargs):
-        return self._run(client, **kwargs)
+        return await self._run(client, **kwargs)
 
     async def _run(self, client, raid_name, raid_datetime, player, team_index):
         await self.update_datastores(client)
@@ -23,5 +23,5 @@ class UpdateRosterCommand(RosterCommand):
         roster = rosters.get(team_index)
         success, response = self.update_command(roster, player)
         if success:
-            self.post_roster(client, rosters)
+            await self.post_roster(client, rosters)
         return response

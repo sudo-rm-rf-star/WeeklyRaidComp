@@ -33,19 +33,19 @@ class RaidHelperMessage:
     def get_signees_per_choice(self):
         signees = defaultdict(list)
         accepted_i = 5
-        other_i = 15
 
-        for row in self.fields[accepted_i:other_i]:
+        try:
+            for row in self.fields[accepted_i:]:
+                for entry in row.splitlines()[1:]:
+                    cols = entry.split(' ')
+                    signup_choice = cols[0].split(':')[1]
+                    charname = cols[-1].split('**')[1]
+                    signees[signup_choice].append(charname)
+        except IndexError:  # This isn't great
             for entry in row.splitlines()[1:]:
-                cols = entry.split(' ')
-                signup_choice = cols[0].split(':')[1]
-                charname = cols[-1].split('**')[1]
-                signees[signup_choice].append(charname)
-
-        for entry in self.fields[other_i].splitlines()[1:]:
-            signup_choice = entry.split(':')[1]
-            for charname in entry.split('**')[1::2]:
-                signees[signup_choice].append(charname)
+                signup_choice = entry.split(':')[1]
+                for charname in entry.split('**')[1::2]:
+                    signees[signup_choice].append(charname)
 
         return signees
 

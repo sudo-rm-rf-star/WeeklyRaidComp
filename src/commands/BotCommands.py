@@ -4,6 +4,7 @@ from src.exceptions.InvalidCommandException import InvalidCommandException
 import importlib
 import pkgutil
 import os
+import discord
 from collections import defaultdict
 
 pkg_dir = os.path.dirname(os.path.abspath(__file__))
@@ -35,9 +36,15 @@ BOT_COMMANDS = _get_bot_commands()
 
 
 async def find_bot_command(message, command_name, subcommand_name):
-    if command_name.startswith('!') and command_name[1:] in BOT_COMMANDS:
+    command_prefix = command_name[0]
+    command_name = command_name[1:]
+    if command_prefix == '!' and command_name in BOT_COMMANDS:
         # At this point we can safely delete the message as it is intended for the bot
-        await message.delete()
+        try:
+            await message.delete()
+        except discord.NotFound:  # This happens when multiple versions of the bot are running.
+            pass
+
         if subcommand_name in BOT_COMMANDS[command_name]:
             return BOT_COMMANDS[command_name][subcommand_name]
         else:
@@ -45,6 +52,8 @@ async def find_bot_command(message, command_name, subcommand_name):
 
 
 async def find_and_execute_command(client, message):
+    cmd = None
+    cmd_args = None
     try:
         # Parsing here could be moved to ArgParser
         argv = message.content
@@ -52,7 +61,8 @@ async def find_and_execute_command(client, message):
         cmd_name, subcmd_name = tuple(args[:2])
         cmd_args = ' '.join(args[2:])
         cmd = await find_bot_command(message, cmd_name, subcmd_name)
-        if cmd:
-            await cmd.call(client, message, cmd_args)
-    except IndexError:
+    except (IndexError, ValueError):
         pass  # This is not a command intended for our bot.
+
+    if cmd and cmd_args:
+        await cmd.call(client, message, cmd_args)

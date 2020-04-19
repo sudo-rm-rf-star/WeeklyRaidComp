@@ -1,9 +1,10 @@
 from src.commands.BotCommand import BotCommand
-from src.commands.CommandUtils import update_raids, update_whitelisted, get_roster_embed
+from src.commands.CommandUtils import update_raids, get_roster_embed
 from src.disc.ServerUtils import get_channel
 from src.common.Constants import COMPS_CHANNEL
 from src.logic.Raid import Raid
 from src.logic.Rosters import Rosters
+from src.filehandlers.WhitelistedFileHandler import update_whitelisted
 
 
 class RosterCommand(BotCommand):
@@ -28,8 +29,9 @@ class RosterCommand(BotCommand):
         embed = self.get_roster_embed(client, rosters)
         if message_id:
             message = await text_channel.fetch_message(message_id)
-            message.edit(embed=embed)
+            await message.edit(embed=embed)
         else:
             msg = await text_channel.send(embed=embed)
             rosters.set_message_id(msg.id)
+        rosters.save()
 

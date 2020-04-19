@@ -29,12 +29,12 @@ def run():
             return
         try:
             await find_and_execute_command(client, message)
-        except BotException as e:
-            Log.error(f"{message.author}, {message.content}, {e}\n{traceback.print_exc()}")
-            await message.author.send(e.message)
         except Exception as e:
-            Log.error(f"{message.author}, {message.content}, {e}\n{traceback.print_exc()}")
-            await message.author.send(f"There were internal difficulties. Sending a message to {MAINTAINER}")
-            await get_user(client, MAINTAINER).send(str(e))
+            Log.error(f"{message.author}, {message.content}, {e}\n{traceback.format_exc()}")
+            if isinstance(e, BotException):
+                await message.author.send(e.message)
+            else:
+                await message.author.send(f"There were internal difficulties. Sending a message to {MAINTAINER}")
+                await get_user(client, MAINTAINER).send(f'{message.author}, {message.content}, {e}')
 
     client.run(token)

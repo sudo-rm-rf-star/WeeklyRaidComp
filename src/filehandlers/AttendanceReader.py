@@ -39,7 +39,7 @@ def get_raid_attendance_history(raid):
 
     raid_attendance_html = get_raid_attendance_html(raid)
     dates = list(
-        map(lambda x: datetime.fromtimestamp(float(x) / 1000).date(), re.findall(hdr_rex, raid_attendance_html)))
+        map(lambda x: datetime.fromtimestamp(float(x) / 1000), re.findall(hdr_rex, raid_attendance_html)))
     charnames = re.findall(row_rex, raid_attendance_html)
     was_present = list(map(lambda x: x == 'present', re.findall(col_rex, raid_attendance_html)))
     raid_presence = defaultdict(set)
@@ -58,7 +58,7 @@ def get_raid_signup_history(raid_name):
     for raid in Raid.load_all():
         if raid_name == raid.name and raid.datetime < now():
             for signee in raid.signees():
-                signup_history[signee['name']].add(raid.datetime)
+                signup_history[signee].add(raid.datetime)
     return signup_history
 
 

@@ -19,11 +19,12 @@ class BotCommand:
         raise InternalBotException("Please specify logic for this command. Do not call this method directly.")
 
     async def call(self, client, message, argv):
-        needs_approval = self.check_authority(client, message.author)
+        needs_approval = not self.check_authority(client, message.author)
         if needs_approval:
             raise InternalBotException(f"Sorry {message.author}, this code path still needs to be implemented...")
 
-        response = self.run(client, message, **self.argparser.parse(argv))
+        kwargs = self.argparser.parse(argv)
+        response = await self.run(client, message, **kwargs)
         if response:
             await message.author.send(content=response)
             await get_channel(client, LOGS_CHANNEL).send(content=f'{from_datetime(now(), DATETIMESEC_FORMAT)} - {message.author} - {message.content} - {response}')
