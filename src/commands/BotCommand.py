@@ -7,7 +7,7 @@ from src.common.Utils import from_datetime, now
 
 
 class BotCommand:
-    def __init__(self, name, subname, description, argformat, required_rank=None, allow_trough_approval=False):
+    def __init__(self, name, subname, description, argformat='', required_rank=None, allow_trough_approval=False):
         self.name = name
         self.subname = subname
         self.argformat = argformat

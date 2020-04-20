@@ -10,8 +10,7 @@ class PostRaidInfoCommand(RaidInfoCommand):
     def __init__(self):
         subname = 'post'
         description = f'Vernieuw het #{INFO_CHANNEL} kanaal'
-        argformat = None
-        super(PostRaidInfoCommand, self).__init__(subname, description, argformat)
+        super(PostRaidInfoCommand, self).__init__(subname, description)
 
     async def run(self, client, message, **kwargs):
         text_channel = get_channel(client, INFO_CHANNEL)
