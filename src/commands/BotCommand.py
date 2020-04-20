@@ -10,6 +10,7 @@ class BotCommand:
     def __init__(self, name, subname, description, argformat, required_rank=None, allow_trough_approval=False):
         self.name = name
         self.subname = subname
+        self.argformat = argformat
         self.argparser = ArgParser(argformat)
         self.description = description
         self.required_rank = required_rank

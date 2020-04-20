@@ -11,7 +11,7 @@ class CreateRosterCommand(RosterCommand):
     def __init__(self):
         argformat = "raid_name [raid_datetime]"
         subname = 'create'
-        description = 'Maakt een raid compositie voor een event'
+        description = 'Maak een raid compositie voor een event'
         super(RosterCommand, self).__init__('roster', subname, description, argformat)
 
     async def run(self, client, message, **kwargs):

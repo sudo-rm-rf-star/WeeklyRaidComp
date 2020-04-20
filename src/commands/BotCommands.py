@@ -9,7 +9,8 @@ from collections import defaultdict
 
 pkg_dir = os.path.dirname(os.path.abspath(__file__))
 for (module_loader, name, ispkg) in pkgutil.iter_modules([pkg_dir]):
-    importlib.import_module(f'src.commands.{name}', __package__)
+    if name != 'HelpCommand':
+        importlib.import_module(f'src.commands.{name}', __package__)
 
 
 def _all_subclasses(cls):
@@ -29,6 +30,7 @@ def _get_bot_commands():
     for command_cls in _all_subclasses(BotCommand):
         command = command_cls()
         bot_commands[command.name][command.subname] = command
+
     return dict(bot_commands)
 
 
@@ -44,6 +46,11 @@ async def find_bot_command(message, command_name, subcommand_name):
             await message.delete()
         except discord.NotFound:  # This happens when multiple versions of the bot are running.
             pass
+
+        # For now we do this, with the current system we have a dependency in both directions otherwise,
+        if subcommand_name == 'help':
+            from src.commands.HelpCommand import HelpCommand
+            return HelpCommand(command_name)
 
         if subcommand_name in BOT_COMMANDS[command_name]:
             return BOT_COMMANDS[command_name][subcommand_name]
@@ -64,5 +71,5 @@ async def find_and_execute_command(client, message):
     except (IndexError, ValueError):
         pass  # This is not a command intended for our bot.
 
-    if cmd and cmd_args:
+    if cmd and cmd_args is not None:
         await cmd.call(client, message, cmd_args)

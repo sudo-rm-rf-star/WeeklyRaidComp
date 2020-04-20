@@ -4,7 +4,7 @@ from src.commands.UpdateRosterCommand import UpdateRosterCommand
 class RemovePlayerCommand(UpdateRosterCommand):
     def __init__(self):
         subname = 'remove'
-        description = 'Haalt een speler uit de raid compositie'
+        description = 'Haal een speler uit de raid compositie'
         super(RemovePlayerCommand, self).__init__(subname, description)
 
     def update_command(self, roster, player):

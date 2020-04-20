@@ -9,7 +9,7 @@ import json
 class PostRaidInfoCommand(RaidInfoCommand):
     def __init__(self):
         subname = 'post'
-        description = f'Vernieuwt het #{INFO_CHANNEL} kanaal'
+        description = f'Vernieuw het #{INFO_CHANNEL} kanaal'
         argformat = None
         super(PostRaidInfoCommand, self).__init__(subname, description, argformat)
 

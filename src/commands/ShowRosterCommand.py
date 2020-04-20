@@ -5,7 +5,7 @@ class ShowRosterCommand(RosterCommand):
     def __init__(self):
         argformat = "raid_name [raid_datetime]"
         subname = 'show'
-        description = 'Stuurt een persoonlijk bericht met de raid compositie'
+        description = 'Stuur een persoonlijk bericht met de raid compositie'
         super(RosterCommand, self).__init__('roster', subname, description, argformat)
 
     async def run(self, client, message, **kwargs):

@@ -7,34 +7,44 @@ from src.common.Constants import SUPPORTED_RAIDS
 class ArgParser:
     def __init__(self, argformat):
         self.argformat = argformat
+        self.mandatory_argnames = parse_mandatory_args(self.argformat)
+        self.optional_argnames = parse_optional_args(self.argformat)
+        self.argnames = self.mandatory_argnames + self.optional_argnames
 
     def parse(self, args):
         """argformat specifies name and order of arguments. e.g. "raid_name player [team_index][raid_datetime]" """
         if args is None:
             return {}
 
-        mandatory_argnames = parse_mandatory_args(self.argformat)
-        optional_argnames = parse_optional_args(self.argformat)
-        """Now hopefully we find the same arguments given by the user"""
         mandatory_args = parse_mandatory_args(args)
         optional_args = parse_optional_args(args)
 
-        if len(mandatory_argnames) != len(mandatory_args):
+        if len(self.mandatory_argnames) != len(mandatory_args):
             raise InvalidArgumentException(
-                f"Expected {len(mandatory_argnames)} arguments, but found {len(mandatory_args)}.")
+                f"Expected {len(self.mandatory_argnames)} arguments, but found {len(mandatory_args)}.")
 
-        optional_args += ['' for _ in range(len(optional_argnames) - len(optional_args))]
+        optional_args += ['' for _ in range(len(self.optional_argnames) - len(optional_args))]
 
         return {argname: parse_argvalue(argname, argvalue) for argname, argvalue
-                in zip(mandatory_argnames + optional_argnames, mandatory_args + optional_args)}
+                in zip(self.argnames, mandatory_args + optional_args)}
+
+    def get_example_args(self):
+        example_args = self.argformat
+        for argname in self.argnames:
+            example_args = example_args.replace(argname, get_example(argname))
+        return example_args
 
 
 def parse_mandatory_args(args):
-    return [arg for arg in re.findall(r'[^[]*', args)[0].split(' ') if arg]
+    if args is None:
+        return []
+    return [arg.strip() for arg in re.findall(r'[^[]*', args)[0].split(' ') if arg]
 
 
 def parse_optional_args(args):
-    return [arg.strip('[]') for arg in re.findall(r'\[[^\]]*]', args)]
+    if args is None:
+        return []
+    return [arg.strip('[] ') for arg in re.findall(r'\[[^\]]*]', args)]
 
 
 def parse_argvalue(argname, argval):
@@ -88,3 +98,14 @@ def get_roster_index(arg):
     except ValueError:
         raise InvalidArgumentException(
             f'Invalid team index {arg} was given. Please pass a number.')
+
+
+def get_example(argname):
+    return {
+        'raid_name': 'BWL',
+        'raid_datetime': '20-04-2020',
+        'team_index': '1',
+        'player': 'Dok'
+    }[argname]
+
+
