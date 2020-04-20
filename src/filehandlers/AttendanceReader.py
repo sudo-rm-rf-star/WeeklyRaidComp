@@ -3,20 +3,13 @@ import requests
 from datetime import timedelta
 from collections import defaultdict
 from src.logic.Raid import Raid
-from src.common.Constants import USE_SIGNUP_HISTORY
+from src.common.Constants import USE_SIGNUP_HISTORY, WARCRAFT_LOGS_TEAM_ID, WARCRAFT_LOGS_GUILD_ID, ZONE_ID
 from src.common.Utils import now
 from datetime import datetime
 from logging import getLogger
 
 
 # https://classic.warcraftlogs.com/guild/attendance/510080
-zoneId = {
-    'zg': 1003,
-    'bwl': 1002,
-    'mc': 1000
-}
-
-
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
@@ -24,7 +17,14 @@ def chunks(lst, n):
 
 
 def get_raid_attendance_html(raid):
-    return requests.get(f'https://classic.warcraftlogs.com/guild/attendance-table/510080/0/{zoneId[raid]}').text
+    """
+    https://classic.warcraftlogs.com/guild/team-reports-list/29778
+Kruisvaarders: https://classic.warcraftlogs.com/guild/team-reports-list/29777
+    :param raid:
+    :return:
+    """
+
+    return requests.get(f'https://classic.warcraftlogs.com/guild/attendance-table/{WARCRAFT_LOGS_GUILD_ID}/{WARCRAFT_LOGS_TEAM_ID}/{ZONE_ID[raid]}').text
 
 
 hdr_rex = r'var createdDate = new Date\(([0-9]*)\)'
@@ -33,7 +33,7 @@ col_rex = '(present|absent)'
 
 
 def get_raid_attendance_history(raid):
-    if raid not in zoneId:
+    if raid not in ZONE_ID:
         getLogger().warning(f"There's no history yet for {raid.upper()}")
         return {}, {}
 

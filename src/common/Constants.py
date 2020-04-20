@@ -27,6 +27,14 @@ VERBOSE = False
 OFFICER_RANK = 'Hertog'
 SUPPORTED_RAIDS = ['mc', 'bwl', 'zg']
 WHITELISTED_RANK = 'Kruisvaarder'
+ZONE_ID = {
+    'zg': 1003,
+    'bwl': 1002,
+    'mc': 1000
+}
+
+WARCRAFT_LOGS_GUILD_ID = 510080
+WARCRAFT_LOGS_TEAM_ID = 29777
 
 role_to_emoji_name = {
     'tank': 'Tanks',
