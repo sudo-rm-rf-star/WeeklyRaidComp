@@ -11,7 +11,7 @@ async def send_file(filename, recipient, content=""):
 
 
 async def delete_bot_messages(client, text_channel):
-    is_me = lambda msg: msg.author == client.id
+    is_me = lambda msg: msg.author == client.user
     await text_channel.purge(check=is_me)
 
 
