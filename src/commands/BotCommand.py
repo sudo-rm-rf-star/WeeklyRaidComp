@@ -24,11 +24,14 @@ class BotCommand:
         if needs_approval:
             raise InternalBotException(f"Sorry {message.author}, this code path still needs to be implemented...")
 
-        kwargs = self.argparser.parse(argv)
-        response = await self.run(client, message, **kwargs)
-        if response:
-            await message.author.send(content=response)
-            await get_channel(client, LOGS_CHANNEL).send(content=f'{from_datetime(now(), DATETIMESEC_FORMAT)} - {message.author} - {message.content} - {response}')
+        if argv.strip() == 'help':
+            await self.show_help(message.channel)
+        else:
+            kwargs = self.argparser.parse(argv)
+            response = await self.run(client, message, **kwargs)
+            if response:
+                await message.author.send(content=response)
+                await get_channel(client, LOGS_CHANNEL).send(content=f'{from_datetime(now(), DATETIMESEC_FORMAT)} - {message.author} - {message.content} - {response}')
 
     def check_authority(self, client, author):
         member = get_user_by_id(client, author.id)
@@ -37,3 +40,11 @@ class BotCommand:
                 raise NotAuthorizedException(author, self.required_rank)
             return False
         return True
+
+    def help_str(self):
+        prefix = f'!{self.name} {self.subname}'
+        example = '' if not self.argformat else f'`{prefix} {self.argparser.get_example_args()}`\n'
+        return f'**{self.description}**\n`{prefix} {self.argformat}`\n{example}'
+
+    async def show_help(self, channel):
+        await channel.send(self.help_str())

@@ -54,7 +54,8 @@ def parse_argvalue(argname, argval):
     argparser = {
         'raid_name': get_raidname,
         'raid_datetime': get_datetime,
-        'team_index': get_roster_index
+        'team_index': lambda x: parse_int(x) - 1,
+        'week_count_cutoff': parse_int
     }.get(argname, lambda _: argval)
     return argparser(argval)
 
@@ -92,9 +93,9 @@ def get_datetime(arg):
     return raid_datetime
 
 
-def get_roster_index(arg):
+def parse_int(arg):
     try:
-        return int(arg) - 1
+        return int(arg)
     except ValueError:
         raise InvalidArgumentException(
             f'Invalid team index {arg} was given. Please pass a number.')
@@ -105,7 +106,6 @@ def get_example(argname):
         'raid_name': 'BWL',
         'raid_datetime': '20-04-2020',
         'team_index': '1',
-        'player': 'Dok'
+        'player': 'Dok',
+        'week_count_cutoff': '4'
     }[argname]
-
-
