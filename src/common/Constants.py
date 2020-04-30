@@ -6,10 +6,9 @@ from src.raids import ZGConstants
 BOT_NAME = 'DokBot'
 MAINTAINER = 'Dok'
 RAID_STORAGE = os.path.join('data', 'raids')
-ROSTER_STORAGE = os.path.join('data', 'rosters')
-STORAGE_SUFFIX = '.csv'
-WHITELISTED_FILE = os.path.join('data', 'whitelisted.txt')
+PLAYER_STORAGE = os.path.join('data', 'players')
 RAID_INFO_EMBEDS = os.path.join('data', 'embeds', 'raid-info.json')
+STORAGE_SUFFIX = '.csv'
 EVENTS_CHANNEL = 'raid-signups'
 INFO_CHANNEL = 'raid-info'
 COMPS_CHANNEL = 'raid-comps'
@@ -26,7 +25,7 @@ USE_SIGNUP_HISTORY = False
 VERBOSE = False
 OFFICER_RANK = 'Hertog'
 SUPPORTED_RAIDS = ['mc', 'bwl', 'zg']
-WHITELISTED_RANK = 'Kruisvaarder'
+RAIDER_RANK = 'Kruisvaarder'
 ZONE_ID = {
     'zg': 1003,
     'bwl': 1002,
@@ -36,19 +35,6 @@ ZONE_ID = {
 WARCRAFT_LOGS_GUILD_ID = 510080
 WARCRAFT_LOGS_TEAM_ID = 29777
 
-role_to_emoji_name = {
-    'tank': 'Tanks',
-    'healer': 'Healer',
-    'ranged': 'Ranged',
-    'melee': 'Melee'
-}
-
-CALENDAR_EMOJI = 'CMcalendar'
-CLOCK_EMOJI = 'CMclock'
-SIGNUPS_EMOJI = 'signups'
-TEAM_EMOJI = 'group'
-BENCH_EMOJI = "Bench"
-MISSING_EMOJI = "Missing"
 
 WEEKDAYS = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag']
 

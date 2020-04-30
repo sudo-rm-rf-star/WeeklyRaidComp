@@ -1,19 +1,34 @@
 """File full of magic to avoid relying on every single BotCommand"""
 from src.commands.BotCommand import BotCommand
 from src.exceptions.InvalidCommandException import InvalidCommandException
-import importlib
-import pkgutil
-import os
-import discord
+from src.client.GuildClient import GuildClient
 from collections import defaultdict
+from setuptools import find_packages
+from pkgutil import iter_modules
+from typing import Set, Dict
+from pathlib import Path
+import importlib
+import discord
+import sys
 
-pkg_dir = os.path.dirname(os.path.abspath(__file__))
-for (module_loader, name, ispkg) in pkgutil.iter_modules([pkg_dir]):
-    if name != 'HelpCommand':
-        importlib.import_module(f'src.commands.{name}', __package__)
+
+def find_modules(path: str) -> Set[str]:
+    modules = set()
+    for pkg in find_packages(path):
+        modules.add(pkg)
+        pkgpath = path + '/' + pkg.replace('.', '/')
+        if sys.version_info.major == 2 or (sys.version_info.major == 3 and sys.version_info.minor < 6):
+            for _, name, ispkg in iter_modules([pkgpath]):
+                if not ispkg:
+                    modules.add(pkg + '.' + name)
+        else:
+            for info in iter_modules([pkgpath]):
+                if not info.ispkg:
+                    modules.add(pkg + '.' + info.name)
+    return modules
 
 
-def _all_subclasses(cls):
+def _all_subclasses(cls: type) -> Set[type]:
     recursive_subclasses = set()
     if len(cls.__subclasses__()) > 0:
         for subclass in cls.__subclasses__():
@@ -25,7 +40,7 @@ def _all_subclasses(cls):
     return recursive_subclasses
 
 
-def _get_bot_commands():
+def _get_bot_commands() -> Dict[str, Dict[str, BotCommand]]:
     bot_commands = defaultdict(dict)
     for command_cls in _all_subclasses(BotCommand):
         command = command_cls()
@@ -34,10 +49,7 @@ def _get_bot_commands():
     return dict(bot_commands)
 
 
-BOT_COMMANDS = _get_bot_commands()
-
-
-async def find_bot_command(message, command_name, subcommand_name):
+async def find_bot_command(message: discord.Message, command_name: str, subcommand_name: str) -> BotCommand:
     command_prefix = command_name[0]
     command_name = command_name[1:]
     if command_prefix == '!' and command_name in BOT_COMMANDS:
@@ -45,6 +57,8 @@ async def find_bot_command(message, command_name, subcommand_name):
         try:
             await message.delete()
         except discord.NotFound:  # This happens when multiple versions of the bot are running.
+            pass
+        except discord.Forbidden:  # This happens when users are performing actions in DM.
             pass
 
         # For now we do this, with the current system we have a dependency in both directions otherwise,
@@ -58,7 +72,7 @@ async def find_bot_command(message, command_name, subcommand_name):
             raise InvalidCommandException(f"{command_name} {subcommand_name} is not a valid bot command.")
 
 
-async def find_and_execute_command(client, message):
+async def find_and_execute_command(client: GuildClient, message: discord.Message) -> None:
     cmd = None
     cmd_args = None
     try:
@@ -73,3 +87,14 @@ async def find_and_execute_command(client, message):
 
     if cmd and cmd_args is not None:
         await cmd.call(client, message, cmd_args)
+
+
+commands_path = str(Path(__file__).parent)
+for module in find_modules(commands_path):
+    if 'HelpCommand' != module:
+        module = f'{__package__}.{module}'
+        importlib.import_module(module, __package__)
+
+BOT_COMMANDS = _get_bot_commands()
+
+

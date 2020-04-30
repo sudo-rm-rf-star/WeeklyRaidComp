@@ -1,110 +1,92 @@
 """ Utility class to help for raids with multiple rosters. """
-from pandas import DataFrame
 
-from src.common.Constants import signup_choice_to_role_class, player_count
-from src.common.Utils import parse_name, now
-from src.filehandlers.AttendanceReader import get_standby_count
-from src.filehandlers.RosterFileHandler import RosterFileHandler
-from src.filehandlers.WhitelistedFileHandler import get_whitelisted
+from src.common.Constants import player_count
 from src.logic.Roster import Roster
+from collections import defaultdict
+from src.logic.Players import Players
+from src.logic.enums.RosterStatus import RosterStatus
+from src.logic.enums.SignupStatus import SignupStatus
+from src.logic.enums.Role import Role
+from src.logic.enums.Class import Class
+from typing import Dict, List, Optional, Tuple
 
 
 class Rosters:
-    def __init__(self, raid_name, raid_datetime, rosters, created_at=None, updated_at=None, message_id=None):
-        self.rosters = rosters
-        self.count = len(rosters)
-        self.raid_name = raid_name
-        self.raid_datetime = raid_datetime
-        self.created_at = now() if not created_at else created_at
-        self.updated_at = self.created_at if updated_at is None else updated_at
-        self.message_id = message_id
+    def __init__(self, raid_name: str, rosters: List[Roster] = None, signee_choices: Dict[str, SignupStatus] = None, presence: List[str] = None):
+        self.rosters = [Roster() for _ in range(_roster_count(raid_name))] if not rosters else rosters
+        # Status as decided by the player
+        self.signee_choices = {} if not signee_choices else signee_choices
+        # Actual presence during the raid
+        self.presence = set() if not presence else presence
+        self.updated_since_last_check = False
 
-    def set_message_id(self, message_id):
-        self.message_id = message_id
+    def compose(self, raid_name: str) -> None:
+        self.updated_since_last_check = True
+        if not self.rosters:
+            self.rosters = [Roster() for _ in range(_roster_count(raid_name))]
 
-    @staticmethod
-    def compose(raid):
-        roster_count = _roster_count(raid.name)
-        signees_per_roster = _get_signees(raid, _roster_count(raid.name))
-        rosters = [Roster.compose(raid, signees_per_roster[i]) for i in range(roster_count)]
-        return Rosters(raid.name, raid.datetime, rosters)
+        success = True
+        for roster in self.rosters:
+            success = success and roster.update(raid_name, self.signee_choices)
+        return success
 
-    @staticmethod
-    def load(raid_name, raid_datetime=None):
-        rosters = RosterFileHandler().load(raid_name, raid_datetime)
+    def add_signee(self, player_name: str, signup_choice: SignupStatus) -> None:
+        self.add_player(player_name, signup_choice=signup_choice)
 
-        return Rosters(raid_name=rosters['name'],
-                       raid_datetime=rosters['datetime'],
-                       created_at=rosters['created_at'],
-                       updated_at=rosters['updated_at'],
-                       message_id=rosters['message_id'],
-                       rosters=[Roster(
-                           signees=roster['signees'],
-                           accepted=roster['accepted'],
-                           bench=roster['bench'],
-                           absence=roster['absence'],
-                           missing_roles=roster['missing_roles']
-                       ) for roster in rosters['rosters']])
+    def set_roster_choice(self, player_name: str, roster_choice: RosterStatus, team_index: int = None):
+        self.add_player(player_name, roster_choice=roster_choice, team_index=team_index)
 
-    def save(self):
-        self.updated_at = now()
-        RosterFileHandler().save({
-            'name': self.raid_name,
-            'datetime': self.raid_datetime,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at,
-            'message_id': self.message_id,
-            'rosters': [
-                {
-                    'signees': roster.signees,
-                    'accepted': roster.accepted,
-                    'bench': roster.bench,
-                    'absence': roster.absence,
-                    'missing_roles': roster.missing_roles,
+    def add_player(self, player_name: str, roster_choice: RosterStatus = None, signup_choice: SignupStatus = None, team_index: int = None):
+        self.updated_since_last_check = True
+        team_and_roster_choice = self.get_team_and_roster_choice(player_name)
 
-                } for roster in self.rosters
-            ]
-        })
+        if team_and_roster_choice:
+            if roster_choice:
+                team_index, old_roster_choice = team_and_roster_choice
+                self.rosters[team_index].roster_choices[player_name] = roster_choice
+        else:
+            roster_choice = RosterStatus.UNDECIDED if not roster_choice else roster_choice
+            team_index = self.find_best_roster_for_player(player_name) if not team_index else team_index
+            self.rosters[team_index].roster_choices[player_name] = roster_choice
 
-    def get(self, i):
-        if i is None:
-            i = 0
-        assert i < self.count
-        return self.rosters[i]
+        if player_name not in self.signee_choices:
+            self.signee_choices[player_name] = SignupStatus.UNDECIDED if signup_choice is None else signup_choice
+        else:
+            if signup_choice is not None:
+                self.signee_choices[player_name] = signup_choice
 
+    def get_roster_choice(self, player_name: str) -> Optional[RosterStatus]:
+        return self.get_team_and_roster_choice(player_name)[1]
 
-def _get_signees(raid, roster_count):
-    signees = []
-    standby_counts = get_standby_count(raid.name, raid.datetime)
-    whitelisted = get_whitelisted()
+    def get_team_and_roster_choice(self, player_name: str) -> Optional[Tuple[int, RosterStatus]]:
+        for i, roster in enumerate(self.rosters):
+            if player_name in roster.roster_choices:
+                return i, roster.roster_choices[player_name]
+        return None
 
-    for signup_choice, chars in raid.signees_per_choice.items():
-        for char in chars:
-            charname = parse_name(char)
-            if signup_choice not in ['Bench', 'Late', 'Absence', 'Tentative']:
-                role, clazz = signup_choice_to_role_class[signup_choice]
-                player_signup_choice = 'Accepted'
-            else:
-                player_signup_choice = signup_choice
-                role, clazz = None, None
+    def get_count_per_roster(self) -> Dict[int, Dict[Role, Dict[Class, int]]]:
+        count_per_roster_role_class = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        for i, roster in enumerate(self.rosters):
+            for player_name in roster.roster_choices.keys():
+                player = Players().get(player_name)
+                count_per_roster_role_class[i][player.role][player.klass] += 1
+        return count_per_roster_role_class
 
-            role = 'dps' if role == 'ranged' or role == 'melee' else role
-            roster_status = 'Bench' if signup_choice != 'Absence' else player_signup_choice
+    def find_best_roster_for_player(self, player_name: str, count_per_roster_role_class: Dict[int, Dict[Role, Dict[Class, int]]] = None) -> int:
+        player = Players().get(player_name)
+        if count_per_roster_role_class is None:
+            count_per_roster_role_class = self.get_count_per_roster()
+        return min(range(len(self.rosters)), key=lambda j: count_per_roster_role_class[j][player.role][player.klass])
 
-            signees.append({'name': charname, 'class': clazz, 'role': role,
-                            'signup_choice': player_signup_choice, 'roster_status': roster_status,
-                            'whitelisted': charname in whitelisted,
-                            'standby_count': standby_counts.get(char, None)})
+    def was_updated(self) -> bool:
+        if self.updated_since_last_check:
+            self.updated_since_last_check = False
+            return True
+        return False
 
-    signees = DataFrame(signees)
-    signees_per_roster = [DataFrame()] * roster_count
-    for role, signees_for_role in signees.groupby('role'):
-        for clazz, signees_for_clazz_role in signees_for_role.groupby('class'):
-            for i, signee in signees_for_clazz_role.iterrows():
-                roster_index = i % roster_count
-                signees_per_roster[roster_index] = signees_per_roster[roster_index].append(signee, ignore_index=True)
-    return signees_per_roster
+    def __iter__(self):
+        return iter(self.rosters)
 
 
-def _roster_count(raid_name):
+def _roster_count(raid_name: str) -> int:
     return 2 if player_count[raid_name] == 20 else 1

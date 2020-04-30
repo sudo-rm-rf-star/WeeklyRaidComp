@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from src.disc.Bot import run
+from src.client.DiscordBot import run
 
 if __name__ == '__main__':
     run()
