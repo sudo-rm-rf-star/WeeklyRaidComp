@@ -18,8 +18,8 @@ class GuildClient:
     def get_channel(self, channel_name: str) -> discord.TextChannel:
         return discord.utils.get(self.guild.text_channels, name=channel_name)
 
-    def get_channel_by_id(self, channel_id: int) -> discord.TextChannel:
-        return discord.utils.get(self.guild.text_channels, id=channel_id)
+    async def get_channel_by_id(self, channel_id: int) -> discord.TextChannel:
+        return await self.client.fetch_channel(channel_id)
 
     def get_emoji(self, emoji_name: str) -> discord.Emoji:
         return discord.utils.get(self.guild.emojis, name=emoji_name)
@@ -39,11 +39,8 @@ class GuildClient:
     def get_members_for_role(self, role_name: str) -> List[discord.Member]:
         return self.get_role(role_name).members
 
-    async def get_message(self, message_id_pair: Tuple[int, int], after: Optional[datetime] = None) -> discord.Message:
-        message_id, recipient_id = message_id_pair  # This can be a user id or text channel id
-        text_channel = self.get_channel_by_id(recipient_id)
-        if not text_channel:
-            text_channel = self.get_member_by_id(recipient_id).dm_channel
+    async def get_message(self, message_id: int, recipient_id: int) -> discord.Message:
+        text_channel = await self.get_channel_by_id(recipient_id)
         return await text_channel.fetch_message(message_id)
 
     def wait_for(self, *args, **kwargs) -> Any:

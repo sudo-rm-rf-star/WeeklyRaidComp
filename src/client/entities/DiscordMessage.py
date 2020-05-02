@@ -7,5 +7,5 @@ class DiscordMessage:
         self.content = content
         self.embed = embed
 
-    async def send_to(self, recipient: Union[discord.User, discord.TextChannel]) -> discord.Message:
+    async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> discord.Message:
         return await recipient.send(content=self.content, embed=self.embed)

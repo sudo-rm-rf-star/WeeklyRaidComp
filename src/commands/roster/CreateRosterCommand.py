@@ -21,4 +21,5 @@ class CreateRosterCommand(RosterCommand):
         success = raid_event.compose_roster()
         await RaidMessage(client, raid_event).sync()
         success_indicator = 'successfully' if success else 'unsuccessfully'
+        self.publish_roster_changes(client, raid_event)
         return f'Roster for {raid_event.get_name()} on {raid_event.get_datetime()} has been {success_indicator} updated.'

@@ -6,6 +6,6 @@ class RosterStatus(Enum):
     A lower number equals a higher priority. This is only used when updating the roster which already has decided players.
     Players initially accepted get a higher priority"""
     ACCEPT = 1,
-    EXTRA = 2,
+    EXTRA = 3,
     UNDECIDED = 2,
-    DECLINE = 3
+    DECLINE = 4

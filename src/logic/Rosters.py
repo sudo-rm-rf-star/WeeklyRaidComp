@@ -43,11 +43,11 @@ class Rosters:
         if team_and_roster_choice:
             if roster_choice:
                 team_index, old_roster_choice = team_and_roster_choice
-                self.rosters[team_index].roster_choices[player_name] = roster_choice
+                self.rosters[team_index].set_roster_choice(player_name, roster_choice)
         else:
             roster_choice = RosterStatus.UNDECIDED if not roster_choice else roster_choice
             team_index = self.find_best_roster_for_player(player_name) if not team_index else team_index
-            self.rosters[team_index].roster_choices[player_name] = roster_choice
+            self.rosters[team_index].set_roster_choice(player_name, roster_choice)
 
         if player_name not in self.signee_choices:
             self.signee_choices[player_name] = SignupStatus.UNDECIDED if signup_choice is None else signup_choice
@@ -83,6 +83,13 @@ class Rosters:
             self.updated_since_last_check = False
             return True
         return False
+
+    def check_roster_updates(self) -> List[Tuple[str, RosterStatus]]:
+        updates = []
+        for roster in self.rosters:
+            for roster_update in roster.check_updates():
+                updates.append(roster_update)
+        return updates
 
     def __iter__(self):
         return iter(self.rosters)

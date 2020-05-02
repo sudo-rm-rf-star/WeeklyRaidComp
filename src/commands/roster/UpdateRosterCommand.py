@@ -28,4 +28,5 @@ class UpdateRosterCommand(RosterCommand):
         raid_event = RaidEvents().get(raid_name, raid_datetime)
         self.update_command(raid_event, player, team_index)
         await RaidMessage(client, raid_event).sync()
+        self.publish_roster_changes(client, raid_event)
         return f'Raid event for {raid_event.get_name()} on {raid_event.get_datetime()} has been successfully updated.'

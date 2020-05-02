@@ -8,8 +8,7 @@ class RegisterPlayerCommand(PlayerCommand):
     def __init__(self):
         argformat = ''
         subname = 'register'
-        description = 'Registreer jezelf als raider of iemand anders door hem te mentionnen. Stuurt een DM voor de registratie. ' \
-                      'Reeds geregistreede raiders worden genegeerd.'
+        description = 'Registreer jezelf als raider of iemand anders door hem te mentionnen. Stuurt een DM voor de registratie'
         example_args = '[@Dok]'
         super(RegisterPlayerCommand, self).__init__(subname, description, argformat, example_args=example_args)
 
@@ -29,7 +28,7 @@ class RegisterPlayerCommand(PlayerCommand):
             all_members.add(message.author)
 
         for member in all_members:
-            return await register(client, member)
+            return await register(client, member, retry=len(all_members) == 1)
 
 
 

@@ -1,12 +1,12 @@
 from src.commands.raid.RaidCommand import RaidCommand
 from src.client.GuildClient import GuildClient
-from src.client.entities.RaidMessage import RaidMessage
 from src.time.DateOptionalTime import DateOptionalTime
 from src.logic.RaidEvent import RaidEvent
 from src.logic.RaidEvents import RaidEvents
 from typing import Optional
 import discord
-from src.common.Constants import OFFICER_RANK
+from src.common.Constants import OFFICER_RANK, RAIDER_RANK
+import asyncio
 
 
 class CreateRaidCommand(RaidCommand):
@@ -19,7 +19,7 @@ class CreateRaidCommand(RaidCommand):
     async def run(self, client: GuildClient, message: discord.Message, **kwargs) -> str:
         return await self._run(client, message, **kwargs)
 
-    async def _run(self, client, message: discord.Message, raid_name: str, raid_datetime: DateOptionalTime, channel_name: Optional[str]) -> str:
+    async def _run(self, client: GuildClient, message: discord.Message, raid_name: str, raid_datetime: DateOptionalTime, channel_name: Optional[str]) -> str:
         if channel_name:
             channel = client.get_channel(channel_name)
         else:
@@ -29,12 +29,17 @@ class CreateRaidCommand(RaidCommand):
 
         if raid_exists:
             return f'Raid event for {raid_name} on {raid_datetime} already exists.'
+        if raid_datetime < DateOptionalTime.now():
+            return f'Raid event must be in future'
 
-        raid_event = RaidEvent(raid_name, raid_datetime)
-        # Ordering here is vital.
-        await RaidMessage(client, raid_event).send_to(channel)
-        RaidEvents().add(raid_event)
+        raid_event = RaidEvents().create(raid_name, raid_datetime)
+        await RaidEvents().send_raid_message(client, channel, raid_event)
+        await send_raid_notification(client, raid_event)
         return f'Raid event for {raid_event.get_name()} on {raid_event.get_datetime()} has been successfully created.'
 
 
-
+async def send_raid_notification(client: GuildClient, raid_event: RaidEvent):
+    raiders = client.get_members_for_role(RAIDER_RANK)
+    raiders = [client.get_member('Dok')]
+    for raider in raiders:
+        await RaidEvents().send_raid_notification(client, raider, raid_event)

@@ -26,7 +26,6 @@ class RaidMessage(DiscordMessage):
 
     async def send_to(self, recipient: Union[discord.User, discord.TextChannel]) -> discord.Message:
         message = await super(RaidMessage, self).send_to(recipient)
-        self.raid_event.message_id_pairs.add((message.id, recipient.id))
         for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if status != SignupStatus.UNDECIDED]:
             asyncio.create_task(message.add_reaction(emoji=self._get_emoji(emoji)))
         return message
@@ -38,9 +37,15 @@ class RaidMessage(DiscordMessage):
             for message in messages:
                 await message.edit(embed=self.embed)
 
+    async def remove(self):
+        messages = await self.get_existing_discord_messages(self.raid_event)
+        for message in messages:
+            await message.delete()
+
     async def get_existing_discord_messages(self, raid_event: RaidEvent) -> List[discord.Message]:
-        """ Find all existing instances """
-        return [(await self.client.get_message(msg_id_pair, after=raid_event.created_at)) for msg_id_pair in raid_event.message_id_pairs]
+        """ Find all existing instances which we want to sync """
+        return [(await self.client.get_message(msg_id, channel_id)) for (msg_id, channel_id, message_type) in raid_event.message_id_pairs if
+                message_type == type(self)]
 
     def _raid_to_embed(self) -> Embed:
         embed = {'title': self._get_title(),
@@ -94,11 +99,12 @@ class RaidMessage(DiscordMessage):
         roster_choice = self.raid_event.rosters.get_roster_choice(player_name)
         signup_choice_indicator = '' if signup_choice == SignupStatus.ACCEPT else self._signup_choice_emoji(signup_choice)
         if roster_choice == RosterStatus.ACCEPT:
-            roster_choice_indicator = ('__***', '***__')
+            roster_choice_indicator = ('__', '__')
         elif roster_choice == RosterStatus.EXTRA:
             roster_choice_indicator = ('~~', '~~')
         else:
             roster_choice_indicator = ('', '')
+        print(player_name, roster_choice, roster_choice_indicator)
         return f'{self._role_class_emoji(player_name)} {roster_choice_indicator[0]}{player_name}{roster_choice_indicator[1]} {signup_choice_indicator}'
 
     def _get_missing_field(self, roster: Roster) -> Dict[str, str]:

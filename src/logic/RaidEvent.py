@@ -13,7 +13,7 @@ class RaidEvent:
     def __init__(self, name: str, raid_datetime: DateOptionalTime, rosters=None):
         self.name = name
         self.datetime = raid_datetime
-        self.message_id_pairs = set()
+        self.message_id_pairs = set()  # Tuples of message ID, channel ID and boolean indicate to sync the message
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
         self.rosters = Rosters(name) if not rosters else rosters

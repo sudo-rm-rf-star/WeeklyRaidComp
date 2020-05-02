@@ -39,17 +39,31 @@ def run() -> None:
         try:
             await find_and_execute_command(client_wrapper, message)
         except Exception as e:
-            Log.error(f"{message.author}, {message.content}, {e}\n{traceback.format_exc()}")
-            if isinstance(e, BotException):
-                await message.author.send(e.message)
-            else:
-                await message.author.send(f"There were internal difficulties. Sending a message to {MAINTAINER}")
-                await client_wrapper.get_member(MAINTAINER).send(f'{message.author}, {message.content}, {e}')
+            await handle_exception(e, message)
 
     @client.event
     async def on_raw_reaction_add(reaction_event: discord.RawReactionActionEvent) -> None:
         if not client_wrapper or reaction_event.user_id == client.user.id:
             return
-        await raid_signup(client_wrapper, reaction_event.user_id, reaction_event.message_id, reaction_event.channel_id, reaction_event.emoji)
+        try:
+            await raid_signup(client_wrapper, reaction_event.user_id, reaction_event.message_id, reaction_event.emoji)
+        except Exception as e:
+            user = client.get_user(reaction_event.user_id)
+            error_message = f"Raid signup failed for {user}, {reaction_event.emoji}, {e}"
+            Log.error(error_message)
+            if isinstance(e, BotException):
+                await user.send(e.message)
+            else:
+                await user.send(f"There were internal difficulties. Sending a message to {MAINTAINER}")
+                await client_wrapper.get_member(MAINTAINER).send(error_message)
 
     client.run(token)
+
+
+async def handle_exception(e: Exception, message: discord.Message) -> None:
+    Log.error(f"{message.author}, {message.content}, {e}\n{traceback.format_exc()}")
+    if isinstance(e, BotException):
+        await message.author.send(e.message)
+    else:
+        await message.author.send(f"There were internal difficulties. Sending a message to {MAINTAINER}")
+        await client_wrapper.get_member(MAINTAINER).send(f'{message.author}, {message.content}, {e}')

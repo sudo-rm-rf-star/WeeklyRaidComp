@@ -1,9 +1,14 @@
 from collections import defaultdict
+
+from src.client.entities.RaidNotification import RaidNotification
 from src.filehandlers.RaidFileHandler import load_raid_events, save_raid_events
 from src.exceptions.EventDoesNotExistException import EventDoesNotExistException
 from src.time.DateOptionalTime import DateOptionalTime
 from src.logic.RaidEvent import RaidEvent
+from src.client.GuildClient import GuildClient
+from src.client.entities.RaidMessage import RaidMessage
 from typing import Any
+import discord
 
 
 class RaidEvents:
@@ -14,10 +19,22 @@ class RaidEvents:
             for raid in load_raid_events():
                 self.add(raid)
 
+        def create(self, raid_name, raid_datetime):
+            raid_event = RaidEvent(raid_name, raid_datetime)
+            self.add(raid_event)
+            return raid_event
+
+        async def remove(self, client: GuildClient, raid_event: RaidEvent) -> None:
+            assert self.exists(raid_event.name, raid_event.datetime)
+            for message_id, _, _ in raid_event.message_id_pairs:
+                del self.raids_by_message_id[message_id]
+            del self.raids_by_name_and_datetime[raid_event.name][raid_event.datetime]
+            await RaidMessage(client, raid_event).remove()
+
         def add(self, raid_event: RaidEvent) -> None:
             if raid_event.datetime not in self.raids_by_name_and_datetime[raid_event.name]:
                 self.raids_by_name_and_datetime[raid_event.name][raid_event.datetime] = raid_event
-                for (message_id, channel_id) in raid_event.message_id_pairs:
+                for (message_id, _, _) in raid_event.message_id_pairs:
                     self.raids_by_message_id[message_id] = raid_event
 
         def exists(self, raid_name: str, raid_datetime=None) -> bool:
@@ -43,11 +60,26 @@ class RaidEvents:
 
             return self.raids_by_name_and_datetime[raid_name][raid_datetime]
 
+        def get_raid_for_message(self, message_id: str) -> RaidEvent:
+            return self.raids_by_message_id.get(message_id, None)
+
+        def get_raid_for_notification(self, message_id: str) -> RaidEvent:
+            return self.raids_by_message_id.get(message_id, None)
+
+        def add_raid_message(self, message_id: str, recipient_id: str, message_type: type, raid_event: RaidEvent):
+            self.raids_by_message_id[message_id] = raid_event
+            raid_event.message_id_pairs.add((message_id, recipient_id, message_type))
+
         def store(self):
             save_raid_events([raid for raids in self.raids_by_name_and_datetime.values() for raid in raids.values()])
 
-        def get_by_message_id(self, message_id: str) -> RaidEvent:
-            return self.raids_by_message_id.get(message_id, None)
+        async def send_raid_notification(self, client: GuildClient, recipient: discord.Member, raid_event: RaidEvent) -> None:
+            msg = await RaidNotification(client, raid_event).send_to(recipient)
+            self.add_raid_message(msg.id, recipient.id, RaidNotification, raid_event)
+
+        async def send_raid_message(self, client: GuildClient, recipient: discord.TextChannel, raid_event: RaidEvent) -> None:
+            msg = await RaidMessage(client, raid_event).send_to(recipient)
+            self.add_raid_message(msg.id, recipient.id, RaidMessage, raid_event)
 
     instance = None
 

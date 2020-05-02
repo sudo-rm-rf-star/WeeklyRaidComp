@@ -11,11 +11,12 @@ from typing import Dict, List
 class Roster:
     def __init__(self, roster_choices: Dict[str, RosterStatus] = None):
         self.roster_choices = {} if not roster_choices else roster_choices
+        self.updates_since_last_check = []  # List of all updates since last check
         self._missing = None
         self._extra = None
 
     def update(self, raid_name: str, signee_choices: Dict[str, SignupStatus]):
-        """Updates the roster with the given signees"""
+        """Updates the roster with the given signees. Updates all of the updated roster statuses. """
         if len(signee_choices.keys()) == 0:
             return False
         players_df = self._get_raid_players_df(raid_name, signee_choices)
@@ -37,10 +38,14 @@ class Roster:
             not_accepted_for_role = signees_for_role.iloc[pref_count:]
 
             for _, player in accepted_for_role.iterrows():
-                self.roster_choices[player['name']] = RosterStatus.ACCEPT
+                self.set_roster_choice(player['name'], RosterStatus.ACCEPT)
 
             for _, player in not_accepted_for_role.iterrows():
-                self.roster_choices[player['name']] = RosterStatus.EXTRA
+                self.set_roster_choice(player['name'], RosterStatus.EXTRA)
+
+        for _, player in players_df[players_df['signee_choice'] == SignupStatus.DECLINE].iterrows():
+            self.set_roster_choice(player['name'], RosterStatus.DECLINE)
+
         return True
 
     def _get_raid_players_df(self, raid_name: str, signee_choices: Dict[str, SignupStatus]) -> DataFrame:
@@ -80,6 +85,16 @@ class Roster:
 
     def accepted_count(self):
         return sum(1 for x in self.roster_choices.values() if x == RosterStatus.ACCEPT)
+
+    def set_roster_choice(self, player_name, roster_choice):
+        if self.roster_choices.get(player_name, None) != roster_choice:
+            self.updates_since_last_check.append((player_name, roster_choice))
+        self.roster_choices[player_name] = roster_choice
+
+    def check_updates(self):
+        updates_since_last_check = self.updates_since_last_check
+        self.updates_since_last_check = []
+        return updates_since_last_check
 
 
 def _calculate_importance(cur: int, mini: int, maxi: int) -> float:
