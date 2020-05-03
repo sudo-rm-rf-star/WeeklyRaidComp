@@ -1,7 +1,7 @@
 from src.exceptions.InvalidArgumentException import InvalidArgumentException
 from src.client.entities.DiscordMessage import DiscordMessage
 from src.client.GuildClient import GuildClient
-from typing import Generic, TypeVar, Union
+from typing import Generic, TypeVar, Union, Any
 import discord
 
 TRIES = 3
@@ -50,7 +50,7 @@ class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
             raise InvalidArgumentException(f'Please choose on of: {self.options}')
 
 
-async def interact(member: discord.Member, message: InteractionMessage) -> str:
+async def interact(member: discord.Member, message: InteractionMessage) -> Any:
     await message.send_to(member)
     response = None
     trie = 0

@@ -38,3 +38,7 @@ class Player:
 
     def __str__(self) -> str:
         return f'{self.role.name.capitalize()} {self.klass.name.capitalize()} {self.name}'
+
+    def __hash__(self):
+        return hash((self.name, self.discord_id))
+

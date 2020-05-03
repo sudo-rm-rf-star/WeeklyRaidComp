@@ -56,7 +56,8 @@ class Rosters:
                 self.signee_choices[player_name] = signup_choice
 
     def get_roster_choice(self, player_name: str) -> Optional[RosterStatus]:
-        return self.get_team_and_roster_choice(player_name)[1]
+        roster_choice = self.get_team_and_roster_choice(player_name)
+        return self.get_team_and_roster_choice(player_name)[1] if roster_choice else None
 
     def get_team_and_roster_choice(self, player_name: str) -> Optional[Tuple[int, RosterStatus]]:
         for i, roster in enumerate(self.rosters):

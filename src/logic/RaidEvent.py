@@ -23,7 +23,7 @@ class RaidEvent:
         return self.rosters.compose(self.name)
 
     def get_signup_choice(self, player_name: str) -> Optional[SignupStatus]:
-        return self.rosters.signee_choices.get(player_name, None)
+        return self.rosters.signee_choices.get(player_name, SignupStatus.UNDECIDED)
 
     def add_player_to_signees(self, player_name: str, signee_choice: SignupStatus) -> None:
         self.updated_at = datetime.now()

@@ -1,6 +1,7 @@
 from src.filehandlers.PlayerFileHandler import load_players, save_players
 from src.logic.Player import Player
 from typing import Any
+from typing import List
 
 
 class Players:
@@ -21,6 +22,9 @@ class Players:
 
         def get_by_id(self, player_id) -> Player:
             return self.players_by_id.get(player_id, None)
+
+        def all(self) -> List[Player]:
+            return list(self.players_by_name.values())
 
     instance = None
 

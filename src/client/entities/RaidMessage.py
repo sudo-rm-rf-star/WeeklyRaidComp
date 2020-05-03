@@ -104,7 +104,6 @@ class RaidMessage(DiscordMessage):
             roster_choice_indicator = ('~~', '~~')
         else:
             roster_choice_indicator = ('', '')
-        print(player_name, roster_choice, roster_choice_indicator)
         return f'{self._role_class_emoji(player_name)} {roster_choice_indicator[0]}{player_name}{roster_choice_indicator[1]} {signup_choice_indicator}'
 
     def _get_missing_field(self, roster: Roster) -> Dict[str, str]:

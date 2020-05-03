@@ -5,9 +5,13 @@ from src.filehandlers.RaidFileHandler import load_raid_events, save_raid_events
 from src.exceptions.EventDoesNotExistException import EventDoesNotExistException
 from src.time.DateOptionalTime import DateOptionalTime
 from src.logic.RaidEvent import RaidEvent
+from src.logic.Player import Player
+from src.logic.Players import Players
+from src.logic.enums.RosterStatus import RosterStatus
+from src.logic.enums.SignupStatus import SignupStatus
 from src.client.GuildClient import GuildClient
 from src.client.entities.RaidMessage import RaidMessage
-from typing import Any
+from typing import Any, Set, Optional, Dict, Union
 import discord
 
 
@@ -59,7 +63,10 @@ class RaidEvents:
                 raise EventDoesNotExistException(f"No events for raid {raid_name} on date {raid_datetime}")
 
             return self.raids_by_name_and_datetime[raid_name][raid_datetime]
-        
+
+        def all(self, raid_name: Optional[str] = None, since_datetime: Optional[DateOptionalTime] = None) -> Set[RaidEvent]:
+            _all = [self.raids_by_name_and_datetime[raid_name]] if raid_name else list(self.raids_by_name_and_datetime.values())
+            return {raid for raids in _all for raid in raids.values() if not since_datetime or raid.get_datetime() >= since_datetime}
 
         def get_raid_for_message(self, message_id: str) -> RaidEvent:
             return self.raids_by_message_id.get(message_id, None)
@@ -81,6 +88,16 @@ class RaidEvents:
         async def send_raid_message(self, client: GuildClient, recipient: discord.TextChannel, raid_event: RaidEvent) -> None:
             msg = await RaidMessage(client, raid_event).send_to(recipient)
             self.add_raid_message(msg.id, recipient.id, RaidMessage, raid_event)
+
+        def player_stats(self, raid_name: Optional[str] = None, since_datetime: Optional[DateOptionalTime] = None) -> Dict[Player, Dict[Union[SignupStatus, RosterStatus], int]]:
+            _player_stats = defaultdict(lambda: defaultdict(int))
+            players = Players().all()
+            for raid_event in self.all(raid_name, since_datetime):
+                for player in players:
+                    _player_stats[player][raid_event.get_signup_choice(player)] += 1
+                    roster_choice = raid_event.rosters.get_roster_choice(player.name)
+                    _player_stats[player][roster_choice if roster_choice else RosterStatus.UNDECIDED] += 1
+            return dict(_player_stats)
 
     instance = None
 
