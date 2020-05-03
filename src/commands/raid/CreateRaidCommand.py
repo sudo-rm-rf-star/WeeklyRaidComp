@@ -40,6 +40,5 @@ class CreateRaidCommand(RaidCommand):
 
 async def send_raid_notification(client: GuildClient, raid_event: RaidEvent):
     raiders = client.get_members_for_role(RAIDER_RANK)
-    raiders = [client.get_member('Dok')]
     for raider in raiders:
         await RaidEvents().send_raid_notification(client, raider, raid_event)
