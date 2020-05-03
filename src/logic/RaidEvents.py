@@ -59,6 +59,7 @@ class RaidEvents:
                 raise EventDoesNotExistException(f"No events for raid {raid_name} on date {raid_datetime}")
 
             return self.raids_by_name_and_datetime[raid_name][raid_datetime]
+        
 
         def get_raid_for_message(self, message_id: str) -> RaidEvent:
             return self.raids_by_message_id.get(message_id, None)

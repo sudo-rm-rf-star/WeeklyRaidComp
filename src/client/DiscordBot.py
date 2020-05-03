@@ -21,6 +21,8 @@ def run() -> None:
     Log.setup()
 
     token = os.getenv('DISCORD_TOKEN')
+    assert token, "Could not find any discord token"
+
     client = discord.Client()
 
     @client.event
