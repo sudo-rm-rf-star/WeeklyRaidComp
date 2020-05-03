@@ -6,7 +6,7 @@ from src.logic.RaidEvents import RaidEvents
 from typing import Optional
 import discord
 from src.common.Constants import OFFICER_RANK, RAIDER_RANK
-import asyncio
+import src.client.Logger as Log
 
 
 class CreateRaidCommand(RaidCommand):
@@ -41,4 +41,7 @@ class CreateRaidCommand(RaidCommand):
 async def send_raid_notification(client: GuildClient, raid_event: RaidEvent):
     raiders = client.get_members_for_role(RAIDER_RANK)
     for raider in raiders:
-        await RaidEvents().send_raid_notification(client, raider, raid_event)
+        try:
+            await RaidEvents().send_raid_notification(client, raider, raid_event)
+        except discord.Forbidden:
+            Log.error(f'Received 403 when sending raid notification to {raider} for raid {raid_event}')

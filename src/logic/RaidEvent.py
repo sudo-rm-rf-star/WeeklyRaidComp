@@ -50,3 +50,6 @@ class RaidEvent:
 
     def get_signee_count(self) -> int:
         return len(self.rosters.signee_choices.keys())
+
+    def __str__(self):
+        return f'{self.get_name()}, {self.get_datetime()}'
