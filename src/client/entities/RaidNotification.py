@@ -11,7 +11,7 @@ class RaidNotification(DiscordMessage):
     def __init__(self, client: GuildClient, raid_event: RaidEvent):
         self.client = client
         self.raid_event = raid_event
-        content = f"You have been invited for {raid_event.name} on {raid_event.datetime}. Please sign by clicking one of the reaction boxes."
+        content = f"You have been invited for {raid_event.get_name()} on {raid_event.datetime}. Please sign by clicking one of the reaction boxes."
         super(RaidNotification, self).__init__(content=content)
 
     async def send_to(self, recipient: discord.Member) -> discord.Message:

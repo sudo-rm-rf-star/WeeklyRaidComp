@@ -90,7 +90,7 @@ class RaidMessage(DiscordMessage):
     def _get_field_for_role(self, players_per_role: Dict[Role, str], role: Role) -> Dict[str, str]:
         players_for_role = [player_name for player_name in players_per_role[role]
                             if self.raid_event.rosters.get_roster_choice(player_name) != RosterStatus.DECLINE]
-        player_lines = '\n'.join([self._get_player_line(player_name) for player_name in players_for_role])
+        player_lines = '\n'.join(sorted([self._get_player_line(player_name) for player_name in players_for_role]))
         value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(players_for_role)}):\n{player_lines}'
         return _field(value)
 
