@@ -17,7 +17,9 @@ async def raid_signup(client: GuildClient, member_id: int, message_id: int, emoj
     if raid_event and emoji:
         check_authority(client, member, RAIDER_RANK)
         if player is None:
-            await register(client, member)
+            response = await register(client, member)
+            await member.send(response)
+        player = Players().get_by_id(member_id)
         signup_choice = EMOJI_SIGNUP_STATUS[emoji.name]
         raid_event.add_player_to_signees(player.name, signup_choice)
         response = f'You have signed up with "{signup_choice.name.lower()}" for {raid_event.get_name()} on {raid_event.get_datetime()}'
