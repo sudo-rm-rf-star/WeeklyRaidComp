@@ -4,7 +4,6 @@ from src.exceptions.BotException import BotException
 from src.common.Constants import MAINTAINER, GUILD
 from src.commands.BotCommands import find_and_execute_command
 from src.commands.utils.RaidSignup import raid_signup
-from typing import Union
 from dotenv import load_dotenv
 
 import src.client.Logger as Log
@@ -52,7 +51,7 @@ def run() -> None:
         except Exception as e:
             user = client.get_user(reaction_event.user_id)
             error_message = f"Raid signup failed for {user}, {reaction_event.emoji}, {e}"
-            Log.error(error_message)
+            Log.error(f'{error_message}\n{traceback.format_exc()}')
             if isinstance(e, BotException):
                 await user.send(e.message)
             else:
