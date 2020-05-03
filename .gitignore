@@ -6,6 +6,5 @@ venv*/
 logs/
 *.xlsx
 data/logs/
-data/raids/
-data/rosters/
-data/whitelisted.txt
+data/raids
+data/players
