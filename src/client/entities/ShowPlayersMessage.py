@@ -50,6 +50,7 @@ class ShowPlayersMessage(DiscordMessage):
     def _get_field_for_role(self, role: Role) -> Dict[str, str]:
         player_stats_for_role = {player: stats for player, stats in self.player_stats.items() if player.role == role}
         player_lines = '\n'.join(sorted([self._get_player_line(player, stats) for player, stats in player_stats_for_role.items()]))
+        columns = ' | '.join([f'{self._signup_choice_emoji(signup_status)}' for signup_status in iter(SignupStatus)])
         value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(player_stats_for_role.keys())}):\n{player_lines}'
         return _field(value, inline=False)
 
@@ -57,11 +58,8 @@ class ShowPlayersMessage(DiscordMessage):
         return f'{self._role_class_emoji(player.name)} {player.name}: {self._get_stats_line(stats)}'
 
     def _get_stats_line(self, stats: Dict[Union[SignupStatus, RosterStatus], int]) -> str:
-        formatted_stats = []
-        for signup_status in iter(SignupStatus):
-            formatted_stats.append(f'{stats.get(signup_status, 0)} {self._signup_choice_emoji(signup_status)}')
         # TODO: add roster_status
-        return f"{', '.join(formatted_stats)}"
+        return ' | '.join([stats.get(signup_status, 0) for signup_status in iter(SignupStatus)])
 
     def _get_missing_field(self) -> Dict[str, str]:
         value = '**Nog niet ingeschreven:** '

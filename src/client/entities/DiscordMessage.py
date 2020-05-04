@@ -20,7 +20,7 @@ class DiscordMessage:
                 messages.append(await recipient.send(content=self.content))
             return messages
         except discord.HTTPException as e:
-            if e.response == "Bad Request":  # Invalid Form Body
+            if e.code == "50035":  # Invalid Form Body
                 Log.warn(f'Failed to send following message to {recipient}: content {self.content}, embed: {self.embed.to_dict()}. Splitting message')
             raise e
 
