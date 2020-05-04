@@ -52,7 +52,7 @@ class Roster:
         raid_players = []
         for player_name, roster_choice in self.roster_choices.items():
             player = Players().get(player_name)
-            role = 'dps' if player.role in [Role.RANGED, Role.MELEE] else player.role.name.lower()
+            role = get_role(player.role)
             klass = player.klass.name.lower()
             signee_choice = signee_choices[player_name]
             standby_count = player.get_standby_count(raid_name)
@@ -104,7 +104,7 @@ def _calculate_importance(cur: int, mini: int, maxi: int) -> float:
     return 1 - (cur - mini) / (maxi - mini)
 
 
-def get_role(role):
+def get_role(role: Role) -> str:
     return {
         Role.TANK: 'tank',
         Role.MELEE: 'dps',
