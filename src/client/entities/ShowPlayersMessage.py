@@ -63,7 +63,7 @@ class ShowPlayersMessage(DiscordMessage):
 
     def _get_missing_field(self) -> Dict[str, str]:
         value = '**Nog niet ingeschreven:** '
-        value += ', '.join([member.display_name for member in self.client.get_members_for_role(RAIDER_RANK)])
+        value += ', '.join([member.display_name for member in self.client.get_members_for_role(RAIDER_RANK) if member.id not in Players().players_by_id])
         return _field(value, inline=False)
 
     def _role_emoji(self, role: Role) -> discord.Emoji:
