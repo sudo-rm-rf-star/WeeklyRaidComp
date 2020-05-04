@@ -3,6 +3,7 @@ from src.common.Constants import pref_per_role, min_per_class_role, max_per_clas
 from src.logic.enums.SignupStatus import SignupStatus
 from src.logic.enums.RosterStatus import RosterStatus
 from src.logic.Players import Players
+from src.exceptions.InternalBotException import InternalBotException
 from pandas import DataFrame
 from src.logic.enums.Role import Role
 from typing import Dict, List
@@ -54,6 +55,8 @@ class Roster:
         raid_players = []
         for player_name, roster_choice in self.roster_choices.items():
             player = Players().get(player_name)
+            if not player:
+                raise InternalBotException(f"Could not find a registered player named {player_name}")
             role = get_role(player.role)
             klass = player.klass.name.lower()
             signee_choice = signee_choices[player_name]
