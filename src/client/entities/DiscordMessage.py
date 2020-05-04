@@ -13,9 +13,10 @@ class DiscordMessage:
     async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> List[discord.Message]:
         messages = []
         try:
-            for embed in split_large_embed(self.embed.to_dict()):
-                embed = discord.Embed.from_dict(embed)
-                messages.append(await recipient.send(embed=embed))
+            if self.embed:
+                for embed in split_large_embed(self.embed.to_dict()):
+                    embed = discord.Embed.from_dict(embed)
+                    messages.append(await recipient.send(embed=embed))
             if self.content:
                 messages.append(await recipient.send(content=self.content))
             return messages
