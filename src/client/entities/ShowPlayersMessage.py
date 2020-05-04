@@ -51,11 +51,13 @@ class ShowPlayersMessage(DiscordMessage):
         player_stats_for_role = {player: stats for player, stats in self.player_stats.items() if player.role == role}
         player_lines = '\n'.join(sorted([self._get_player_line(player, stats) for player, stats in player_stats_for_role.items()]))
         columns = ' | '.join([f'{self._signup_choice_emoji(signup_status)}' for signup_status in sorted(list(SignupStatus))])
-        value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(player_stats_for_role.keys())}) {columns}:\n{player_lines}'
+        # value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(player_stats_for_role.keys())}) {columns}:\n{player_lines}'
+        value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(player_stats_for_role.keys())}):\n{player_lines}'
         return _field(value, inline=False)
 
     def _get_player_line(self, player: Player, stats: Dict[Union[SignupStatus, RosterStatus], int]) -> str:
-        return f'{self._role_class_emoji(player.name)} {player.name}: {self._get_stats_line(stats)}'
+        # return f'{self._role_class_emoji(player.name)} {player.name}: {self._get_stats_line(stats)}'
+        return f'{self._role_class_emoji(player.name)} {player.name}'
 
     def _get_stats_line(self, stats: Dict[Union[SignupStatus, RosterStatus], int]) -> str:
         # TODO: add roster_status
