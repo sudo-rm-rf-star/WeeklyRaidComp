@@ -59,7 +59,7 @@ class ShowPlayersMessage(DiscordMessage):
 
     def _get_stats_line(self, stats: Dict[Union[SignupStatus, RosterStatus], int]) -> str:
         # TODO: add roster_status
-        return ' | '.join([stats.get(signup_status, 0) for signup_status in iter(SignupStatus)])
+        return ' | '.join([str(stats.get(signup_status, 0)) for signup_status in iter(SignupStatus)])
 
     def _get_missing_field(self) -> Dict[str, str]:
         value = '**Nog niet ingeschreven:** '
