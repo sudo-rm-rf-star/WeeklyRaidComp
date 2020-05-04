@@ -14,12 +14,12 @@ class RegisterPlayerCommand(PlayerCommand):
     async def run(self, client: GuildClient, message: discord.Message, **kwargs) -> None:
         return await self._run(client, message, **kwargs)
 
-    async def _run(self, client, message: discord.Message, member_name, role_name) -> None:
+    async def _run(self, client, message: discord.Message, player, role) -> None:
         all_members = set()
-        if role_name:
-            all_members = all_members.union(client.get_members_for_role(role_name))
-        if member_name:
-            all_members.add(client.get_member(member_name))
+        if role:
+            all_members = all_members.union(client.get_members_for_role(role))
+        if player:
+            all_members.add(client.get_member(player))
 
         if len(all_members) == 0:
             all_members.add(message.author)
