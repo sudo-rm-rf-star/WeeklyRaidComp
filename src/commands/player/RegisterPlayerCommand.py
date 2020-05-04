@@ -27,7 +27,7 @@ class RegisterPlayerCommand(PlayerCommand):
             all_members.add(message.author)
 
         for member in all_members:
-            return await register(client, member, retry=len(all_members) == 1)
+            await register(client, member, retry=len(all_members) == 1)
 
 
 
