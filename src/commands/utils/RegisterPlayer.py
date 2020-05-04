@@ -5,6 +5,7 @@ from src.logic.Player import Player
 from src.logic.Players import Players
 from src.client.GuildClient import GuildClient
 from src.commands.utils.PlayerInteraction import interact, InteractionMessage, EnumResponseInteractionMessage
+import src.client.Logger as Log
 import discord
 
 TRIES = 3
@@ -13,7 +14,9 @@ TRIES = 3
 async def register(client: GuildClient, user: discord.Member, retry: bool = False) -> str:
     player = Players().get_by_id(user.id)
     if player is not None and not retry:
-        return f'You have already signed up: {player}'
+        message = f'You have already signed up: {player}'
+        Log.warn(message)
+        return message
 
     player_name = await interact(user, GetNameMesage(client))
     role = await interact(user, GetRoleMessage(client))
