@@ -6,22 +6,20 @@ import discord
 
 class RegisterPlayerCommand(PlayerCommand):
     def __init__(self):
-        argformat = '[mentions]'
+        argformat = '[player][role]'
         subname = 'register'
-        description = 'Registreer jezelf als raider of iemand anders door hem te mentionnen. Stuurt een DM voor de registratie'
+        description = 'Registreer jezelf als raider, iemand anders of iedereen met een bepaalde rol. Stuurt een DM voor de registratie'
         super(RegisterPlayerCommand, self).__init__(subname, description, argformat)
 
-    async def run(self, client: GuildClient, message: discord.Message, **kwargs) -> str:
-        return await self._run(client, message)
+    async def run(self, client: GuildClient, message: discord.Message, **kwargs) -> None:
+        return await self._run(client, message, **kwargs)
 
-    async def _run(self, client, message: discord.Message) -> str:
-        members_mentions = message.mentions
-        role_mentions = message.role_mentions
+    async def _run(self, client, message: discord.Message, member_name, role_name) -> None:
         all_members = set()
-        for role_mention in role_mentions:
-            all_members = all_members.union(role_mention.members)
-        for member_mention in members_mentions:
-            all_members.add(member_mention)
+        if role_name:
+            all_members = all_members.union(client.get_members_for_role(role_name))
+        if member_name:
+            all_members.add(client.get_member(member_name))
 
         if len(all_members) == 0:
             all_members.add(message.author)

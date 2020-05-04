@@ -110,5 +110,5 @@ def get_example(argname: str) -> str:
         'week_count_cutoff': '4',
         'channel_name': 'raid-signups',
         'announcement': 'Goedenavond beste kruisvaarder!',
-        'mentions': '@Kruisvaarder'
+        'role': 'Kruisvaarder',
     }[argname]
