@@ -21,7 +21,12 @@ class Rosters:
         self.updated_since_last_check = False
 
     def compose(self, raid_name: str) -> None:
+        """ Creates/updates all of the rosters. If this raid has any players which don't exist anymore. They are removed from the event. """
         self.updated_since_last_check = True
+        for player_name in self.signee_choices.keys():
+            if not Players().get(player_name):
+                self.remove_player(player_name)
+
         if not self.rosters:
             self.rosters = [Roster() for _ in range(_roster_count(raid_name))]
 
@@ -55,9 +60,20 @@ class Rosters:
             if signup_choice is not None:
                 self.signee_choices[player_name] = signup_choice
 
+    def remove_player(self, player_name):
+        if player_name in self.signee_choices:
+            del self.signee_choices[player_name]
+        team_index = self.get_team_index(player_name)
+        if team_index:
+            del self.rosters[team_index].roster_choices[player_name]
+
     def get_roster_choice(self, player_name: str) -> Optional[RosterStatus]:
-        roster_choice = self.get_team_and_roster_choice(player_name)
-        return self.get_team_and_roster_choice(player_name)[1] if roster_choice else None
+        team_and_roster_choice = self.get_team_and_roster_choice(player_name)
+        return self.get_team_and_roster_choice(player_name)[1] if team_and_roster_choice else None
+
+    def get_team_index(self, player_name: str) -> Optional[int]:
+        team_and_roster_choice = self.get_team_and_roster_choice(player_name)
+        return self.get_team_and_roster_choice(player_name)[0] if team_and_roster_choice else None
 
     def get_team_and_roster_choice(self, player_name: str) -> Optional[Tuple[int, RosterStatus]]:
         for i, roster in enumerate(self.rosters):

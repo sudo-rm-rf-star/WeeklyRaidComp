@@ -16,7 +16,9 @@ class Roster:
         self._extra = None
 
     def update(self, raid_name: str, signee_choices: Dict[str, SignupStatus]):
-        """Updates the roster with the given signees. Updates all of the updated roster statuses. """
+        """
+        Updates the roster with the given signees. Updates all of the updated roster statuses.
+        """
         if len(signee_choices.keys()) == 0:
             return False
         players_df = self._get_raid_players_df(raid_name, signee_choices)
