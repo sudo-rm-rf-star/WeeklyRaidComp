@@ -6,11 +6,10 @@ import discord
 
 class RegisterPlayerCommand(PlayerCommand):
     def __init__(self):
-        argformat = ''
+        argformat = '[mentions]'
         subname = 'register'
         description = 'Registreer jezelf als raider of iemand anders door hem te mentionnen. Stuurt een DM voor de registratie'
-        example_args = '[@Dok]'
-        super(RegisterPlayerCommand, self).__init__(subname, description, argformat, example_args=example_args)
+        super(RegisterPlayerCommand, self).__init__(subname, description, argformat)
 
     async def run(self, client: GuildClient, message: discord.Message, **kwargs) -> str:
         return await self._run(client, message)
