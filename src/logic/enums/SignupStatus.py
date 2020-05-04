@@ -10,3 +10,6 @@ class SignupStatus(Enum):
     BENCH = 4,
     TENTATIVE = 5,
     DECLINE = 6,
+
+    def __lt__(self, other):
+        return self.value < other.value
