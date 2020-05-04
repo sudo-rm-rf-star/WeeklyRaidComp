@@ -19,7 +19,7 @@ class RegisterPlayerCommand(PlayerCommand):
         role_mentions = message.role_mentions
         all_members = set()
         for role_mention in role_mentions:
-            all_members = all_members.union(client.get_members_for_role(role_mention))
+            all_members = all_members.union(role_mention.members)
         for member_mention in members_mentions:
             all_members.add(member_mention)
 
