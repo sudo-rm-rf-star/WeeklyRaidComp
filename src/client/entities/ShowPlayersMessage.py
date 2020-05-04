@@ -23,9 +23,6 @@ class ShowPlayersMessage(DiscordMessage):
         self.embed = self._players_to_embed()
         super().__init__(embed=self.embed)
 
-    def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> discord.Message:
-        super(ShowPlayersMessage, self).send_to(recipient)
-
     def _players_to_embed(self) -> Embed:
         embed = {'title': self._get_title(),
                  'fields': self._get_fields(),

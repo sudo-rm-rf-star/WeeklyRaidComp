@@ -10,13 +10,15 @@ class DiscordMessage:
         self.content = content
         self.embed = embed
 
-    async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> discord.Message:
+    async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> List[discord.Message]:
+        messages = []
         try:
             for embed in split_large_embed(self.embed.to_dict()):
                 embed = discord.Embed.from_dict(embed)
-                return await recipient.send(embed=embed)
+                messages.append(await recipient.send(embed=embed))
             if self.content:
-                return await recipient.send(content=self.content)
+                messages.append(await recipient.send(content=self.content))
+            return messages
         except discord.HTTPException as e:
             if e.response == "Bad Request":  # Invalid Form Body
                 Log.warn(f'Failed to send following message to {recipient}: content {self.content}, embed: {self.embed.to_dict()}. Splitting message')

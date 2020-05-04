@@ -1,3 +1,4 @@
+from src.exceptions.InternalBotException import InternalBotException
 from src.exceptions.InvalidArgumentException import InvalidArgumentException
 from src.client.entities.DiscordMessage import DiscordMessage
 from src.client.GuildClient import GuildClient
@@ -20,7 +21,10 @@ class InteractionMessage(DiscordMessage):
         return msg.content
 
     async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> discord.Message:
-        msg = await super(InteractionMessage, self).send_to(recipient)
+        msgs = await super(InteractionMessage, self).send_to(recipient)
+        if len(msgs) > 1:
+            raise InternalBotException("Unhandled case")
+        msg = msgs[0]
         self.channel_id = msg.channel.id
         self.recipient_id = recipient.id
         return msg
