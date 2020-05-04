@@ -23,7 +23,8 @@ class Rosters:
     def compose(self, raid_name: str) -> None:
         """ Creates/updates all of the rosters. If this raid has any players which don't exist anymore. They are removed from the event. """
         self.updated_since_last_check = True
-        for player_name in self.signee_choices.keys():
+        player_names = list(self.signee_choices.keys())
+        for player_name in player_names:
             if not Players().get(player_name):
                 self.remove_player(player_name)
 
