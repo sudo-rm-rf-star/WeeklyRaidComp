@@ -67,7 +67,8 @@ class Rosters:
         if player_name in self.signee_choices:
             del self.signee_choices[player_name]
         for team_index in range(len(self.rosters)):
-            del self.rosters[team_index].roster_choices[player_name]
+            if player_name in self.rosters[team_index].roster_choices:
+                del self.rosters[team_index].roster_choices[player_name]
 
     def get_roster_choice(self, player_name: str) -> Optional[RosterStatus]:
         team_and_roster_choice = self.get_team_and_roster_choice(player_name)
