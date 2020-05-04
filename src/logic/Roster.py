@@ -108,6 +108,6 @@ def get_role(role):
     return {
         Role.TANK: 'tank',
         Role.MELEE: 'dps',
-        Role.RANGED: 'ranged',
+        Role.RANGED: 'dps',
         Role.HEALER: 'healer'
     }[role]

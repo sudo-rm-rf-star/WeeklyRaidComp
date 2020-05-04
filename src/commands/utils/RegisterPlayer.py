@@ -25,7 +25,7 @@ async def register(client: GuildClient, user: discord.Member, retry: bool = Fals
     player = Player(user.id, player_name, role=role, klass=klass, race=race)
     Players().add(player)
     Players().store()
-    await user.send(content=f'You have successfully signed up: {player}')
+    await user.send(content=f'You have successfully registered: {player}')
 
 
 class GetNameMesage(InteractionMessage):
