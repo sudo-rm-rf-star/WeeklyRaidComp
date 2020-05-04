@@ -64,7 +64,7 @@ class ShowPlayersMessage(DiscordMessage):
         return f"{', '.join(formatted_stats)}"
 
     def _get_missing_field(self) -> Dict[str, str]:
-        value = 'Nog niet ingeschreven: '
+        value = '**Nog niet ingeschreven:** '
         value += ', '.join([member.display_name for member in self.client.get_members_for_role(RAIDER_RANK)])
         return _field(value, inline=False)
 
