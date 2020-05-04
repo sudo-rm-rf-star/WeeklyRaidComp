@@ -26,7 +26,6 @@ class Rosters:
         self.updated_since_last_check = True
         player_names = set(self.signee_choices.keys()).union(set(player_name for roster in self.rosters for player_name in roster.roster_choices.keys()))
         for player_name in player_names:  # Repair mechanism in case of inconsistencies between Players and RaidEvent
-            Log.info(f'{player_name} {Players().get(player_name)}')
             if Players().get(player_name) is None:
                 self.remove_player(player_name)
 
