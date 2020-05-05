@@ -3,7 +3,7 @@ from src.logic.RaidEvents import RaidEvents
 def repair():
     for event in RaidEvents().all():
         for player_name, signee_choice in event.rosters.signee_choices.items():
-            print(player_name, signee_choice)
+            print(player_name, signee_choice.value)
             if isinstance(signee_choice.value, tuple):
                 event.rosters.signee_choices[player_name].value = signee_choice.value[0]
         for i in range(len(event.rosters.rosters)):
