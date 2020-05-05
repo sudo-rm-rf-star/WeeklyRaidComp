@@ -13,8 +13,7 @@ class RosterStatus(Enum):
     def __new__(cls, *args, **kwargs):
         if isinstance(args, tuple):
             value = args[0]
-            print(type(value))
         else:
             value = args
 
-        print(value)
+        super(RosterStatus, cls).__new__(value, **kwargs)
