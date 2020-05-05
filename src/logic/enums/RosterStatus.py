@@ -10,10 +10,7 @@ class RosterStatus(Enum):
     UNDECIDED = 2
     DECLINE = 4
 
-    def __new__(cls, *args, **kwargs):
-        if isinstance(args, tuple):
-            value = args[0]
-        else:
-            value = args
-
-        return super().__new__(cls, value)
+    def __call__(self, value, *args, **kwargs):
+        if isinstance(value, tuple):
+            value = value[0]
+        return super(RosterStatus, self).__call__(value, *args, **kwargs)
