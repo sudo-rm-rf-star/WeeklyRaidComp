@@ -2,7 +2,7 @@ from src.logic.RaidEvents import RaidEvents
 from src.logic.Players import Players
 
 
-def repair():
+def show_data():
     for event in RaidEvents().all():
         print(event)
         for player_name, signee_choice in event.rosters.signee_choices.items():
