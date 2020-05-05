@@ -1,6 +1,6 @@
 from src.logic.RaidEvents import RaidEvents
-from src.logic.enums.RosterStatus2 import RosterStatus
-from src.logic.enums.SignupStatus2 import SignupStatus
+from src.logic.enums.RosterStatus import RosterStatus
+from src.logic.enums.SignupStatus import SignupStatus
 
 def repair():
     for event in RaidEvents().all():
