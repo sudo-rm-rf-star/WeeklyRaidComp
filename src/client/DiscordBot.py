@@ -1,6 +1,7 @@
 # DiscordBot.py
 from src.client.GuildClient import GuildClient
 from src.exceptions.BotException import BotException
+from websockets.exceptions import InvalidStatusCode
 from src.common.Constants import MAINTAINER, GUILD
 from src.commands.BotCommands import find_and_execute_command
 from src.commands.utils.RaidSignup import raid_signup
@@ -58,7 +59,13 @@ def run() -> None:
                 await user.send(f"There were internal difficulties. Sending a message to {MAINTAINER}")
                 await client_wrapper.get_member(MAINTAINER).send(error_message)
 
-    client.run(token)
+    try:
+        client.run(token)
+    except InvalidStatusCode as e:
+        error_message = f"Could not start client {e}\n{traceback.format_exc()}"
+        print(error_message)
+        Log.error(error_message)
+
 
 
 async def handle_exception(e: Exception, message: discord.Message) -> None:
