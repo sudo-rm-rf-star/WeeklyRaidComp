@@ -16,4 +16,4 @@ class RosterStatus(Enum):
         else:
             value = args
 
-        return super().__new__(value, **kwargs)
+        return super().__new__(Enum, value)
