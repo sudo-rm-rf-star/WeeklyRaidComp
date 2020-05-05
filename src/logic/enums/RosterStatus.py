@@ -9,8 +9,3 @@ class RosterStatus(Enum):
     EXTRA = 3,
     UNDECIDED = 2,
     DECLINE = 4
-
-    def __call__(self, value, *args, **kwargs):
-        if isinstance(value, tuple):
-            value = value[0]
-        return super(RosterStatus, self).__call__(value, *args, **kwargs)

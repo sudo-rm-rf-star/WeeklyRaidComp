@@ -61,7 +61,11 @@ class Roster:
             klass = player.klass.name.lower()
             signee_choice = signee_choices[player_name]
             standby_count = player.get_standby_count(raid_name)
-            priority = signee_choice.value + roster_choice.value
+            # TODO, data format of enums contains tuples. Need to fix this somehow. Not sure how yet.
+            priority = 0
+            priority += signee_choice.value[0] if isinstance(signee_choice.value, tuple) else signee_choice.value
+            priority += roster_choice.value[0] if isinstance(roster_choice.value, tuple) else roster_choice.value
+
             raid_players.append({'name': player.name, 'class': klass, 'role': role, 'standby_count': standby_count,
                                  'signee_choice': signee_choice, 'roster_status': roster_choice, 'priority': priority, 'score': 0})
         return DataFrame(raid_players)
