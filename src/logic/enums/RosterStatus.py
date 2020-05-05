@@ -11,4 +11,5 @@ class RosterStatus(Enum):
     DECLINE = 4
 
     def __new__(cls, *args, **kwargs):
-        print(args, kwargs)
+        value = args[0]
+        print(value)
