@@ -2,6 +2,7 @@ from src.logic.RaidEvents import RaidEvents
 from src.logic.enums.RosterStatus2 import RosterStatus
 from src.logic.enums.SignupStatus2 import SignupStatus
 
+
 def repair():
     for event in RaidEvents().all():
         for player_name, signee_choice in event.rosters.signee_choices.items():
@@ -16,9 +17,3 @@ def repair():
                     print(f'Updated {player_name} with {RosterStatus[roster_choice.name]}')
                     event.rosters.rosters[i].roster_choices[player_name] = RosterStatus[roster_choice.name]
     RaidEvents().store()
-
-
-
-
-
-
