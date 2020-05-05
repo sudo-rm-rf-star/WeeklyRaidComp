@@ -1,6 +1,6 @@
 from src.logic.RaidEvents import RaidEvents
 
-if __name__ == '__main__':
+def repair():
     for event in RaidEvents().all():
         for player_name, signee_choice in event.rosters.signee_choices.items():
             if isinstance(signee_choice, tuple):
