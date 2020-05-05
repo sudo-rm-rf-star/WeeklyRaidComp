@@ -13,7 +13,7 @@ def repair():
             for player_name, roster_choice in event.rosters.rosters[i].roster_choices.items():
                 print(player_name, roster_choice.value)
                 if isinstance(roster_choice.value, tuple):
-                    print(f'Updated {player_name} with {SignupStatus[signee_choice.name]}')
+                    print(f'Updated {player_name} with {RosterStatus[roster_choice.name]}')
                     event.rosters.rosters[i].roster_choices[player_name] = RosterStatus[roster_choice.name]
     RaidEvents().store()
 
