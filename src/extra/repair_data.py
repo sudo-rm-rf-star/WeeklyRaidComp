@@ -1,7 +1,6 @@
 from src.logic.RaidEvents import RaidEvents
 from src.logic.enums.RosterStatus2 import RosterStatus
 from src.logic.enums.SignupStatus2 import SignupStatus
-from src.logic.enums.RosterStatus import RosterStatus as RSOLD
 
 
 def repair():
@@ -13,7 +12,7 @@ def repair():
                 # event.rosters.signee_choices[player_name] = SignupStatus[signee_choice.name]
         for i in range(len(event.rosters.rosters)):
             for player_name, roster_choice in event.rosters.rosters[i].roster_choices.items():
-                print(player_name, roster_choice, roster_choice.value, isinstance(roster_choice, RSOLD))
+                print(player_name, roster_choice, roster_choice.value, isinstance(roster_choice, RosterStatus))
                 if isinstance(roster_choice.value, tuple):
                     print(f'Updated {player_name} with {RosterStatus[roster_choice.name]}')
                     # event.rosters.rosters[i].roster_choices[player_name] = RosterStatus[roster_choice.name]
