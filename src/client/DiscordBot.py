@@ -1,19 +1,20 @@
 # DiscordBot.py
-from src.client.GuildClient import GuildClient
-from src.exceptions.BotException import BotException
+from exceptions.BotException import BotException
 from websockets.exceptions import InvalidStatusCode
-from src.common.Constants import MAINTAINER, GUILD
-from src.commands.BotCommands import find_and_execute_command
-from src.commands.utils.RaidSignup import raid_signup
+from commands.BotCommands import find_and_execute_command, execute_command
+from commands.player.SignupPlayerCommand import SignupPlayerCommand
+from utils.Constants import MAINTAINER
+from utils.EmojiNames import EMOJI_SIGNUP_STATUS
+from client.DiscordClient import DiscordClient
+from client.RaidEventsResource import RaidEventsResource
+from client.PlayersResource import PlayersResource
 from dotenv import load_dotenv
 
-import src.client.Logger as Log
+import utils.Logger as Log
 import discord
 import logging
 import os
 import traceback
-
-client_wrapper = None
 
 
 def run() -> None:
@@ -24,54 +25,52 @@ def run() -> None:
     assert token, "Could not find any discord token"
 
     client = discord.Client()
+    discord_client = DiscordClient(client)
+    events_resource = RaidEventsResource(discord_client)
+    players_resource = PlayersResource(discord_client)
 
     @client.event
     async def on_ready() -> None:
-        global client_wrapper
-        guilds = await client.fetch_guilds().flatten()
-        guild = discord.utils.get(guilds, name=GUILD)
-        guild = client.get_guild(guild.id)
-        client_wrapper = GuildClient(client, guild)
+        await discord_client.on_ready()
+        events_resource.on_ready()
         logging.getLogger().info(f'{client.user} has connected.')
 
     @client.event
     async def on_message(message: discord.Message) -> None:
-        if not client_wrapper or message.author == client.user:
+        if not client.is_ready() or message.author == client.user:
             return
         try:
-            await find_and_execute_command(client_wrapper, message)
-        except Exception as e:
-            await handle_exception(e, message)
+            await find_and_execute_command(discord_client, events_resource, players_resource, message=message)
+        except Exception as ex:
+            await handle_exception(discord_client, ex, message)
 
     @client.event
     async def on_raw_reaction_add(reaction_event: discord.RawReactionActionEvent) -> None:
-        if not client_wrapper or reaction_event.user_id == client.user.id:
+        if not client.is_ready() or reaction_event.user_id == client.user.id or reaction_event.emoji.name not in EMOJI_SIGNUP_STATUS.keys():
             return
         try:
-            await raid_signup(client_wrapper, reaction_event.user_id, reaction_event.message_id, reaction_event.emoji)
-        except Exception as e:
-            user = client.get_user(reaction_event.user_id)
-            error_message = f"Raid signup failed for {user}, {reaction_event.emoji}, {e}"
-            Log.error(f'{error_message}\n{traceback.format_exc()}')
-            if isinstance(e, BotException):
-                await user.send(e.message)
+            await execute_command(SignupPlayerCommand(), "", discord_client, events_resource, players_resource, raw_reaction=reaction_event)
+        except Exception as ex:
+            member = discord_client.get_member_by_id(reaction_event.user_id)
+            err_msg = f"Raid signup failed for {member}, {reaction_event.emoji}, {ex}"
+            Log.error(f'{err_msg}\n{traceback.format_exc()}')
+            if isinstance(ex, BotException):
+                await member.send(ex.message)
             else:
-                await user.send(f"There were internal difficulties. Sending a message to {MAINTAINER}")
-                await client_wrapper.get_member(MAINTAINER).send(error_message)
+                await member.send(f"There were internal difficulties. Sending a message to {MAINTAINER}")
+                await discord_client.get_member(MAINTAINER).send(err_msg)
 
     try:
         client.run(token)
     except InvalidStatusCode as e:
         error_message = f"Could not start client {e}\n{traceback.format_exc()}"
-        print(error_message)
         Log.error(error_message)
 
 
-
-async def handle_exception(e: Exception, message: discord.Message) -> None:
-    Log.error(f"{message.author}, {message.content}, {e}\n{traceback.format_exc()}")
-    if isinstance(e, BotException):
-        await message.author.send(e.message)
+async def handle_exception(client: DiscordClient, ex: Exception, message: discord.Message) -> None:
+    Log.error(f"{message.author}, {message.content}, {ex}\n{traceback.format_exc()}")
+    if isinstance(ex, BotException):
+        await message.author.send(ex.message)
     else:
         await message.author.send(f"There were internal difficulties. Sending a message to {MAINTAINER}")
-        await client_wrapper.get_member(MAINTAINER).send(f'{message.author}, {message.content}, {e}')
+        await client.get_member(MAINTAINER).send(f'{message.author}, {message.content}, {ex}')

@@ -1,9 +1,6 @@
-from src.commands.roster.RosterCommand import RosterCommand
-from src.client.entities.RaidMessage import RaidMessage
-from src.client.GuildClient import GuildClient
-from src.logic.RaidEvents import RaidEvents
-from src.time.DateOptionalTime import DateOptionalTime
-import discord
+from commands.roster.RosterCommand import RosterCommand
+from client.entities.RaidMessage import RaidMessage
+from utils.AttendanceReader import update_raid_presence
 
 
 class CreateRosterCommand(RosterCommand):
@@ -13,13 +10,11 @@ class CreateRosterCommand(RosterCommand):
         description = 'Maak een raid compositie voor een event'
         super(RosterCommand, self).__init__('roster', subname, description, argformat)
 
-    async def run(self, client: GuildClient, message: discord.Message, **kwargs) -> str:
-        return await self._run(client, **kwargs)
-
-    async def _run(self, client: GuildClient, raid_name: str, raid_datetime: DateOptionalTime) -> str:
-        raid_event = RaidEvents().get(raid_name, raid_datetime)
-        success = raid_event.compose_roster()
-        await RaidMessage(client, raid_event).sync()
-        success_indicator = 'successfully' if success else 'unsuccessfully'
-        self.publish_roster_changes(client, raid_event)
-        return f'Roster for {raid_event.get_name()} on {raid_event.get_datetime()} has been {success_indicator} updated.'
+    async def execute(self, raid_name, raid_datetime, **kwargs):
+        update_raid_presence(self.players_resource, self.events_resource)
+        raid_event = self.events_resource.get_raid(raid_name, raid_datetime)
+        updated_players = raid_event.compose_roster()
+        RaidMessage(self.client, raid_event).sync()
+        success_indicator = 'successfully' if len(updated_players) > 0 else 'unsuccessfully'
+        self.publish_roster_changes(updated_players, raid_event)
+        self.respond(f'Roster for {raid_event.get_name()} on {raid_event.get_datetime()} has been {success_indicator} updated.')

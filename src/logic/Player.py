@@ -1,37 +1,87 @@
-from src.logic.enums.Role import Role
-from src.logic.enums.Class import Class
-from src.logic.enums.Race import Race
-from src.time.DateOptionalTime import DateOptionalTime
-from typing import Dict, Set, Optional
+from logic.enums.RosterStatus import RosterStatus
+from logic.enums.SignupStatus import SignupStatus
+from logic.enums.Role import Role
+from logic.enums.Class import Class
+from logic.enums.Race import Race
+from utils.DateOptionalTime import DateOptionalTime
+from typing import Dict, Set, Optional, Any
 
 
 class Player:
-    def __init__(self, discord_id: int, char_name: str, klass: Class, role: Role, race: Race, present_dates: Optional[Dict[str, Set[DateOptionalTime]]] = None,
-                 standby_dates: Optional[Dict[str, Set[DateOptionalTime]]] = None):
-        self.discord_id = discord_id
+    def __init__(self, char_name: str, klass: Class, role: Role, race: Race, present_dates: Optional[Dict[str, Set[int]]] = None,
+                 standby_dates: Optional[Dict[str, Set[int]]] = None, roster_status: Optional[RosterStatus] = None,
+                 signup_status: Optional[SignupStatus] = None, team_index: Optional[int] = None, discord_id: Optional[int] = None):
         self.name = char_name
         self.klass = klass
         self.role = role
         self.race = race
-        # These are based only on historical data
+        # These will will not be filled for RaidEvents
         self.present_dates = {} if not present_dates else present_dates
+        self.discord_id = discord_id
+        # These will only be filled for RaidEvents
         self.standby_dates = {} if not standby_dates else standby_dates
+        self.roster_status = roster_status if roster_status else RosterStatus.UNDECIDED
+        self.signup_status = signup_status if signup_status else SignupStatus.UNDECIDED
+        self.team_index = team_index
 
     def add_standby_date(self, raid_name: str, raid_datetime: DateOptionalTime):
         if raid_name not in self.standby_dates:
             self.standby_dates[raid_name] = set()
-        self.standby_dates[raid_name].add(raid_datetime)
+        self.standby_dates[raid_name].add(raid_datetime.to_timestamp())
 
     def add_present_date(self, raid_name: str, raid_datetime: DateOptionalTime):
         if raid_name not in self.present_dates:
             self.present_dates[raid_name] = set()
-        self.present_dates[raid_name].add(raid_datetime)
+        self.present_dates[raid_name].add(raid_datetime.to_timestamp())
 
     def get_standby_dates(self, raid_name: str) -> Set[DateOptionalTime]:
-        return self.standby_dates.get(raid_name, set())
+        return set(DateOptionalTime.from_timestamp(timestamp) for timestamp in self.standby_dates.get(raid_name, set()))
+
+    def get_present_dates(self, raid_name: str) -> Set[DateOptionalTime]:
+        return set(DateOptionalTime.from_timestamp(timestamp) for timestamp in self.present_dates.get(raid_name, set()))
 
     def get_standby_count(self, raid_name: str) -> int:
         return len(self.get_standby_dates(raid_name))
+
+    def is_declined(self) -> bool:
+        return (self.signup_status == SignupStatus.DECLINE and self.roster_status != RosterStatus.ACCEPT) or self.roster_status == RosterStatus.DECLINE
+
+    @staticmethod
+    def from_dict(item: Dict[str, Any]):
+        return Player(char_name=item['name'],
+                      klass=Class[item['class']],
+                      role=Role[item['role']],
+                      race=Race[item['race']],
+                      discord_id=item.get('discord_id', None),
+                      standby_dates=item.get('standby_dates', None),
+                      present_dates=item.get('present_dates', None),
+                      roster_status=RosterStatus[item['roster_status']] if 'roster_status' in item else None,
+                      signup_status=SignupStatus[item['signup_status']] if 'signup_status' in item else None,
+                      team_index=item.get('team_index', None))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'discord_id': self.discord_id,
+            'class': self.klass.name,
+            'role': self.role.name,
+            'race': self.race.name,
+            'present_dates': self.present_dates,
+            'standby_dates': self.standby_dates
+        }
+
+    def to_dict_for_raid_event(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'class': self.klass.name,
+            'role': self.role.name,
+            'race': self.race.name,
+            'discord_id': self.discord_id,
+            'roster_status': self.roster_status.name,
+            'signup_status': self.signup_status.name,
+            'team_index': self.team_index,
+            'standby_dates': self.standby_dates
+        }
 
     def __eq__(self, other) -> bool:
         return self.name == other.name

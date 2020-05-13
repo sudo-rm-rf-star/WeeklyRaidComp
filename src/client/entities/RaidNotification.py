@@ -1,21 +1,22 @@
-from src.client.GuildClient import GuildClient
-from src.common.EmojiNames import SIGNUP_STATUS_EMOJI
-from src.logic.enums.SignupStatus import SignupStatus
-from src.logic.RaidEvent import RaidEvent
-from src.client.entities.DiscordMessage import DiscordMessage
-from src.exceptions.InternalBotException import InternalBotException
+from client.DiscordClient import DiscordClient
+from utils.EmojiNames import SIGNUP_STATUS_EMOJI
+from logic.enums.SignupStatus import SignupStatus
+from logic.RaidEvent import RaidEvent
+from client.entities.DiscordMessage import DiscordMessage
+from exceptions.InternalBotException import InternalBotException
+from client.entities.GuildMember import GuildMember
 import discord
 import asyncio
 
 
 class RaidNotification(DiscordMessage):
-    def __init__(self, client: GuildClient, raid_event: RaidEvent):
+    def __init__(self, client: DiscordClient, raid_event: RaidEvent):
         self.client = client
         self.raid_event = raid_event
         content = f"You have been invited for {raid_event.get_name()} on {raid_event.datetime}. Please sign by clicking one of the reaction boxes."
         super(RaidNotification, self).__init__(content=content)
 
-    async def send_to(self, recipient: discord.Member) -> discord.Message:
+    async def send_to(self, recipient: GuildMember) -> discord.Message:
         msgs = await super(RaidNotification, self).send_to(recipient)
         if len(msgs) > 1:
             raise InternalBotException("Unhandled case")

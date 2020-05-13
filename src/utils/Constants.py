@@ -1,7 +1,7 @@
 import os
-from src.raids import MCConstants
-from src.raids import BWLConstants
-from src.raids import ZGConstants
+from raids import MCConstants
+from raids import BWLConstants
+from raids import ZGConstants
 
 BOT_NAME = 'DokBot'
 MAINTAINER = 'Dok'
@@ -11,6 +11,7 @@ RAID_INFO_EMBEDS = os.path.join('data', 'embeds', 'raid-info.json')
 STORAGE_SUFFIX = '.csv'
 INFO_CHANNEL = 'raid-info'
 LOGS_CHANNEL = 'bot-logs'
+EVENTS_CHANNEL = 'raid-events'
 RAID_HELPER_BOT = 'Raid-Helper'
 GUILD = 'De Rode Ridders'
 DATE_FORMAT = '%d-%m-%Y'

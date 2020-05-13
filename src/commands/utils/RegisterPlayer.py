@@ -1,35 +1,34 @@
-from src.logic.enums.Class import Class
-from src.logic.enums.Role import Role
-from src.logic.enums.Race import Race
-from src.logic.Player import Player
-from src.logic.Players import Players
-from src.client.GuildClient import GuildClient
-from src.commands.utils.PlayerInteraction import interact, InteractionMessage, EnumResponseInteractionMessage
-import src.client.Logger as Log
-import discord
+from logic.enums.Class import Class
+from logic.enums.Role import Role
+from logic.enums.Race import Race
+from logic.Player import Player
+from client.DiscordClient import DiscordClient
+from commands.utils.PlayerInteraction import interact, InteractionMessage, EnumResponseInteractionMessage
+from client.entities.GuildMember import GuildMember
+from client.PlayersResource import PlayersResource
+import asyncio
 
 TRIES = 3
 
 
-async def register(client: GuildClient, user: discord.Member, retry: bool = False) -> str:
-    player = Players().get_by_id(user.id)
+async def register(client: DiscordClient, players_resource: PlayersResource, member: GuildMember, retry: bool = False) -> Player:
+    player = players_resource.get_player_by_id(member.id)
     if player is not None and not retry:
-        message = f'You have already signed up: {player}'
-        Log.warn(message)
-        return message
+        member.send(f'You have already signed up: {player}')
+        return player
 
-    player_name = await interact(user, GetNameMesage(client))
-    role = await interact(user, GetRoleMessage(client))
-    klass = await interact(user, GetClassMessage(client))
-    race = await interact(user, GetRaceMessage(client))
-    player = Player(user.id, player_name, role=role, klass=klass, race=race)
-    Players().add(player)
-    Players().store()
-    await user.send(content=f'You have successfully registered: {player}')
+    player_name = await interact(member, GetNameMesage(client))
+    role = await interact(member, GetRoleMessage(client))
+    klass = await interact(member, GetClassMessage(client))
+    race = await interact(member, GetRaceMessage(client))
+    player = Player(member.id, player_name, role=role, klass=klass, race=race)
+    players_resource.update_player(player)
+    asyncio.create_task(member.send(content=f'You have successfully registered: {player}'))
+    return player
 
 
 class GetNameMesage(InteractionMessage):
-    def __init__(self, client: GuildClient, *args, **kwargs):
+    def __init__(self, client: DiscordClient, *args, **kwargs):
         content = "Please respond with your character name"
         super(GetNameMesage, self).__init__(client, content, *args, **kwargs)
 
@@ -37,19 +36,19 @@ class GetNameMesage(InteractionMessage):
         return (await super(GetNameMesage, self).get_response()).capitalize()
 
 
-class GetRoleMessage(EnumResponseInteractionMessage):
-    def __init__(self, client: GuildClient, *args, **kwargs):
+class GetRoleMessage(EnumResponseInteractionMessage[Role]):
+    def __init__(self, client: DiscordClient, *args, **kwargs):
         content = "Please respond with the role of your character"
         super().__init__(client, content, Role, *args, **kwargs)
 
 
-class GetClassMessage(EnumResponseInteractionMessage):
-    def __init__(self, client: GuildClient, *args, **kwargs):
+class GetClassMessage(EnumResponseInteractionMessage[Class]):
+    def __init__(self, client: DiscordClient, *args, **kwargs):
         content = "Please respond with the class of your character"
         super().__init__(client, content, Class, *args, **kwargs)
 
 
-class GetRaceMessage(EnumResponseInteractionMessage):
-    def __init__(self, client: GuildClient, *args, **kwargs):
+class GetRaceMessage(EnumResponseInteractionMessage[Race]):
+    def __init__(self, client: DiscordClient, *args, **kwargs):
         content = "Please respond with the race of your character"
         super().__init__(client, content, Race, *args, **kwargs)

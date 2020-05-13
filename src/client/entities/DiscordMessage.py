@@ -1,6 +1,7 @@
 import discord
-import src.client.Logger as Log
-from src.exceptions.InternalBotException import InternalBotException
+import utils.Logger as Log
+from client.entities.GuildMember import GuildMember
+from exceptions.InternalBotException import InternalBotException
 from typing import Union, Dict, Any, List, Optional
 import json
 
@@ -10,7 +11,7 @@ class DiscordMessage:
         self.content = content
         self.embed = embed
 
-    async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> List[discord.Message]:
+    async def send_to(self, recipient: Union[GuildMember, discord.TextChannel]) -> List[discord.Message]:
         messages = []
         try:
             if self.embed:

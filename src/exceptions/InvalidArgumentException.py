@@ -1,4 +1,4 @@
-from src.exceptions.BotException import BotException
+from exceptions.BotException import BotException
 
 
 class InvalidArgumentException(BotException):

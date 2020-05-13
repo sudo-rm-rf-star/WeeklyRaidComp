@@ -1,5 +1,5 @@
-from src.exceptions.InvalidArgumentException import InvalidArgumentException
-from src.common.Constants import TIME_FORMAT
+from exceptions.InvalidArgumentException import InvalidArgumentException
+from utils.Constants import TIME_FORMAT
 import datetime
 
 

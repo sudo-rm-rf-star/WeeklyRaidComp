@@ -1,55 +1,59 @@
-import src.client.Logger as Log
-from src.exceptions.InternalBotException import InternalBotException
-from src.commands.utils.ArgParser import ArgParser
-from src.common.Constants import DATETIMESEC_FORMAT, LOGS_CHANNEL
-from src.client.GuildClient import GuildClient
-from src.commands.utils.CommandUtils import check_authority
-from src.logic.Players import Players
-from src.logic.RaidEvents import RaidEvents
-from discord import Message, User, TextChannel
+from exceptions.InternalBotException import InternalBotException
+from commands.utils.ArgParser import ArgParser
+from commands.utils.CommandUtils import check_authority
+from client.DiscordClient import DiscordClient
+from client.entities.GuildMember import GuildMember
+from utils.Constants import DATETIMESEC_FORMAT, LOGS_CHANNEL
+from discord import Message, TextChannel, RawReactionActionEvent
 from datetime import datetime
 from typing import Optional
+from client.PlayersResource import PlayersResource
+from client.RaidEventsResource import RaidEventsResource
+import asyncio
 
 
 class BotCommand:
-    def __init__(self, name: str, subname: str, description: str, argformat: str = '', required_rank: str = None, allow_trough_approval: bool = False, example_args: str = None):
+    def __init__(self, name: str, subname: str, description: str, argformat: str = '', required_rank: str = None, example_args: str = None):
         self.name = name
         self.subname = subname
         self.argformat = argformat
         self.argparser = ArgParser(argformat)
         self.description = description
         self.required_rank = required_rank
-        self.allow_trough_approval = allow_trough_approval
         if not example_args:
             self.example_args = self.argparser.get_example_args()
         else:
             self.example_args = example_args
+        self.client: Optional[DiscordClient] = None
+        self.players_resource: Optional[PlayersResource] = None
+        self.events_resource: Optional[RaidEventsResource] = None
+        self.message: Optional[Message] = None
+        self.raw_reaction: Optional[RawReactionActionEvent] = None
+        self.member: Optional[GuildMember] = None
 
-    async def run(self, client: GuildClient, message: Message, **kwargs) -> Optional[str]:
+    async def execute(self, **kwargs):
         raise InternalBotException("Please specify logic for this command. Do not call this method directly.")
 
-    async def call(self, client: GuildClient, message: Message, argv: str) -> None:
-        needs_approval = not self.check_authority(client, message.author)
-        if needs_approval:
-            raise InternalBotException(f"Sorry {message.author}, this code path still needs to be implemented...")
+    async def call(self, client: DiscordClient, players_resource, events_resource, message: Optional[Message],
+                   raw_reaction: Optional[RawReactionActionEvent], argv: str):
+        self.client = client
+        self.players_resource = players_resource
+        self.events_resource = events_resource
+        self.message = message
+        self.raw_reaction = raw_reaction
+        self.member = client.get_member_by_id(message.author.id) if message else client.get_member_by_id(raw_reaction.user_id)
 
         if argv.strip() == 'help':
             await self.show_help(message.channel)
         else:
+            check_authority(self.member, self.required_rank)
             kwargs = self.argparser.parse(argv)
-            response = await self.run(client, message, **kwargs)
-            if response:
-                log_message = f'{datetime.now().strftime(DATETIMESEC_FORMAT)} - {message.author} - {message.content} - {response}'
-                Log.info(log_message)
-                await message.author.send(content=response)
-                await client.get_channel(LOGS_CHANNEL).send(content=log_message)
-        # TODO: this can be done waaaaaay smarter
-        RaidEvents().store()
-        Players().store()
+            await self.execute(**kwargs)
 
-    def check_authority(self, server: GuildClient, author: User) -> bool:
-        check_authority(server, author, self.required_rank)
-        return True
+    def respond(self, content: str):
+        log_message = f'{datetime.now().strftime(DATETIMESEC_FORMAT)} - {self.member} - {self.message.content if self.message else self.raw_reaction.emoji} - {content}'
+        asyncio.create_task(self.client.get_channel(LOGS_CHANNEL).send(content=log_message))
+        asyncio.create_task(self.member.send(content=content))
 
     async def show_help(self, channel: TextChannel) -> None:
         await channel.send(content=self._help_str())

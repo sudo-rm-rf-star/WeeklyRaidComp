@@ -1,34 +1,31 @@
 import discord
-from src.client.entities.DiscordMessage import DiscordMessage
-from src.client.GuildClient import GuildClient
-from src.common.EmojiNames import MISSING_EMOJI, SIGNUPS_EMOJI, ROLE_CLASS_EMOJI, ROLE_EMOJI, SIGNUP_STATUS_EMOJI
-from src.common.Constants import RAIDER_RANK
-from src.logic.enums.Role import Role
-from src.logic.RaidEvents import RaidEvents
-from src.logic.enums.SignupStatus import SignupStatus
-from src.logic.enums.RosterStatus import RosterStatus
-from src.logic.Players import Players
-from src.logic.Player import Player
-from discord import Embed
-from typing import List, Dict, Union
+from client.entities.DiscordMessage import DiscordMessage
+from client.PlayersResource import PlayersResource
+from client.DiscordClient import DiscordClient
+from utils.EmojiNames import SIGNUPS_EMOJI, ROLE_CLASS_EMOJI, ROLE_EMOJI, SIGNUP_STATUS_EMOJI
+from utils.Constants import RAIDER_RANK
+from logic.enums.Role import Role
+
+from logic.enums.SignupStatus import SignupStatus
+from logic.Player import Player
+from typing import List, Dict
 
 EMPTY_FIELD = '\u200e'
 
 
 class ShowPlayersMessage(DiscordMessage):
-    def __init__(self, client: GuildClient):
+    def __init__(self, client: DiscordClient, players_resource: PlayersResource):
         self.client = client
-        self.players = Players().all()
-        self.player_stats = RaidEvents().player_stats()
+        self.players = players_resource.list_players()
         self.embed = self._players_to_embed()
         super().__init__(embed=self.embed)
 
-    def _players_to_embed(self) -> Embed:
+    def _players_to_embed(self) -> discord.Embed:
         embed = {'title': self._get_title(),
                  'fields': self._get_fields(),
                  'color': 2171428,
                  'type': 'rich'}
-        return Embed.from_dict(embed)
+        return discord.Embed.from_dict(embed)
 
     def _get_title(self) -> str:
         return f'{self._get_emoji(SIGNUPS_EMOJI)} {len(self.players)} geregistreerde kruisvaarder(s):'
@@ -48,31 +45,25 @@ class ShowPlayersMessage(DiscordMessage):
         return fields
 
     def _get_field_for_role(self, role: Role) -> Dict[str, str]:
-        player_stats_for_role = {player: stats for player, stats in self.player_stats.items() if player.role == role}
-        player_lines = '\n'.join(sorted([self._get_player_line(player, stats) for player, stats in player_stats_for_role.items()]))
-        columns = ' | '.join([f'{self._signup_choice_emoji(signup_status)}' for signup_status in sorted(list(SignupStatus))])
-        # value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(player_stats_for_role.keys())}) {columns}:\n{player_lines}'
-        value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(player_stats_for_role.keys())}):\n{player_lines}'
+        players_for_role = [player for player in self.players if player.role == role]
+        player_lines = '\n'.join(sorted([self._get_player_line(player) for player in players_for_role]))
+        value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(players_for_role)}):\n{player_lines}'
         return _field(value, inline=False)
 
-    def _get_player_line(self, player: Player, stats: Dict[Union[SignupStatus, RosterStatus], int]) -> str:
-        # return f'{self._role_class_emoji(player.name)} {player.name}: {self._get_stats_line(stats)}'
-        return f'{self._role_class_emoji(player.name)} {player.name}'
-
-    def _get_stats_line(self, stats: Dict[Union[SignupStatus, RosterStatus], int]) -> str:
-        # TODO: add roster_status
-        return ' | '.join([str(stats.get(signup_status, 0)) for signup_status in sorted(list(SignupStatus))])
+    def _get_player_line(self, player: Player) -> str:
+        return f'{self._role_class_emoji(player)} {player.name}'
 
     def _get_missing_field(self) -> Dict[str, str]:
         value = '**Nog niet ingeschreven:** '
-        value += ', '.join([member.display_name for member in self.client.get_members_for_role(RAIDER_RANK) if member.id not in Players().players_by_id])
+        signed_ids = [player.discord_id for player in self.players]
+        value += ', '.join([member.display_name for member in self.client.get_members_for_role(RAIDER_RANK) if member.id not in signed_ids])
+        print(value)
         return _field(value, inline=False)
 
     def _role_emoji(self, role: Role) -> discord.Emoji:
         return self._get_emoji(ROLE_EMOJI[role])
 
-    def _role_class_emoji(self, player_name: str) -> discord.Emoji:
-        player = Players().get(player_name)
+    def _role_class_emoji(self, player: Player) -> discord.Emoji:
         return self._get_emoji(ROLE_CLASS_EMOJI[player.role][player.klass])
 
     def _signup_choice_emoji(self, signup_choice: SignupStatus) -> discord.Emoji:

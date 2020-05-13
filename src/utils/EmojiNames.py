@@ -1,6 +1,6 @@
-from src.logic.enums.Role import Role
-from src.logic.enums.Class import Class
-from src.logic.enums.SignupStatus import SignupStatus
+from logic.enums.Role import Role
+from logic.enums.Class import Class
+from logic.enums.SignupStatus import SignupStatus
 
 CALENDAR_EMOJI = 'CMcalendar'
 CLOCK_EMOJI = 'CMclock'
@@ -46,8 +46,8 @@ ROLE_CLASS_EMOJI = {
 
 SIGNUP_STATUS_EMOJI = {
     SignupStatus.ACCEPT: 'Accept',
-    SignupStatus.DECLINE: 'Decline',
     SignupStatus.BENCH: 'Bench',
+    SignupStatus.DECLINE: 'Decline',
     SignupStatus.LATE: 'Late',
     SignupStatus.TENTATIVE: 'Tentative',
     SignupStatus.UNDECIDED: 'Unknown',

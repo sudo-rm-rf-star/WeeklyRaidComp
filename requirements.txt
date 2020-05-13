@@ -16,3 +16,7 @@ typing-extensions==3.7.4.2
 websockets==8.1
 XlsxWriter==1.2.8
 yarl==1.4.2
+
+setuptools~=40.8.0
+boto3~=1.13.3
+requests~=2.23.0

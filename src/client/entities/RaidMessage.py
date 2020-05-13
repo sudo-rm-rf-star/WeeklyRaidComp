@@ -1,27 +1,28 @@
 import discord
-import asyncio
 
-from src.exceptions.InternalBotException import InternalBotException
-from src.logic.Roster import Roster
-from src.client.entities.DiscordMessage import DiscordMessage
-from src.client.GuildClient import GuildClient
-from src.common.Constants import DATETIMESEC_FORMAT
-from src.common.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI, TEAM_EMOJI, MISSING_EMOJI, SIGNUPS_EMOJI, ROLE_CLASS_EMOJI, ROLE_EMOJI, SIGNUP_STATUS_EMOJI
-from src.logic.RaidEvent import RaidEvent
-from src.logic.enums.Role import Role
-from src.logic.enums.SignupStatus import SignupStatus
-from src.logic.enums.RosterStatus import RosterStatus
-from src.logic.Players import Players
+from exceptions.InternalBotException import InternalBotException
+from client.entities.DiscordMessage import DiscordMessage
+from client.DiscordClient import DiscordClient
+from utils.Constants import DATETIMESEC_FORMAT
+from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI, TEAM_EMOJI, MISSING_EMOJI, SIGNUPS_EMOJI, ROLE_CLASS_EMOJI, ROLE_EMOJI, SIGNUP_STATUS_EMOJI
+from logic.RaidEvent import RaidEvent
+from logic.enums.Role import Role
+from logic.enums.SignupStatus import SignupStatus
+from logic.enums.RosterStatus import RosterStatus
+from logic.RaidComposition import actual_vs_expected_per_role
 from discord import Embed
 from typing import List, Optional, Dict, Union
+from logic.Player import Player
+import asyncio
 
 EMPTY_FIELD = '\u200e'
 
 
 class RaidMessage(DiscordMessage):
-    def __init__(self, client: GuildClient, raid_event: RaidEvent):
+    def __init__(self, client: DiscordClient, raid_event: RaidEvent):
         self.client = client
         self.raid_event = raid_event
+        self.raid_players = raid_event.roster.players
         self.embed = self._raid_to_embed()
         super().__init__(embed=self.embed)
 
@@ -29,27 +30,13 @@ class RaidMessage(DiscordMessage):
         msgs = await super(RaidMessage, self).send_to(recipient)
         if len(msgs) > 1:
             raise InternalBotException("Unhandled case")
-        message = msgs[0]
-        for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if status != SignupStatus.UNDECIDED]:
-            asyncio.create_task(message.add_reaction(emoji=self._get_emoji(emoji)))
-        return message
+        return msgs[0]
 
-    async def sync(self):
+    def sync(self):
         """Updates the existing RaidMessages if the raid_event has been updated"""
-        if self.raid_event.rosters.was_updated():
-            messages = await self.get_existing_discord_messages(self.raid_event)
-            for message in messages:
-                await message.edit(embed=self.embed)
-
-    async def remove(self):
-        messages = await self.get_existing_discord_messages(self.raid_event)
-        for message in messages:
-            await message.delete()
-
-    async def get_existing_discord_messages(self, raid_event: RaidEvent) -> List[discord.Message]:
-        """ Find all existing instances which we want to sync """
-        return [(await self.client.get_message(msg_id, channel_id)) for (msg_id, channel_id, message_type) in raid_event.message_id_pairs if
-                message_type == type(self)]
+        if self.raid_event.roster.was_updated():
+            for message_id in self.raid_event.message_ids:
+                asyncio.create_task(_update_message(self.client, message_id, self.embed))
 
     def _raid_to_embed(self) -> Embed:
         embed = {'title': self._get_title(),
@@ -66,7 +53,7 @@ class RaidMessage(DiscordMessage):
     def _get_description(self) -> str:
         return f'{self._get_emoji(CALENDAR_EMOJI)} {self.raid_event.get_date()}\n' \
                f'{self._get_emoji(CLOCK_EMOJI)} {self.raid_event.get_time()}\n' \
-               f'{self._get_emoji(SIGNUPS_EMOJI)} {self.raid_event.get_signee_count()}'
+               f'{self._get_emoji(SIGNUPS_EMOJI)} {signed_and_not_declined_count(self.raid_players)}'
 
     def get_footer(self) -> Optional[Dict[str, str]]:
         return {'text': f'Created at: {self.raid_event.created_at.strftime(DATETIMESEC_FORMAT)}. ' +
@@ -74,33 +61,34 @@ class RaidMessage(DiscordMessage):
 
     def _get_fields(self) -> List[Dict[str, str]]:
         fields = []
-        for roster_index, roster in enumerate(self.raid_event.rosters):
-            team_description = f'{self._get_emoji(TEAM_EMOJI)} **__Team {roster_index + 1}__** ({roster.accepted_count()})\n'
-            players_per_role = roster.get_players_per_role()
+        for team_index, raid_team in enumerate(self.raid_event.roster.team_iter()):
+            team_description = f'{self._get_emoji(TEAM_EMOJI)} **__Team {team_index + 1}__** ({roster_accepted_count(raid_team)}/{TOTAL})\n'
             fields.extend([
                 _field(team_description, inline=False),
-                self._get_field_for_role(players_per_role, Role.TANK),
-                self._get_field_for_role(players_per_role, Role.HEALER),
+                self._get_field_for_role(raid_team, Role.TANK),
+                self._get_field_for_role(raid_team, Role.HEALER),
                 _empty_field(),
 
-                self._get_field_for_role(players_per_role, Role.MELEE),
-                self._get_field_for_role(players_per_role, Role.RANGED),
+                self._get_field_for_role(raid_team, Role.MELEE),
+                self._get_field_for_role(raid_team, Role.RANGED),
                 _empty_field(),
 
-                self._get_missing_field(roster)
+                self._get_summary_field(raid_team),
             ])
+        fields.extend([
+            self._get_declined_field()
+        ])
         return fields
 
-    def _get_field_for_role(self, players_per_role: Dict[Role, str], role: Role) -> Dict[str, str]:
-        players_for_role = [player_name for player_name in players_per_role[role]
-                            if self.raid_event.rosters.get_roster_choice(player_name) != RosterStatus.DECLINE]
-        player_lines = '\n'.join(sorted([self._get_player_line(player_name) for player_name in players_for_role]))
-        value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(players_for_role)}):\n{player_lines}'
+    def _get_field_for_role(self, raid_team: List[Player], role: Role) -> Dict[str, str]:
+        players = [player for player in raid_team if player.role == role and not player.is_declined()]
+        player_lines = '\n'.join(sorted([self._get_player_line(player) for player in players]))
+        value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(players)}):\n{player_lines}'
         return _field(value)
 
-    def _get_player_line(self, player_name: str) -> str:
-        signup_choice = self.raid_event.rosters.signee_choices[player_name]
-        roster_choice = self.raid_event.rosters.get_roster_choice(player_name)
+    def _get_player_line(self, player: Player) -> str:
+        signup_choice = player.signup_status
+        roster_choice = player.roster_status
         signup_choice_indicator = '' if signup_choice == SignupStatus.ACCEPT else self._signup_choice_emoji(signup_choice)
         if roster_choice == RosterStatus.ACCEPT:
             roster_choice_indicator = ('__', '__')
@@ -108,21 +96,21 @@ class RaidMessage(DiscordMessage):
             roster_choice_indicator = ('~~', '~~')
         else:
             roster_choice_indicator = ('', '')
-        return f'{self._role_class_emoji(player_name)} {roster_choice_indicator[0]}{player_name}{roster_choice_indicator[1]} {signup_choice_indicator}'
+        return f'{self._role_class_emoji(player)} {roster_choice_indicator[0]}{player.name}{roster_choice_indicator[1]} {signup_choice_indicator}'
 
-    def _get_missing_field(self, roster: Roster) -> Dict[str, str]:
-        missing_roles = roster.missing(self.raid_event.name)
-        if len(missing_roles.keys()) == 0:
-            return _empty_field(inline=True)
-        else:
-            value = f'{self._get_emoji(MISSING_EMOJI)} **__{MISSING_EMOJI}__**: {", ".join([f"**{role.capitalize()}** ({count})" for role, count in missing_roles.items()])} '
-            return _field(value, inline=True)
+    def _get_summary_field(self, raid_team) -> Dict[str, str]:
+        summary = ", ".join([f"**{role.capitalize()}** ({actual/expected})" for role, (actual, expected) in actual_vs_expected_per_role(self.raid_event.name, raid_team)])
+        value = f'{self._get_emoji(MISSING_EMOJI)} **__{MISSING_EMOJI}__**: {summary}'
+        return _field(value, inline=False)
+
+    def _get_declined_field(self):
+        value = f'**Declined**: {", ".join([player.name for player in self.raid_players if player.is_declined()])}'
+        return _field(value, inline=False)
 
     def _role_emoji(self, role: Role) -> discord.Emoji:
         return self._get_emoji(ROLE_EMOJI[role])
 
-    def _role_class_emoji(self, player_name: str) -> discord.Emoji:
-        player = Players().get(player_name)
+    def _role_class_emoji(self, player: Player) -> discord.Emoji:
         return self._get_emoji(ROLE_CLASS_EMOJI[player.role][player.klass])
 
     def _signup_choice_emoji(self, signup_choice: SignupStatus) -> discord.Emoji:
@@ -138,3 +126,16 @@ def _field(content: str, inline: bool = True):
 
 def _empty_field(inline: bool = True):
     return _field(EMPTY_FIELD, inline)
+
+
+def signed_and_not_declined_count(players: List[Player]) -> int:
+    return sum(1 for player in players if player.signup_status != SignupStatus.DECLINE and player.roster_status != RosterStatus.DECLINE)
+
+
+def roster_accepted_count(players: List[Player]) -> int:
+    return sum(1 for player in players if player.roster_status != SignupStatus.ACCEPT)
+
+
+async def _update_message(client, message_id, embed):
+    message = await client.get_message(message_id)
+    await message.edit(embed=embed)

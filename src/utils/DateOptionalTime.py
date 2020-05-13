@@ -1,9 +1,9 @@
-from src.exceptions.InvalidArgumentException import InvalidArgumentException
-from src.time.Time import Time
-from src.time.Date import Date
+from exceptions.InvalidArgumentException import InvalidArgumentException
+from utils.Time import Time
+from utils.Date import Date
 from datetime import datetime
 
-""" Wrapper over date and datetime for which time can be empty. """
+""" Wrapper over date and datetime for which timeutil can be empty. """
 
 
 class DateOptionalTime:
@@ -11,9 +11,12 @@ class DateOptionalTime:
         if date is None:
             raise InvalidArgumentException('No date was passed')
         assert isinstance(date, Date)
-        assert isinstance(time, Time)
+        assert isinstance(time, Time) or time is None
         self.time = time
         self.date = date
+
+    def to_timestamp(self) -> int:
+        return int(self.to_datetime().timestamp())
 
     def to_datetime(self):
         time = datetime.min.time() if not self.time else self.time.time
@@ -28,7 +31,11 @@ class DateOptionalTime:
 
     @staticmethod
     def from_datetime(datetime_obj):
-        return DateOptionalTime(datetime_obj.date(), datetime_obj.time())
+        return DateOptionalTime(Date(datetime_obj.date()), Time(datetime_obj.time()))
+
+    @staticmethod
+    def from_timestamp(timestamp: int):
+        return DateOptionalTime.from_datetime(datetime.fromtimestamp(timestamp))
 
     @staticmethod
     def from_string(datetime_str):
@@ -53,10 +60,12 @@ class DateOptionalTime:
 
     def __lt__(self, other):
         assert isinstance(other, DateOptionalTime)
-        lt = self.date < other.date
-        if other.time and self.time:
-            lt = lt and other.time < self.time
-        return lt
+        if self.date < other.date:
+            return True
+        else:
+            if other.time and self.time and self.time < other.time:
+                return True
+        return False
 
     def __ge__(self, other):
         assert isinstance(other, DateOptionalTime)

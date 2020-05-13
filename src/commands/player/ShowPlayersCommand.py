@@ -1,19 +1,14 @@
-from src.client.GuildClient import GuildClient
-from src.client.entities.ShowPlayersMessage import ShowPlayersMessage
-from src.commands.player.PlayerCommand import PlayerCommand
-import discord
+from client.entities.ShowPlayersMessage import ShowPlayersMessage
+from commands.player.PlayerCommand import PlayerCommand
 
 
-class RegisterPlayerCommand(PlayerCommand):
+class ListPlayersCommand(PlayerCommand):
     def __init__(self):
         argformat = ''
-        subname = 'showall'
-        description = 'Toon een overzicht van alle raiders'
-        super(RegisterPlayerCommand, self).__init__(subname, description, argformat)
+        subname = 'list'
+        description = 'Toon een overzicht van alle spelers'
+        super(ListPlayersCommand, self).__init__(subname, description, argformat)
 
-    async def run(self, client: GuildClient, message: discord.Message, **kwargs) -> None:
-        return await self._run(client, message)
-
-    async def _run(self, client, message: discord.Message) -> None:
-        destination = message.channel
-        await ShowPlayersMessage(client).send_to(destination)
+    async def execute(self, **kwargs):
+        destination = self.message.channel
+        await ShowPlayersMessage(self.client, self.players_resource).send_to(destination)

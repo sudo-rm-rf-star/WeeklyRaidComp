@@ -1,15 +1,17 @@
-from src.exceptions.InternalBotException import InternalBotException
-from src.exceptions.InvalidArgumentException import InvalidArgumentException
-from src.client.entities.DiscordMessage import DiscordMessage
-from src.client.GuildClient import GuildClient
+from exceptions.InternalBotException import InternalBotException
+from exceptions.InvalidArgumentException import InvalidArgumentException
+from client.entities.DiscordMessage import DiscordMessage
+from client.DiscordClient import DiscordClient
 from typing import Generic, TypeVar, Union, Any
+from enum import Enum
 import discord
+from client.entities.GuildMember import GuildMember
 
 TRIES = 3
 
 
 class InteractionMessage(DiscordMessage):
-    def __init__(self, client: GuildClient, content: str, *args, **kwargs):
+    def __init__(self, client: DiscordClient, content: str, *args, **kwargs):
         self.client = client
         super(InteractionMessage, self).__init__(content, *args, **kwargs)
         # These variables will be filled once the message is sent
@@ -20,7 +22,7 @@ class InteractionMessage(DiscordMessage):
         msg = await self.client.wait_for('message', check=lambda response: _check_if_response(self, response))
         return msg.content
 
-    async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> discord.Message:
+    async def send_to(self, recipient: Union[GuildMember, discord.TextChannel]) -> discord.Message:
         msgs = await super(InteractionMessage, self).send_to(recipient)
         if len(msgs) > 1:
             raise InternalBotException("Unhandled case")
@@ -39,9 +41,8 @@ T = TypeVar('T')
 
 
 class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
-    def __init__(self, client: GuildClient, content: str, enum: T, *args, **kwargs):
+    def __init__(self, client: DiscordClient, content: str, *args, **kwargs):
         self.options = '/'.join([' '.join(map(lambda x: x.capitalize(), value.split('_'))) for value in enum.__members__.keys()])
-        self.enum = enum
         content += f': [{self.options}]'
         super().__init__(client, content, *args, **kwargs)
 
@@ -49,12 +50,12 @@ class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
         response = await super(EnumResponseInteractionMessage, self).get_response()
         option = response.replace(' ', '').upper()
         try:
-            return self.enum[option]
+            return T[option]
         except KeyError:
             raise InvalidArgumentException(f'Please choose on of: {self.options}')
 
 
-async def interact(member: discord.Member, message: InteractionMessage) -> Any:
+async def interact(member: GuildMember, message: InteractionMessage) -> Any:
     await message.send_to(member)
     response = None
     trie = 0

@@ -1,9 +1,9 @@
 import re
-from src.exceptions.InvalidArgumentException import InvalidArgumentException
-from src.common.Constants import SUPPORTED_RAIDS
-from src.time.DateOptionalTime import DateOptionalTime
-from src.time.Date import Date
-from src.time.Time import Time
+from exceptions.InvalidArgumentException import InvalidArgumentException
+from utils.Constants import SUPPORTED_RAIDS
+from utils.DateOptionalTime import DateOptionalTime
+from utils.Date import Date
+from utils.Time import Time
 from typing import Optional, Dict, Any, List
 
 
@@ -67,6 +67,7 @@ def parse_argvalue(argname: str, argval: str) -> Optional[str]:
         'raid_date': get_date,
         'raid_time': get_time,
         'team_index': lambda x: parse_int(x) - 1,
+        'player': lambda x: x.capitalize(),
         'week_count_cutoff': parse_int
     }.get(argname, lambda _: argval)
     return argparser(argval)

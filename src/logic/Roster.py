@@ -1,122 +1,76 @@
+""" Utility class to help for raids with multiple rosters. """
+
+from utils.Constants import player_count
+from logic.RaidComposition import make_raid_composition, actual_vs_expected_per_role
+from logic.enums.RosterStatus import RosterStatus
+from logic.enums.SignupStatus import SignupStatus
+from typing import Dict, List, Any, Tuple
+from logic.Player import Player
 from collections import defaultdict
-from src.common.Constants import pref_per_role, min_per_class_role, max_per_class_role
-from src.logic.enums.SignupStatus import SignupStatus
-from src.logic.enums.RosterStatus import RosterStatus
-from src.logic.Players import Players
-from src.exceptions.InternalBotException import InternalBotException
-from pandas import DataFrame
-from src.logic.enums.Role import Role
-from typing import Dict, List
 
 
 class Roster:
-    def __init__(self, roster_choices: Dict[str, RosterStatus] = None):
-        self.roster_choices = {} if not roster_choices else roster_choices
-        self.updates_since_last_check = []  # List of all updates since last check
-        self._missing = None
-        self._extra = None
+    def __init__(self, raid_name: str, players: List[Player] = None):
+        self.raid_name = raid_name
+        self.team_count = _team_count(raid_name)
+        self.players = players if players else []
+        self.updated_since_last_check = False
 
-    def update(self, raid_name: str, signee_choices: Dict[str, SignupStatus]):
-        """
-        Updates the roster with the given signees. Updates all of the updated roster statuses.
-        """
-        if len(signee_choices.keys()) == 0:
-            return False
-        players_df = self._get_raid_players_df(raid_name, signee_choices)
+    def compose(self) -> List[Player]:
+        """ Creates/updates the different teams. Returns a list of updated players. """
+        self.updated_since_last_check = True
+        updated_players = []
+        for raid_team in self.team_iter():
+            for player in make_raid_composition(self.raid_name, raid_team):
+                updated_players.append(player)
+        return updated_players
 
-        def eligible() -> DataFrame:
-            return players_df[players_df['signee_choice'] != SignupStatus.DECLINE]
+    def put_player(self, player: Player, roster_choice: RosterStatus = None, signee_choice: SignupStatus = None, team_index: int = None):
+        self.updated_since_last_check = True
 
-        for role, signees_for_role in eligible().groupby('role'):
-            for clazz, signees_for_class in signees_for_role.groupby("class"):
-                for i, (j, signee) in enumerate(
-                        signees_for_class.sort_values('standby_count', ascending=False).iterrows()):
-                    score = _calculate_importance(i, min_per_class_role[raid_name][role][clazz],
-                                                  max_per_class_role[raid_name][role][clazz])
-                    players_df.at[j, "score"] = score
+        try:
+            i = self.players.index(player)
+            player = self.players[i]
+        except ValueError:
+            i = len(self.players)
+            self.players.append(player)
 
-        for role, signees_for_role in eligible().sort_values(['priority', 'score'], ascending=False).groupby('role'):
-            pref_count = pref_per_role[raid_name][role]
-            accepted_for_role = signees_for_role.iloc[:pref_count]
-            not_accepted_for_role = signees_for_role.iloc[pref_count:]
+        team_index = team_index if team_index else player.team_index if player.team_index else self.get_optimal_team_index(player)
+        player.team_index = team_index
 
-            for _, player in accepted_for_role.iterrows():
-                self.set_roster_choice(player['name'], RosterStatus.ACCEPT)
+        if roster_choice:
+            player.roster_status = roster_choice
 
-            for _, player in not_accepted_for_role.iterrows():
-                self.set_roster_choice(player['name'], RosterStatus.EXTRA)
+        if signee_choice:
+            player.signup_status = signee_choice
 
-        for _, player in players_df[players_df['signee_choice'] == SignupStatus.DECLINE].iterrows():
-            self.set_roster_choice(player['name'], RosterStatus.DECLINE)
+        self.players[i] = player
 
-        return True
+    def was_updated(self) -> bool:
+        if self.updated_since_last_check:
+            self.updated_since_last_check = False
+            return True
+        return False
 
-    def _get_raid_players_df(self, raid_name: str, signee_choices: Dict[str, SignupStatus]) -> DataFrame:
-        raid_players = []
-        for player_name, roster_choice in self.roster_choices.items():
-            player = Players().get(player_name)
-            if not player:
-                raise InternalBotException(f"Could not find a registered player named {player_name}")
-            role = get_role(player.role)
-            klass = player.klass.name.lower()
-            signee_choice = signee_choices[player_name]
-            standby_count = player.get_standby_count(raid_name)
-            # TODO, data format of enums contains tuples. Need to fix this somehow. Not sure how yet.
-            priority = 0
-            priority += signee_choice.value[0] if isinstance(signee_choice.value, tuple) else signee_choice.value
-            priority += roster_choice.value[0] if isinstance(roster_choice.value, tuple) else roster_choice.value
+    def team_iter(self):
+        return iter([player for player in self.players if player.team_index == team_index] for team_index in range(self.team_count))
 
-            raid_players.append({'name': player.name, 'class': klass, 'role': role, 'standby_count': standby_count,
-                                 'signee_choice': signee_choice, 'roster_status': roster_choice, 'priority': priority, 'score': 0})
-        return DataFrame(raid_players)
+    def get_optimal_team_index(self, player: Player) -> int:
+        count_per_team_role_class = defaultdict(lambda: defaultdict(int))
+        for raider in self.players:
+            if raider.signup_status != SignupStatus.DECLINE:
+                count_per_team_role_class[raider.team_index][(raider.role, raider.klass)] += 1
+        return min(range(self.team_count), key=lambda team_index: count_per_team_role_class[team_index].get((player.role, player.klass), 0))
 
-    def get_players_per_role(self, filter_roster_choice: RosterStatus = None) -> Dict[Role, List[str]]:
-        players_per_role = defaultdict(list)
-        for player_name, roster_choice in self.roster_choices.items():
-            if not filter_roster_choice or roster_choice == filter_roster_choice:
-                player = Players().get(player_name)
-                players_per_role[player.role].append(player_name)
-        return players_per_role
-
-    def missing(self, raid_name):
-        missing_per_role = {
-            'tank': pref_per_role[raid_name]['tank'],
-            'healer': pref_per_role[raid_name]['healer'],
-            'dps': pref_per_role[raid_name]['dps']
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'players': [player.to_dict_for_raid_event() for player in self.players],
         }
 
-        for player_name, roster_choice in self.roster_choices.items():
-            if roster_choice == RosterStatus.ACCEPT:
-                player = Players().get(player_name)
-                role = get_role(player.role)
-                missing_per_role[role] -= 1
-        return missing_per_role
-
-    def accepted_count(self):
-        return sum(1 for x in self.roster_choices.values() if x == RosterStatus.ACCEPT)
-
-    def set_roster_choice(self, player_name, roster_choice):
-        if self.roster_choices.get(player_name, None) != roster_choice:
-            self.updates_since_last_check.append((player_name, roster_choice))
-        self.roster_choices[player_name] = roster_choice
-
-    def check_updates(self):
-        updates_since_last_check = self.updates_since_last_check
-        self.updates_since_last_check = []
-        return updates_since_last_check
+    @staticmethod
+    def from_dict(raid_name, item):
+        return Roster(raid_name, [Player.from_dict(player) for player in item['players']])
 
 
-def _calculate_importance(cur: int, mini: int, maxi: int) -> float:
-    maxi = max(maxi, cur)
-    mini = min(mini - 1, cur)
-    cur = max(mini, cur)
-    return 1 - (cur - mini) / (maxi - mini)
-
-
-def get_role(role: Role) -> str:
-    return {
-        Role.TANK: 'tank',
-        Role.MELEE: 'dps',
-        Role.RANGED: 'dps',
-        Role.HEALER: 'healer'
-    }[role]
+def _team_count(raid_name: str) -> int:
+    return 2 if player_count[raid_name] == 20 else 1

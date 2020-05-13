@@ -1,7 +1,7 @@
 """File full of magic to avoid relying on every single BotCommand"""
-from src.commands.BotCommand import BotCommand
-from src.exceptions.InvalidCommandException import InvalidCommandException
-from src.client.GuildClient import GuildClient
+from commands.BotCommand import BotCommand
+from exceptions.InvalidCommandException import InvalidCommandException
+from client.DiscordClient import DiscordClient
 from collections import defaultdict
 from setuptools import find_packages
 from pkgutil import iter_modules
@@ -10,6 +10,9 @@ from pathlib import Path
 import importlib
 import discord
 import sys
+from client.RaidEventsResource import RaidEventsResource
+from client.PlayersResource import PlayersResource
+from typing import Optional
 
 
 def find_modules(path: str) -> Set[str]:
@@ -49,21 +52,21 @@ def _get_bot_commands() -> Dict[str, Dict[str, BotCommand]]:
     return dict(bot_commands)
 
 
-async def find_bot_command(message: discord.Message, command_name: str, subcommand_name: str) -> BotCommand:
+async def find_bot_command(message: Optional[discord.Message], command_name: str, subcommand_name: str) -> BotCommand:
     command_prefix = command_name[0]
     command_name = command_name[1:]
     if command_prefix == '!' and command_name in BOT_COMMANDS:
-        # At this point we can safely delete the message as it is intended for the bot
-        try:
-            await message.delete()
-        except discord.NotFound:  # This happens when multiple versions of the bot are running.
-            pass
-        except discord.Forbidden:  # This happens when users are performing actions in DM.
-            pass
+        if message:  # At this point we can safely delete the message as it is intended for the bot
+            try:
+                await message.delete()
+            except discord.NotFound:  # This happens when multiple versions of the bot are running.
+                pass
+            except discord.Forbidden:  # This happens when users are performing actions in DM.
+                pass
 
         # For now we do this, with the current system we have a dependency in both directions otherwise,
         if subcommand_name == 'help':
-            from src.commands.HelpCommand import HelpCommand
+            from commands.HelpCommand import HelpCommand
             return HelpCommand(command_name)
 
         if subcommand_name in BOT_COMMANDS[command_name]:
@@ -72,7 +75,8 @@ async def find_bot_command(message: discord.Message, command_name: str, subcomma
             raise InvalidCommandException(f"{command_name} {subcommand_name} is not a valid bot command.")
 
 
-async def find_and_execute_command(client: GuildClient, message: discord.Message) -> None:
+async def find_and_execute_command(client: DiscordClient, events_resource: RaidEventsResource, players_resource: PlayersResource,
+                                   message: Optional[discord.Message] = None, raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> None:
     cmd = None
     cmd_args = None
     try:
@@ -86,7 +90,12 @@ async def find_and_execute_command(client: GuildClient, message: discord.Message
         pass  # This is not a command intended for our bot.
 
     if cmd and cmd_args is not None:
-        await cmd.call(client, message, cmd_args)
+        await execute_command(cmd, cmd_args, client, events_resource, players_resource, message, raw_reaction)
+
+
+async def execute_command(command: BotCommand, cmd_args: str, client: DiscordClient, events_resource: RaidEventsResource, players_resource: PlayersResource,
+                          message: Optional[discord.Message] = None, raw_reaction: Optional[discord.RawReactionActionEvent] = None):
+    await command.call(client, players_resource, events_resource, message, raw_reaction, cmd_args)
 
 
 commands_path = str(Path(__file__).parent)
@@ -96,5 +105,3 @@ for module in find_modules(commands_path):
         importlib.import_module(module, __package__)
 
 BOT_COMMANDS = _get_bot_commands()
-
-

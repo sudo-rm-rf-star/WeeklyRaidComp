@@ -1,7 +1,7 @@
-import src.client.Logger as Log
-from src.client.GuildClient import GuildClient
-from src.common.Constants import RAIDER_RANK, MAINTAINER
-from src.commands.player.PlayerCommand import PlayerCommand
+import utils.Logger as Log
+from client.DiscordClient import DiscordClient
+from utils.Constants import RAIDER_RANK
+from commands.player.PlayerCommand import PlayerCommand
 import discord
 
 
@@ -12,11 +12,8 @@ class AnnounceCommand(PlayerCommand):
         description = 'Stuurt een aankondiging naar alle raiders'
         super(AnnounceCommand, self).__init__(subname, description, argformat)
 
-    async def run(self, client: GuildClient, message: discord.Message, **kwargs) -> None:
-        return await self._run(client, **kwargs)
-
-    async def _run(self, client, announcement: str) -> None:
-        raiders = client.get_members_for_role(RAIDER_RANK)
+    async def execute(self, announcement: str, **kwargs) -> None:
+        raiders = self.client.get_members_for_role(RAIDER_RANK)
         for raider in raiders:
             try:
                 await raider.send(content=announcement)

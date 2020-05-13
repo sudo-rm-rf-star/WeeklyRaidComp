@@ -1,32 +1,22 @@
-from src.commands.roster.RosterCommand import RosterCommand
-from src.exceptions.InternalBotException import InternalBotException
-from src.common.Constants import OFFICER_RANK
-from src.logic.RaidEvent import RaidEvent
-from src.logic.RaidEvents import RaidEvents
-from src.client.entities.RaidMessage import RaidMessage
-from src.client.GuildClient import GuildClient
-from src.time.DateOptionalTime import DateOptionalTime
-from typing import Optional
-import discord
+from commands.roster.RosterCommand import RosterCommand
+from utils.Constants import OFFICER_RANK
+from logic.enums.RosterStatus import RosterStatus
+from client.entities.RaidMessage import RaidMessage
+from utils.DateOptionalTime import DateOptionalTime
 
 
 class UpdateRosterCommand(RosterCommand):
-    def __init__(self, subname: str, description: str):
+    def __init__(self, subname: str, description: str, roster_choice: RosterStatus):
         argformat = "raid_name player [raid_date][raid_time][team_index]"
         required_rank = OFFICER_RANK
-        allow_trough_approval = True
-        super(RosterCommand, self).__init__('roster', subname, description, argformat, required_rank,
-                                            allow_trough_approval)
+        self.roster_choice = roster_choice
+        super(RosterCommand, self).__init__('roster', subname, description, argformat, required_rank)
 
-    def update_command(self, raid_event: RaidEvent, player_name: str, team_index: Optional[int]) -> None:
-        raise InternalBotException("Please specify logic for this command.")
-
-    async def run(self, client: GuildClient, message: discord.Message, **kwargs) -> str:
-        return await self._run(client, **kwargs)
-
-    async def _run(self, client: GuildClient, raid_name: str, player: str, raid_datetime: Optional[DateOptionalTime], team_index: Optional[int]) -> str:
-        raid_event = RaidEvents().get(raid_name, raid_datetime)
-        self.update_command(raid_event, player, team_index)
-        await RaidMessage(client, raid_event).sync()
-        self.publish_roster_changes(client, raid_event)
-        return f'Raid event for {raid_event.get_name()} on {raid_event.get_datetime()} has been successfully updated.'
+    async def execute(self, raid_name: str, player: str, raid_datetime: DateOptionalTime, team_index: int, **kwargs):
+        raid_event = self.events_resource.get_raid(raid_name, raid_datetime)
+        player = self.players_resource.get_player(player)
+        raid_event.add_player_to_roster(player, self.roster_choice)
+        self.events_resource.update_raid(raid_event)
+        RaidMessage(self.client, raid_event).sync()
+        self.publish_roster_changes([player], raid_event)
+        self.respond(f'Raid event for {raid_event.get_name()} on {raid_event.get_datetime()} has been successfully updated.')
