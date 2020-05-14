@@ -62,7 +62,7 @@ class RaidMessage(DiscordMessage):
     def _get_fields(self) -> List[Dict[str, str]]:
         fields = []
         for team_index, raid_team in enumerate(self.raid_event.roster.team_iter()):
-            team_description = f'{self._get_emoji(TEAM_EMOJI)} **__Team {team_index + 1}__** ({roster_accepted_count(raid_team)}/{TOTAL})\n'
+            team_description = f'{self._get_emoji(TEAM_EMOJI)} **__Team {team_index + 1}__** ({roster_accepted_count(raid_team)})\n'
             fields.extend([
                 _field(team_description, inline=False),
                 self._get_field_for_role(raid_team, Role.TANK),
@@ -133,7 +133,7 @@ def signed_and_not_declined_count(players: List[Player]) -> int:
 
 
 def roster_accepted_count(players: List[Player]) -> int:
-    return sum(1 for player in players if player.roster_status != SignupStatus.ACCEPT)
+    return sum(1 for player in players if player.roster_status == RosterStatus.ACCEPT)
 
 
 async def _update_message(client, message_id, embed):
