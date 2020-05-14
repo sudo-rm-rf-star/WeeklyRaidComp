@@ -52,7 +52,7 @@ def run() -> None:
             await execute_command(SignupPlayerCommand(), "", discord_client, events_resource, players_resource, raw_reaction=reaction_event)
         except Exception as ex:
             member = discord_client.get_member_by_id(reaction_event.user_id)
-            err_msg = f"Raid signup failed for {member}, {reaction_event.emoji}, {ex}"
+            err_msg = f"Raid signup failed for {member.display_name}, {reaction_event.emoji}, {ex}"
             Log.error(f'{err_msg}\n{traceback.format_exc()}')
             if isinstance(ex, BotException):
                 await member.send(ex.message)
