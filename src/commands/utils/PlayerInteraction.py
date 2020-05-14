@@ -41,8 +41,8 @@ T = TypeVar('T')
 
 
 class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
-    def __init__(self, client: DiscordClient, content: str, *args, **kwargs):
-        self.options = '/'.join([' '.join(map(lambda x: x.capitalize(), value.split('_'))) for value in T.__members__.keys()])
+    def __init__(self, client: DiscordClient, content: str, enum: T, *args, **kwargs):
+        self.options = '/'.join([' '.join(map(lambda x: x.capitalize(), value.split('_'))) for value in enum.__members__.keys()])
         content += f': [{self.options}]'
         super().__init__(client, content, *args, **kwargs)
 
