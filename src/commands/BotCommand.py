@@ -51,7 +51,7 @@ class BotCommand:
             await self.execute(**kwargs)
 
     def respond(self, content: str):
-        log_message = f'{datetime.now().strftime(DATETIMESEC_FORMAT)} - {self.member} - {self.message.content if self.message else self.raw_reaction.emoji} - {content}'
+        log_message = f'{datetime.now().strftime(DATETIMESEC_FORMAT)} - {self.member.display_name} - {self.message.content if self.message else self.raw_reaction.emoji} - {content}'
         asyncio.create_task(self.client.get_channel(LOGS_CHANNEL).send(content=log_message))
         asyncio.create_task(self.member.send(content=content))
 
