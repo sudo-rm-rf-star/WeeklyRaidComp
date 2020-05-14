@@ -42,6 +42,7 @@ T = TypeVar('T')
 
 class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
     def __init__(self, client: DiscordClient, content: str, enum: T, *args, **kwargs):
+        self.enum = enum
         self.options = '/'.join([' '.join(map(lambda x: x.capitalize(), value.split('_'))) for value in enum.__members__.keys()])
         content += f': [{self.options}]'
         super().__init__(client, content, *args, **kwargs)
@@ -50,7 +51,7 @@ class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
         response = await super(EnumResponseInteractionMessage, self).get_response()
         option = response.replace(' ', '').upper()
         try:
-            return T[option]
+            return self.enum[option]
         except KeyError:
             raise InvalidArgumentException(f'Please choose on of: {self.options}')
 
