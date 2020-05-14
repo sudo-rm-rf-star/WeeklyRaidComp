@@ -11,7 +11,7 @@ class RegisterPlayerCommand(PlayerCommand):
         description = 'Registreer jezelf als raider, iemand anders of iedereen met een bepaalde rol. Stuurt een DM voor de registratie'
         super(RegisterPlayerCommand, self).__init__(subname, description, argformat)
 
-    async def execute(self, player, role, **kwargs) -> None:
+    async def execute(self, player: str, role: str, **kwargs) -> None:
         all_members = set()
         if role:
             all_members = all_members.union(self.client.get_members_for_role(role))
@@ -22,4 +22,4 @@ class RegisterPlayerCommand(PlayerCommand):
             all_members.add(self.message.author)
 
         for member in all_members:
-            await register(self.client, member, retry=len(all_members) == 1)
+            await register(self.client, self.players_resource, member, retry=len(all_members) == 1)
