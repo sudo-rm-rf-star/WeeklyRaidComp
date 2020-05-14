@@ -133,7 +133,7 @@ def signed_and_not_declined_count(players: List[Player]) -> int:
 
 
 def roster_accepted_count(players: List[Player]) -> int:
-    return sum(1 for player in players if player.roster_status == RosterStatus.ACCEPT)
+    return sum(1 for player in players if player.roster_status == RosterStatus.AC)
 
 
 async def _update_message(client, message_id, embed):

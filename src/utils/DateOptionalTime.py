@@ -62,10 +62,10 @@ class DateOptionalTime:
         assert isinstance(other, DateOptionalTime)
         if self.date < other.date:
             return True
+        elif other.time and self.time and self.date == other.date and self.time < other.time:
+            return True
         else:
-            if other.time and self.time and self.time < other.time:
-                return True
-        return False
+            return False
 
     def __ge__(self, other):
         assert isinstance(other, DateOptionalTime)
