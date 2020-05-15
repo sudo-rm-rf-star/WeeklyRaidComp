@@ -62,7 +62,7 @@ def players_dataframe(raid_name: str, players: List[Player]) -> DataFrame:
     return DataFrame(raid_players)
 
 
-def actual_vs_expected_per_role(raid_name: str, players: List[Player]) -> Dict[str, List[int, int]]:
+def actual_vs_expected_per_role(raid_name: str, players: List[Player]) -> Dict[str, Tuple[int, int]]:
     actual_vs_expected = {
         'tank': [0, pref_per_role[raid_name]['tank']],
         'healer': [0, pref_per_role[raid_name]['healer']],
@@ -74,7 +74,8 @@ def actual_vs_expected_per_role(raid_name: str, players: List[Player]) -> Dict[s
         if roster_choice == RosterStatus.ACCEPT:
             role = get_role(player.role)
             actual_vs_expected[role][0] += 1
-    return actual_vs_expected
+
+    return {role: tuple(counts) for role, counts in actual_vs_expected.items()}
 
 
 def set_roster_choice(players: List[Player], player: Player, roster_choice: RosterStatus):
