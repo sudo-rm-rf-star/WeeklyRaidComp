@@ -62,11 +62,11 @@ def players_dataframe(raid_name: str, players: List[Player]) -> DataFrame:
     return DataFrame(raid_players)
 
 
-def actual_vs_expected_per_role(raid_name: str, players: List[Player]) -> Dict[str, Tuple[int, int]]:
+def actual_vs_expected_per_role(raid_name: str, players: List[Player]) -> Dict[str, List[int, int]]:
     actual_vs_expected = {
-        'tank': (0, pref_per_role[raid_name]['tank']),
-        'healer': (0, pref_per_role[raid_name]['healer']),
-        'dps': (0, pref_per_role[raid_name]['dps'])
+        'tank': [0, pref_per_role[raid_name]['tank']],
+        'healer': [0, pref_per_role[raid_name]['healer']],
+        'dps': [0, pref_per_role[raid_name]['dps']]
     }
 
     for player in players:
