@@ -100,7 +100,7 @@ class RaidMessage(DiscordMessage):
 
     def _get_summary_field(self, raid_team) -> Dict[str, str]:
         summary = ", ".join([f"**{role.capitalize()}** ({actual}/{expected})" for role, (actual, expected) in actual_vs_expected_per_role(self.raid_event.name, raid_team).items()])
-        value = f'{self._get_emoji(MISSING_EMOJI)} **__{MISSING_EMOJI}__**: {summary}'
+        value = f'**__Summary__**: {summary}'
         return _field(value, inline=False)
 
     def _get_declined_field(self):
