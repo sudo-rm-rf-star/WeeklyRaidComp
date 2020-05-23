@@ -2,6 +2,7 @@ from client.DiscordClient import DiscordClient
 from commands.player.PlayerCommand import PlayerCommand
 from commands.utils.RegisterPlayer import register
 import discord
+from typing import Optional
 
 
 class RegisterPlayerCommand(PlayerCommand):
@@ -11,7 +12,7 @@ class RegisterPlayerCommand(PlayerCommand):
         description = 'Registreer jezelf als raider, iemand anders of iedereen met een bepaalde rol. Stuurt een DM voor de registratie'
         super(RegisterPlayerCommand, self).__init__(subname, description, argformat)
 
-    async def execute(self, player: str, role: str, **kwargs) -> None:
+    async def execute(self, player: Optional[str] = None, role: Optional[str] = None, **kwargs) -> None:
         all_members = set()
         if role:
             all_members = all_members.union(self.client.get_members_for_role(role))

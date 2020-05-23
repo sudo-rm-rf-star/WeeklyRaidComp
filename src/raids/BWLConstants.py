@@ -4,6 +4,34 @@ pref_per_role = {
     'dps': 26
 }
 
+
+"""
+
+
+
+12 healers 
+
+min 3 pala
+min 2 holy pala (ideaal 3 met monnik)
+max 4 holy pala
+
+
+
+2 resto druid 
+
+
+4 holy pala 
+
+
+"""
+min_per_class = {
+
+}
+
+max_per_class = {
+
+}
+
 min_per_class_role = {
     'dps': {
         'druid': 1,

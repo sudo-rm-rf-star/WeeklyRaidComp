@@ -104,5 +104,5 @@ class RaidEventsResource:
                 del self.upcoming_cache[raid_event.name]
                 self._sync_cache()
         else:
-            if raid_event.get_datetime() >= DateOptionalTime.now() and (raid_event.name not in self.upcoming_cache or self.upcoming_cache[raid_event.name].get_datetime() <= raid_event.get_datetime()):
+            if raid_event.get_datetime() >= DateOptionalTime.now() and (raid_event.name not in self.upcoming_cache or raid_event.get_datetime() <= self.upcoming_cache[raid_event.name].get_datetime()):
                 self.upcoming_cache[raid_event.name] = raid_event
