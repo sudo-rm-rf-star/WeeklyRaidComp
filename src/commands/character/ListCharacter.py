@@ -1,14 +1,15 @@
 from commands.character.CharacterCommand import CharacterCommand
 from utils.Constants import RAIDER_RANK
-from commands.utils.RegisterPlayer import register
+from client.entities.ShowCharactersMessage import ShowCharactersMessage
 
 
 class AddCharacter(CharacterCommand):
     def __init__(self):
         argformat = ""
-        subname = 'add'
-        description = 'Voeg een character toe'
+        subname = 'list'
+        description = 'Toon je characters'
         super(AddCharacter, self).__init__(subname, description, argformat, required_rank=RAIDER_RANK)
 
     async def execute(self, **kwargs) -> None:
-        await register(self.client, self.players_resource, self.member, allow_multiple=True)
+        await ShowCharactersMessage(self.member, self.client, self.players_resource).send_to(self.member)
+

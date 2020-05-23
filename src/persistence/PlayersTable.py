@@ -1,9 +1,8 @@
 from boto3.dynamodb.conditions import Key
 from logic.Player import Player
-from exceptions.InternalBotException import InternalBotException
-from typing import Optional, Dict, Any
-import utils.Logger as Log
+from typing import Dict, Any
 from persistence.DynamoDBTable import DynamoDBTable
+from typing import List
 
 
 class PlayersTable(DynamoDBTable[Player]):
@@ -22,8 +21,9 @@ class PlayersTable(DynamoDBTable[Player]):
     def remove_player(self, player_name: str) -> bool:
         return super(PlayersTable, self).remove_item(name=player_name)
 
-    def get_player_by_id(self, discord_id) -> Optional[Player]:
-        return self.to_unique_object(self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=Key('discord_id').eq(discord_id)))
+    def get_players_by_id(self, discord_id) -> List[Player]:
+        players = self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=Key('discord_id').eq(discord_id))
+        return [self._to_object(player) for player in players['Items']]
 
     def _to_object(self, item: Dict[str, Any]) -> Player:
         return Player.from_dict(item)

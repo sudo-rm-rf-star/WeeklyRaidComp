@@ -46,6 +46,15 @@ class Roster:
 
         self.players[i] = player
 
+    def remove_player(self, player_name: str) -> bool:
+        self.updated_since_last_check = True
+        players = [player for player in self.players if player.name == player_name]
+        if len(players) == 0:
+            return False
+        player = players[0]
+        self.players.remove(player)
+        return True
+
     def was_updated(self) -> bool:
         if self.updated_since_last_check:
             self.updated_since_last_check = False

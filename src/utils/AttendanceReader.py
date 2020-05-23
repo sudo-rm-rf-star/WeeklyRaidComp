@@ -45,7 +45,7 @@ def update_raid_presence(players_resource: PlayersResource, events_resource: Rai
         return
 
     raid_events = events_resource.get_raids()
-    players = {player.name: player for player in players_resource.list_players()}
+    players = {player.name: player for player in players_resource.list_characters()}
     updated_players = set()
     for raid_name in SUPPORTED_RAIDS:
         for raid_attendance_html in get_raid_attendance_htmls(raid_name):
@@ -69,7 +69,7 @@ def update_raid_presence(players_resource: PlayersResource, events_resource: Rai
                             except StopIteration:
                                 pass
     for player in updated_players:
-        players_resource.update_player(player)
+        players_resource.update_character(player)
 
 
 def chunks(lst: List[Any], n: int) -> List[List[Any]]:

@@ -14,8 +14,8 @@ class UpdateRosterCommand(RosterCommand):
 
     async def execute(self, raid_name: str, player: str, raid_datetime: DateOptionalTime, team_index: int, **kwargs):
         raid_event = self.events_resource.get_raid(raid_name, raid_datetime)
-        player = self.players_resource.get_player(player)
-        raid_event.add_player_to_roster(player, self.roster_choice)
+        player = self.players_resource.get_character(player)
+        raid_event.add_to_roster(player, self.roster_choice)
         self.events_resource.update_raid(raid_event)
         RaidMessage(self.client, raid_event).sync()
         self.publish_roster_changes([player], raid_event)

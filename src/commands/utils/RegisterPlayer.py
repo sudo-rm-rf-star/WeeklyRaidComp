@@ -11,9 +11,9 @@ import asyncio
 TRIES = 3
 
 
-async def register(client: DiscordClient, players_resource: PlayersResource, member: GuildMember, retry: bool = False) -> Player:
-    player = players_resource.get_player_by_id(member.id)
-    if player is not None and not retry:
+async def register(client: DiscordClient, players_resource: PlayersResource, member: GuildMember, allow_multiple: bool = False) -> Player:
+    player = players_resource.get_character_by_id(member.id)
+    if player is not None and not allow_multiple:
         member.send(f'You have already signed up: {player}')
         return player
 
@@ -22,7 +22,7 @@ async def register(client: DiscordClient, players_resource: PlayersResource, mem
     klass = await interact(member, GetClassMessage(client))
     race = await interact(member, GetRaceMessage(client))
     player = Player(discord_id=member.id, char_name=player_name, role=role, klass=klass, race=race)
-    players_resource.update_player(player)
+    players_resource.update_character(player)
     asyncio.create_task(member.send(content=f'You have successfully registered: {player}'))
     return player
 

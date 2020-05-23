@@ -16,7 +16,7 @@ EMPTY_FIELD = '\u200e'
 class ShowPlayersMessage(DiscordMessage):
     def __init__(self, client: DiscordClient, players_resource: PlayersResource):
         self.client = client
-        self.players = players_resource.list_players()
+        self.players = players_resource.list_characters()
         self.embed = self._players_to_embed()
         super().__init__(embed=self.embed)
 

@@ -1,6 +1,7 @@
 # DiscordBot.py
 from exceptions.BotException import BotException
 from websockets.exceptions import InvalidStatusCode
+from discord.errors import HTTPException
 from commands.BotCommands import find_and_execute_command, execute_command
 from commands.player.SignupPlayerCommand import SignupPlayerCommand
 from utils.Constants import MAINTAINER
@@ -15,6 +16,9 @@ import discord
 import logging
 import os
 import traceback
+
+CONNECTION_TRY = 0
+MAX_CONNECTION_TRY = 5
 
 
 def run() -> None:
@@ -31,7 +35,15 @@ def run() -> None:
 
     @client.event
     async def on_ready() -> None:
-        await discord_client.on_ready()
+        global CONNECTION_TRY
+        CONNECTION_TRY += 1
+        if CONNECTION_TRY == MAX_CONNECTION_TRY:
+            exit(1)
+        try:
+            await discord_client.on_ready()
+        except HTTPException:
+            Log.error(traceback.format_exc())
+            await on_ready()
         events_resource.on_ready()
         logging.getLogger().info(f'{client.user} has connected.')
 
@@ -49,7 +61,8 @@ def run() -> None:
         if not client.is_ready() or reaction_event.user_id == client.user.id or reaction_event.emoji.name not in EMOJI_SIGNUP_STATUS.keys():
             return
         try:
-            await execute_command(SignupPlayerCommand(), "", discord_client, events_resource, players_resource, raw_reaction=reaction_event)
+            await execute_command(SignupPlayerCommand(), "", discord_client, events_resource, players_resource,
+                                  raw_reaction=reaction_event)
         except Exception as ex:
             member = discord_client.get_member_by_id(reaction_event.user_id)
             err_msg = f"Raid signup failed for {member.display_name}, {reaction_event.emoji}, {ex}"
