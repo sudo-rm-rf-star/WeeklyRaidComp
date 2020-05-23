@@ -3,7 +3,7 @@ from utils.Constants import RAIDER_RANK
 
 
 class AddCharacter(CharacterCommand):
-    def __init__(self, subname: str, description: str, argformat: str, required_rank: str = None, example_args: str = None):
+    def __init__(self):
         argformat = ""
         subname = 'add'
         description = 'Voeg een character toe'
