@@ -71,7 +71,7 @@ class Player:
             'race': self.race.name,
             'present_dates': self.present_dates,
             'standby_dates': self.standby_dates,
-            'last_selected_time': int(self.last_selected_time.timestamp())
+            'last_selected_time': int(self.last_selected_time.timestamp()) if self.last_selected_time else None
         }
 
     def to_dict_for_raid_event(self) -> Dict[str, Any]:
