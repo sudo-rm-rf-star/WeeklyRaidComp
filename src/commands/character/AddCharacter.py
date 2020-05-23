@@ -1,4 +1,4 @@
-from commands.character import CharacterCommand
+from commands.character.CharacterCommand import CharacterCommand
 from utils.Constants import RAIDER_RANK
 
 
