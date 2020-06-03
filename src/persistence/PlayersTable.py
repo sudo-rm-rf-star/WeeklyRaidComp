@@ -31,6 +31,11 @@ class PlayersTable(DynamoDBTable[Player]):
     def _to_item(self, player: Player) -> Dict[str, Any]:
         return player.to_dict()
 
+    def _to_key(self, name: str):
+        return {
+            'name': name
+        }
+
     def _table_kwargs(self):
         return {
             'KeySchema': [
@@ -50,8 +55,8 @@ class PlayersTable(DynamoDBTable[Player]):
                 }
             ],
             'ProvisionedThroughput': {
-                'ReadCapacityUnits': 5,
-                'WriteCapacityUnits': 5
+                'ReadCapacityUnits': 3,
+                'WriteCapacityUnits': 3
             },
             'GlobalSecondaryIndexes': [
                 {
@@ -66,8 +71,8 @@ class PlayersTable(DynamoDBTable[Player]):
                         'ProjectionType': 'ALL',
                     },
                     'ProvisionedThroughput': {
-                        'ReadCapacityUnits': 5,
-                        'WriteCapacityUnits': 5
+                        'ReadCapacityUnits': 3,
+                        'WriteCapacityUnits': 3
                     }
                 },
             ],

@@ -36,23 +36,23 @@ WARCRAFT_LOGS_TEAM_ID = 29777
 
 WEEKDAYS = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag']
 
-pref_per_role = {
+default_num_per_raid_role = {
     'mc': MCConstants.pref_per_role,
     'bwl': BWLConstants.pref_per_role,
     'zg': ZGConstants.pref_per_role
 }
 
 player_count = {
-    raid: sum(key_counts.values()) for raid, key_counts in pref_per_role.items()
+    raid: sum(key_counts.values()) for raid, key_counts in default_num_per_raid_role.items()
 }
 
-min_per_class_role = {
+default_min_per_raid_role_class = {
     'mc': MCConstants.min_per_class_role,
     'bwl': BWLConstants.min_per_class_role,
     'zg': ZGConstants.min_per_class_role
 }
 
-max_per_class_role = {
+default_max_per_raid_role_class = {
     'mc': MCConstants.max_per_class_role,
     'bwl': BWLConstants.max_per_class_role,
     'zg': ZGConstants.max_per_class_role

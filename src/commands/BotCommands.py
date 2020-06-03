@@ -13,6 +13,7 @@ import sys
 from client.RaidEventsResource import RaidEventsResource
 from client.PlayersResource import PlayersResource
 from typing import Optional
+import utils.Logger as Log
 
 
 def find_modules(path: str) -> Set[str]:
@@ -46,8 +47,11 @@ def _all_subclasses(cls: type) -> Set[type]:
 def _get_bot_commands() -> Dict[str, Dict[str, BotCommand]]:
     bot_commands = defaultdict(dict)
     for command_cls in _all_subclasses(BotCommand):
-        command = command_cls()
-        bot_commands[command.name][command.subname] = command
+        try:
+            command = command_cls()
+            bot_commands[command.name][command.subname] = command
+        except TypeError:
+            Log.error(f'Could not initialize {command_cls}')
 
     return dict(bot_commands)
 

@@ -1,6 +1,7 @@
 from utils.Singleton import Singleton
 from persistence.PlayersTable import PlayersTable
 from persistence.RaidEventsTable import RaidEventsTable
+from persistence.GuildsTable import GuildsTable
 import boto3
 from dotenv import load_dotenv
 import os
@@ -18,3 +19,6 @@ class TableFactory(metaclass=Singleton):
 
     def get_raid_events_table(self) -> RaidEventsTable:
         return RaidEventsTable(self.ddb)
+
+    def get_guilds_table(self) -> GuildsTable:
+        return GuildsTable(self.ddb)

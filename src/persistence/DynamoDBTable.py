@@ -12,14 +12,14 @@ class DynamoDBTable(Generic[T]):
         self.table = self._get_table(table_name)
 
     def get_item(self, **kwargs) -> Optional[T]:
-        response = self.table.get_item(Key=kwargs)
+        response = self.table.get_item(Key=self._to_key(**kwargs))
         if 'Item' not in response:
             return None
         return self._to_object(response['Item'])
 
     def remove_item(self, **kwargs) -> bool:
         try:
-            self.table.delete_item(Key=kwargs)
+            self.table.delete_item(Key=self._to_key(**kwargs))
             return True
         except ClientError as e:
             if e.response['Error']['Code'] != 'ResourceNotFoundException':
@@ -40,6 +40,9 @@ class DynamoDBTable(Generic[T]):
         raise NotImplementedError()
 
     def _to_item(self, t: T) -> Dict[str, Any]:
+        raise NotImplementedError()
+
+    def _to_key(self, **kwargs) -> Dict[str, Any]:
         raise NotImplementedError()
 
     def create_table(self, table_name) -> Any:

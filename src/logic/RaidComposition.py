@@ -1,4 +1,4 @@
-from utils.Constants import pref_per_role, min_per_class_role, max_per_class_role
+from utils.Constants import default_num_per_raid_role, default_min_per_raid_role_class, default_max_per_raid_role_class
 from logic.enums.SignupStatus import SignupStatus
 from logic.enums.RosterStatus import RosterStatus
 from logic.Player import Player
@@ -27,12 +27,12 @@ def make_raid_composition(raid_name: str, players: List[Player]) -> List[Player]
         for clazz, signees_for_class in signees_for_role.groupby("class"):
             for i, (j, signee) in enumerate(
                     signees_for_class.sort_values('standby_count', ascending=False).iterrows()):
-                score = _calculate_importance(i, min_per_class_role[raid_name][role][clazz],
-                                              max_per_class_role[raid_name][role][clazz])
+                score = _calculate_importance(i, default_min_per_raid_role_class[raid_name][role][clazz],
+                                              default_max_per_raid_role_class[raid_name][role][clazz])
                 players_df.at[j, "score"] = score
 
     for role, signees_for_role in eligible().sort_values(['priority', 'score'], ascending=False).groupby('role'):
-        pref_count = pref_per_role[raid_name][role]
+        pref_count = default_num_per_raid_role[raid_name][role]
         accepted_for_role = signees_for_role.iloc[:pref_count]
         not_accepted_for_role = signees_for_role.iloc[pref_count:]
 
@@ -64,9 +64,9 @@ def players_dataframe(raid_name: str, players: List[Player]) -> DataFrame:
 
 def actual_vs_expected_per_role(raid_name: str, players: List[Player]) -> Dict[str, Tuple[int, int]]:
     actual_vs_expected = {
-        'tank': [0, pref_per_role[raid_name]['tank']],
-        'healer': [0, pref_per_role[raid_name]['healer']],
-        'dps': [0, pref_per_role[raid_name]['dps']]
+        'tank': [0, default_num_per_raid_role[raid_name]['tank']],
+        'healer': [0, default_num_per_raid_role[raid_name]['healer']],
+        'dps': [0, default_num_per_raid_role[raid_name]['dps']]
     }
 
     for player in players:
