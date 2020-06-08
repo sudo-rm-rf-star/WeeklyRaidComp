@@ -1,8 +1,10 @@
 from persistence.TableFactory import TableFactory
 from persistence.PlayersTable import PlayersTable
 from logic.Player import Player
+from logic.RaidGroup import RaidGroup
 from typing import List, Optional
 from datetime import datetime
+from client.entities.GuildMember import GuildMember
 
 
 class PlayersResource:
@@ -44,4 +46,7 @@ class PlayersResource:
             return max([player for player in players if player.last_selected_time],
                        key=lambda player: player.last_selected_time)
 
-
+    def select_raidgroup(self, guild_member: GuildMember, raidgroup: RaidGroup):
+        for character in self.get_characters_by_id(guild_member.id):
+            character.selected_raidgroup_id = raidgroup.group_id
+            self.update_character(character)

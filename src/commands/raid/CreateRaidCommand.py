@@ -13,4 +13,4 @@ class CreateRaidCommand(RaidCommand):
         guild_id, group_id = self.get_guild_id_and_group_id()
         if not group_id:
             return
-        self.respond(await self.events_resource.create_raid(guild_id, group_id, raid_name, raid_datetime))
+        self.respond(await self.events_resource.create_raid(self.discord_guild, group_id, raid_name, raid_datetime))

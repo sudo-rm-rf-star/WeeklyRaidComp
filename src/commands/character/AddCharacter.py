@@ -1,6 +1,6 @@
 from commands.character.CharacterCommand import CharacterCommand
 from utils.Constants import RAIDER_RANK
-from commands.utils.RegisterPlayer import register
+from commands.utils.RegistrationHelper import register
 
 
 class AddCharacter(CharacterCommand):

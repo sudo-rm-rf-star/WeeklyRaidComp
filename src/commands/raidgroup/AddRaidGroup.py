@@ -1,4 +1,5 @@
 from commands.raidgroup.RaidGroupCommand import RaidGroupCommand
+from commands.utils.RaidGroupHelper import create_raidgroup
 
 
 class AddRaidGroup(RaidGroupCommand):
@@ -9,4 +10,11 @@ class AddRaidGroup(RaidGroupCommand):
         super(AddRaidGroup, self).__init__(subname, description, argformat, required_rank=RAIDER_RANK)
 
     async def execute(self, **kwargs) -> None:
-        await register(self.client, self.players_resource, self.member, allow_multiple=True)
+        guild = self.guilds_resource.get_guild(self.discord_guild.id)
+        raidgroup = create_raidgroup(self.client, self.discord_guild, self.member)
+        guild.raid_groups.append(raidgroup)
+        self.guilds_resource.update_guild(guild)
+        self.respond(f"Your raid group {raidgroup.name} has succesfully been created!")
+
+
+

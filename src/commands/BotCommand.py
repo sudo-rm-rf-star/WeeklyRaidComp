@@ -11,6 +11,7 @@ from client.PlayersResource import PlayersResource
 from client.RaidEventsResource import RaidEventsResource
 from client.GuildsResource import GuildsResource
 from logic.Player import Player
+from logic.Guild import Guild
 import asyncio
 import discord
 
@@ -75,6 +76,9 @@ class BotCommand:
         command_with_arg_names = f'\n`{prefix} {self.argformat}`'
         command_with_arg_examples = f'\n`{prefix} {self.example_args}`' if self.example_args else ''
         return f'**{self.description}**{command_with_arg_names}{command_with_arg_examples}'
+
+    def get_guild(self) -> Guild:
+        return self.guilds_resource.get_guild(self.discord_guild.id)
 
     def get_guild_id_and_group_id(self) -> Tuple[Optional[int], Optional[int]]:
         player = self.players_resource.get_character_by_id(self.member.id)

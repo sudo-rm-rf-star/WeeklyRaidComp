@@ -1,10 +1,9 @@
 from commands.guild.GuildCommand import GuildCommand
 from commands.utils.PlayerInteraction import InteractionMessage, interact
-from logic.Guild import Guild
+from commands.utils.DiscordRoleInteraction import DiscordRoleInteraction
+from commands.utils.RaidGroupHelper import create_raidgroup
 from utils.Constants import BOT_NAME
-from utils.DiscordUtils import get_roles, get_role
-from exceptions.InvalidArgumentException import InvalidArgumentException
-import discord
+from logic.Guild import Guild
 
 
 class CreateGuild(GuildCommand):
@@ -15,9 +14,13 @@ class CreateGuild(GuildCommand):
         super(CreateGuild, self).__init__(subname, description, argformat, required_rank=None)
 
     async def execute(self, **kwargs) -> None:
+        guild = self.guilds_resource.get_guild(self.discord_guild.id)
+        if guild:
+            self.respond(f"This channel already has a guild named {guild.name}. A channel can only have one guild.")
+            return
         await self.member.send(
             f"Thanks for giving {BOT_NAME} a chance! I hope I'll prove useful for your guild. Let me give a brief introduction of my purpose. "
-            f"(Insert Rick and Morty 'What is my purpose...' reference. My main purpose is to make raid organization for your guild as easy to "
+            f"(Insert Rick and Morty 'What is my purpose...' reference). My main purpose is to make raid organization for your guild as easy to "
             f"manage as possible. A lot of the time-consuming tasks with organizing raids should be either automatic or very quick to do trough "
             f"me. Next to just helping the raid leaders life, it also tries to help the raider by serving as a medium between the raider and "
             f"raid leader. You can use me as to create raids, I will send a personal message to every raider on Discord trough which they can "
@@ -30,7 +33,7 @@ class CreateGuild(GuildCommand):
         )
         guild_name = await interact(self.member, InteractionMessage(self.client, "Please fill in the name of your guild."))
         realm = await interact(self.member, InteractionMessage(self.client, "Please fill in the realm of your guild."))
-        manager_rank = await interact(self.member, DiscordRoleMessage(self.client, self.discord_guild, "Please select a Discord role to manage this guild"))
+        manager_rank = await interact(self.member, DiscordRoleInteraction(self.client, self.discord_guild, "Please select a Discord role to manage this guild"))
         wl_guild_id = await interact(self.member, InteractionMessage(self.client, "Please fill in your warcraft logs ID for your guild. For now I'm to lazy "
                                                                                   "to explain where to find this. You can leave this empty if you can't find "
                                                                                   "it, it's not super important."))
@@ -39,28 +42,11 @@ class CreateGuild(GuildCommand):
             "a raid group as a team who periodically comes together to tackle certain raids. You could have an A-team and a B-team for example, let's start"
             "with your first team. You can create more teams later with: !raidgroup create. Let's continue."
         )
-
-        raidgroup_name = await interact(self.member, InteractionMessage(self.client, "Please fill in the name for your raiding group."))
-        manager_rank = await interact(self.member, DiscordRoleMessage(self.client, self.discord_guild,
-                                                                      f"Please select a Discord role for your raiders. These will receive personal messages for any updates for {raidgroup_name}"))
-        wl_group_id = await interact(self.member, InteractionMessage(self.client,
-                                                                     "Please fill in your warcraft logs ID for your raiding team. For now I'm to lazy to explain where to find this. You can leave this empty if you can't find it, it's not super important."))
-
+        raidgroup = create_raidgroup(self.client, self.discord_guild, self.member)
+        guild = Guild(name=guild_name, realm=realm, manager_rank=manager_rank, guild_id=self.discord_guild.id,
+                      wl_guild_id=int(wl_guild_id) if wl_guild_id else None, groups=[raidgroup])
+        self.guilds_resource.create_guild(guild)
+        self.respond(f"Your guild {guild_name} has succesfully been created!")
 
 
 
-class DiscordRoleMessage(InteractionMessage):
-    def __init__(self, client: discord.Client, guild: discord.Guild, content: str, *args, **kwargs):
-        content =
-        self.options = '/'.join([' '.join([role.name for role in get_roles(guild)])])
-        content += f': [{self.options}]'
-        self.guild = guild
-        super().__init__(client, content, *args, **kwargs)
-
-    async def get_response(self) -> discord.Role:
-        response = await super(DiscordRoleMessage, self).get_response()
-        role = get_role(self.guild, response)
-        if role:
-            return role
-        else:
-            raise InvalidArgumentException(f'Please choose on of: {self.options}')

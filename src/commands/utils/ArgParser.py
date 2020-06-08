@@ -112,4 +112,5 @@ def get_example(argname: str) -> str:
         'channel_name': 'raid-signups',
         'announcement': 'Goedenavond beste kruisvaarder!',
         'role': 'Kruisvaarder',
+        'raidgroup': 'Kruisvaarders'
     }[argname]

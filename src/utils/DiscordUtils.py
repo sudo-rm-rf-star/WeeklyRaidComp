@@ -1,5 +1,4 @@
 import discord
-from client.PlayersResource import PlayersResource
 from client.entities.GuildMember import GuildMember
 from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
 from exceptions.InternalBotException import InternalBotException
@@ -8,6 +7,10 @@ from typing import List
 
 def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
     return discord.utils.get(guild.text_channels, name=channel_name)
+
+
+def get_channels(guild: discord.Guild) -> List[discord.TextChannel]:
+    return guild.text_channels
 
 
 async def get_channel_by_id(guild: discord.Guild, channel_id: int) -> discord.TextChannel:

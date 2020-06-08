@@ -1,5 +1,5 @@
 from commands.player.PlayerCommand import PlayerCommand
-from commands.utils.RegisterPlayer import register
+from commands.utils.RegistrationHelper import register
 from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
 from client.entities.RaidMessage import RaidMessage
 from utils.Constants import RAIDER_RANK
@@ -21,14 +21,14 @@ class SignupPlayerCommand(PlayerCommand):
         if raid_event:
             if selected_character is None:
                 selected_character = await register(self.client, self.players_resource, self.member)
-            # Remove character from signees if any other of his characters have alreayd signed
+            # Remove character from signees if any other of his characters have already signed
             for player in players:
                 if player != selected_character and raid_event.has_signed(player.name):
                     raid_event.remove_from_raid(player.name)
             # Add player to raid_event
             signup_choice = EMOJI_SIGNUP_STATUS[self.raw_reaction.emoji.name]
             raid_event.add_to_signees(selected_character, signup_choice)
-            raid_message = RaidMessage(self.client, raid_event)
+            raid_message = RaidMessage(self.client, self.discord_guild, raid_event)
             raid_message.sync()
             self.events_resource.update_raid(raid_event)
             self.respond(f'Thanks for signing up with {selected_character.name} as {signup_choice.name.capitalize()} for '
