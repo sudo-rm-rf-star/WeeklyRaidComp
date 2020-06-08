@@ -14,4 +14,7 @@ class CreateRaidCommand(RaidCommand):
         super(CreateRaidCommand, self).__init__(subname, description, argformat, OFFICER_RANK)
 
     async def execute(self, raid_name: str, raid_datetime: DateOptionalTime, **kwargs):
-        self.respond(await self.events_resource.remove_raid(raid_name, raid_datetime))
+        guild_id, group_id = self.get_guild_id_and_group_id()
+        if not group_id:
+            return
+        self.respond(await self.events_resource.remove_raid(guild_id, group_id, raid_name, raid_datetime))

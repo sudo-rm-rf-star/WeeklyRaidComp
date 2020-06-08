@@ -1,7 +1,6 @@
 """File full of magic to avoid relying on every single BotCommand"""
 from commands.BotCommand import BotCommand
 from exceptions.InvalidCommandException import InvalidCommandException
-from client.DiscordClient import DiscordClient
 from collections import defaultdict
 from setuptools import find_packages
 from pkgutil import iter_modules
@@ -12,6 +11,7 @@ import discord
 import sys
 from client.RaidEventsResource import RaidEventsResource
 from client.PlayersResource import PlayersResource
+from client.GuildsResource import GuildsResource
 from typing import Optional
 import utils.Logger as Log
 
@@ -79,7 +79,7 @@ async def find_bot_command(message: Optional[discord.Message], command_name: str
             raise InvalidCommandException(f"{command_name} {subcommand_name} is not a valid bot command.")
 
 
-async def find_and_execute_command(client: DiscordClient, events_resource: RaidEventsResource, players_resource: PlayersResource,
+async def find_and_execute_command(client: discord.Client, events_resource: RaidEventsResource, players_resource: PlayersResource, guilds_resource: GuildsResource,
                                    message: Optional[discord.Message] = None, raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> None:
     cmd = None
     cmd_args = None
@@ -94,12 +94,12 @@ async def find_and_execute_command(client: DiscordClient, events_resource: RaidE
         pass  # This is not a command intended for our bot.
 
     if cmd and cmd_args is not None:
-        await execute_command(cmd, cmd_args, client, events_resource, players_resource, message, raw_reaction)
+        await execute_command(cmd, cmd_args, client, events_resource, players_resource, guilds_resource, message, raw_reaction)
 
 
-async def execute_command(command: BotCommand, cmd_args: str, client: DiscordClient, events_resource: RaidEventsResource, players_resource: PlayersResource,
+async def execute_command(command: BotCommand, cmd_args: str, client: discord.Client, events_resource: RaidEventsResource, players_resource: PlayersResource, guilds_resource: GuildsResource,
                           message: Optional[discord.Message] = None, raw_reaction: Optional[discord.RawReactionActionEvent] = None):
-    await command.call(client, players_resource, events_resource, message, raw_reaction, cmd_args)
+    await command.call(client, players_resource, events_resource, guilds_resource, message, raw_reaction, cmd_args)
 
 
 commands_path = str(Path(__file__).parent)

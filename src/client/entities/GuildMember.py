@@ -4,8 +4,9 @@ from datetime import datetime
 
 
 class GuildMember:
-    def __init__(self, member: Member):
+    def __init__(self, member: Member, guild_id: int):
         self.member = member
+        self.guild_id = guild_id
 
     def send(self, content=None, *args, **kwargs):
         Log.info(f'{datetime.now()}, {self.member.display_name}, {self.member.id}, {content}')

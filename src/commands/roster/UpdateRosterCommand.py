@@ -13,7 +13,10 @@ class UpdateRosterCommand(RosterCommand):
         super(RosterCommand, self).__init__('roster', subname, description, argformat, required_rank)
 
     async def execute(self, raid_name: str, player: str, raid_datetime: DateOptionalTime, team_index: int, **kwargs):
-        raid_event = self.events_resource.get_raid(raid_name, raid_datetime)
+        guild_id, group_id = self.get_guild_id_and_group_id()
+        if not group_id:
+            return
+        raid_event = self.events_resource.get_raid(guild_id, group_id, raid_name, raid_datetime)
         player = self.players_resource.get_character(player)
         raid_event.add_to_roster(player, self.roster_choice)
         self.events_resource.update_raid(raid_event)

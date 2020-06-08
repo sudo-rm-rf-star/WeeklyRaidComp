@@ -21,7 +21,7 @@ async def register(client: DiscordClient, players_resource: PlayersResource, mem
     role = await interact(member, GetRoleMessage(client))
     klass = await interact(member, GetClassMessage(client))
     race = await interact(member, GetRaceMessage(client))
-    player = Player(discord_id=member.id, char_name=player_name, role=role, klass=klass, race=race)
+    player = Player(discord_id=member.id, guild_id=member.guild_id, char_name=player_name, role=role, klass=klass, race=race)
     players_resource.update_character(player)
     asyncio.create_task(member.send(content=f'You have successfully registered: {player}'))
     return player

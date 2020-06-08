@@ -4,7 +4,6 @@ from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
 from client.entities.RaidMessage import RaidMessage
 from utils.Constants import RAIDER_RANK
 from utils.EmojiNames import EMOJI_SIGNUP_STATUS
-import asyncio
 
 
 class SignupPlayerCommand(PlayerCommand):
@@ -16,9 +15,9 @@ class SignupPlayerCommand(PlayerCommand):
 
     async def execute(self, **kwargs) -> None:
         notification_id = DiscordMessageIdentifier(self.raw_reaction.message_id, self.member.id)
-        raid_event = self.events_resource.get_raid_by_notification_id(notification_id)
         players = self.players_resource.get_characters_by_id(self.member.id)
         selected_character = self.players_resource.get_selected_character(players)
+        raid_event = self.events_resource.get_raid_by_notification_id(self.discord_guild, notification_id)
         if raid_event:
             if selected_character is None:
                 selected_character = await register(self.client, self.players_resource, self.member)

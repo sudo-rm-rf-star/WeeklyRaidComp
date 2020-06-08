@@ -1,10 +1,7 @@
-import discord
-
 from exceptions.InternalBotException import InternalBotException
 from client.entities.DiscordMessage import DiscordMessage
-from client.DiscordClient import DiscordClient
 from utils.Constants import DATETIMESEC_FORMAT
-from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI, TEAM_EMOJI, MISSING_EMOJI, SIGNUPS_EMOJI, ROLE_CLASS_EMOJI, ROLE_EMOJI, SIGNUP_STATUS_EMOJI
+from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI, TEAM_EMOJI, SIGNUPS_EMOJI, ROLE_CLASS_EMOJI, ROLE_EMOJI, SIGNUP_STATUS_EMOJI
 from logic.RaidEvent import RaidEvent
 from logic.enums.Role import Role
 from logic.enums.SignupStatus import SignupStatus
@@ -13,16 +10,19 @@ from logic.RaidComposition import actual_vs_expected_per_role
 from discord import Embed
 from typing import List, Optional, Dict, Union
 from logic.Player import Player
+from utils.DiscordUtils import get_emoji, get_message
 import asyncio
+import discord
 
 EMPTY_FIELD = '\u200e'
 
 
 class RaidMessage(DiscordMessage):
-    def __init__(self, client: DiscordClient, raid_event: RaidEvent):
-        self.client = client
+    def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, raid_event: RaidEvent):
+        self.discord_client = discord_client
         self.raid_event = raid_event
         self.raid_players = raid_event.roster.players
+        self.discord_guild = discord_guild
         self.embed = self._raid_to_embed()
         super().__init__(embed=self.embed)
 
@@ -36,7 +36,7 @@ class RaidMessage(DiscordMessage):
         """Updates the existing RaidMessages if the raid_event has been updated"""
         if self.raid_event.roster.was_updated():
             for message_id in self.raid_event.message_ids:
-                asyncio.create_task(_update_message(self.client, message_id, self.embed))
+                asyncio.create_task(_update_message(self.discord_guild, message_id, self.embed))
 
     def _raid_to_embed(self) -> Embed:
         embed = {'title': self._get_title(),
@@ -117,7 +117,7 @@ class RaidMessage(DiscordMessage):
         return self._get_emoji(SIGNUP_STATUS_EMOJI[signup_choice])
 
     def _get_emoji(self, name: str) -> discord.Emoji:
-        return self.client.get_emoji(name)
+        return get_emoji(name)
 
 
 def _field(content: str, inline: bool = True):
@@ -136,6 +136,6 @@ def roster_accepted_count(players: List[Player]) -> int:
     return sum(1 for player in players if player.roster_status == RosterStatus.ACCEPT)
 
 
-async def _update_message(client, message_id, embed):
-    message = await client.get_message(message_id)
+async def _update_message(discord_guild: discord.Guild, message_id, embed):
+    message = await get_message(discord_guild, message_id)
     await message.edit(embed=embed)

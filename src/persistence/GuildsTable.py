@@ -9,7 +9,7 @@ class GuildsTable(DynamoDBTable[Guild]):
     def __init__(self, ddb):
         super().__init__(ddb, GuildsTable.TABLE_NAME)
 
-    def get_guild(self, guild_id: str) -> Guild:
+    def get_guild(self, guild_id: int) -> Guild:
         return super(GuildsTable, self).get_item(guild_id=guild_id)
 
     def put_guild(self, guild: Guild) -> None:

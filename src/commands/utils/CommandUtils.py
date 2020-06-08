@@ -5,7 +5,7 @@ from client.entities.GuildMember import GuildMember
 
 
 async def delete_bot_messages(client: DiscordClient, text_channel: discord.TextChannel):
-    is_me = lambda msg: msg.author == client.client.user
+    is_me = lambda msg: msg.author == client.discord_client.user
     await text_channel.purge(check=is_me)
 
 

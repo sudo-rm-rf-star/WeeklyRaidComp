@@ -13,6 +13,7 @@ class RaidGroup:
         self.name = name
         self.raider_rank = raider_rank
         self.group_id = group_id
+        self
         self.num_per_raid_role = num_per_raid_role if num_per_raid_role else default_num_per_raid_role
         self.min_per_raid_role_class = min_per_raid_role_class if min_per_raid_role_class else default_min_per_raid_role_class
         self.max_per_raid_role_class = max_per_raid_role_class if max_per_raid_role_class else default_max_per_raid_role_class

@@ -1,4 +1,3 @@
-from client.DiscordClient import DiscordClient
 from persistence.TableFactory import TableFactory
 from persistence.PlayersTable import PlayersTable
 from logic.Player import Player
@@ -7,8 +6,7 @@ from datetime import datetime
 
 
 class PlayersResource:
-    def __init__(self, client: DiscordClient):
-        self.client: DiscordClient = client
+    def __init__(self):
         self.players_table: PlayersTable = TableFactory().get_players_table()
 
     def list_characters(self) -> List[Player]:

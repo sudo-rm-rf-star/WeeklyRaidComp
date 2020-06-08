@@ -1,11 +1,9 @@
 import discord
 from client.entities.DiscordMessage import DiscordMessage
 from client.PlayersResource import PlayersResource
-from client.DiscordClient import DiscordClient
 from utils.EmojiNames import SIGNUPS_EMOJI, ROLE_CLASS_EMOJI, ROLE_EMOJI, SIGNUP_STATUS_EMOJI
 from utils.Constants import RAIDER_RANK
 from logic.enums.Role import Role
-
 from logic.enums.SignupStatus import SignupStatus
 from logic.Player import Player
 from typing import List, Dict
@@ -14,8 +12,9 @@ EMPTY_FIELD = '\u200e'
 
 
 class ShowPlayersMessage(DiscordMessage):
-    def __init__(self, client: DiscordClient, players_resource: PlayersResource):
-        self.client = client
+    def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, players_resource: PlayersResource):
+        self.discord_client = discord_client
+        self.discord_guild = discord_guild
         self.players = players_resource.list_characters()
         self.embed = self._players_to_embed()
         super().__init__(embed=self.embed)
@@ -56,7 +55,7 @@ class ShowPlayersMessage(DiscordMessage):
     def _get_missing_field(self) -> Dict[str, str]:
         value = '**Nog niet ingeschreven:** '
         signed_ids = [player.discord_id for player in self.players]
-        value += ', '.join([member.display_name for member in self.client.get_members_for_role(RAIDER_RANK) if member.id not in signed_ids])
+        value += ', '.join([member.display_name for member in get_members_for_role(RAIDER_RANK) if member.id not in signed_ids])
         print(value)
         return _field(value, inline=False)
 

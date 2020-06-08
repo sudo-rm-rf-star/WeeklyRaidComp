@@ -1,9 +1,7 @@
 from exceptions.InternalBotException import InternalBotException
 from exceptions.InvalidArgumentException import InvalidArgumentException
 from client.entities.DiscordMessage import DiscordMessage
-from client.DiscordClient import DiscordClient
 from typing import Generic, TypeVar, Union, Any
-from enum import Enum
 import discord
 from client.entities.GuildMember import GuildMember
 
@@ -11,7 +9,7 @@ TRIES = 3
 
 
 class InteractionMessage(DiscordMessage):
-    def __init__(self, client: DiscordClient, content: str, *args, **kwargs):
+    def __init__(self, client: discord.Client, content: str, *args, **kwargs):
         self.client = client
         super(InteractionMessage, self).__init__(content, *args, **kwargs)
         # These variables will be filled once the message is sent
@@ -41,7 +39,7 @@ T = TypeVar('T')
 
 
 class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
-    def __init__(self, client: DiscordClient, content: str, enum: T, *args, **kwargs):
+    def __init__(self, client: discord.Client, content: str, enum: T, *args, **kwargs):
         self.enum = enum
         self.options = '/'.join([' '.join(map(lambda x: x.capitalize(), value.split('_'))) for value in enum.__members__.keys()])
         content += f': [{self.options}]'
@@ -70,3 +68,4 @@ async def interact(member: GuildMember, message: InteractionMessage) -> Any:
             trie += 1
 
     return response
+

@@ -11,7 +11,10 @@ class CreateRosterCommand(RosterCommand):
 
     async def execute(self, raid_name, raid_datetime, **kwargs):
         update_raid_presence(self.players_resource, self.events_resource)
-        raid_event = self.events_resource.get_raid(raid_name, raid_datetime)
+        guild_id, group_id = self.get_guild_id_and_group_id()
+        if not group_id:
+            return
+        raid_event = self.events_resource.get_raid(guild_id, group_id, raid_name, raid_datetime)
         updated_players = raid_event.compose_roster()
         self.events_resource.update_raid(raid_event)
         self.publish_roster_changes(updated_players, raid_event)
