@@ -9,7 +9,7 @@ class SelectCharacter(CharacterCommand):
         super(SelectCharacter, self).__init__(subname=subname, description=description, argformat=argformat)
 
     async def execute(self, player: str, **kwargs) -> None:
-        success = self.players_resource.select_character(player)
+        success = self.players_resource.select_character(player, self.discord_guild.id)
         if success:
             self.respond(f'You will now sign up as {player} for raids. '
                          f'If you want to change the character with which you signed, please sign again for that raid.')

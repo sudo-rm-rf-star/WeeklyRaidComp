@@ -1,4 +1,5 @@
 from logic.enums.Class import Class
+from logic.Character import Character
 from logic.enums.Role import Role
 from logic.enums.Race import Race
 from logic.Player import Player
@@ -12,19 +13,23 @@ TRIES = 3
 
 
 async def register(client: discord.Client, guild: discord.Guild, players_resource: PlayersResource, member: GuildMember,
-                   allow_multiple: bool = False) -> Player:
-    player = players_resource.get_character_by_id(member.id)
-    if player is not None and not allow_multiple:
+                   allow_multiple_chars: bool = False) -> Player:
+    player = players_resource.get_player_by_id(member.id)
+    if len(player.characters) >= 1 and not allow_multiple_chars:
         member.send(f'You have already signed up: {player}')
         return player
 
-    player_name = await interact(member, GetNameMesage(client, guild))
+    char_name = await interact(member, GetNameMesage(client, guild))
     role = await interact(member, GetRoleMessage(client, guild))
     klass = await interact(member, GetClassMessage(client, guild))
     race = await interact(member, GetRaceMessage(client, guild))
-    player = Player(discord_id=member.id, guild_id=member.guild_id, char_name=player_name, role=role, klass=klass, race=race)
-    players_resource.update_character(player)
-    asyncio.create_task(member.send(content=f'You have successfully registered: {player}'))
+    if not player:
+        player = Player(discord_id=member.id, guild_id=member.guild_id, characters=[], selected_char=char_name)
+    character = Character(discord_id=member.id, guild_id=guild.id, char_name=char_name, role=role, klass=klass, race=race,
+                          standby_count=player.get_standby_counts())
+    player.characters.append(character)
+    players_resource.update_player(player)
+    asyncio.create_task(member.send(content=f'You have successfully registered: {character}'))
     return player
 
 

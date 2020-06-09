@@ -4,7 +4,7 @@ from exceptions.InternalBotException import InternalBotException
 from typing import Union, Dict, Any, List, Optional
 from utils.DiscordUtils import get_emoji, get_message
 from utils.EmojiNames import ROLE_EMOJI, ROLE_CLASS_EMOJI, SIGNUP_STATUS_EMOJI
-from logic.Player import Player
+from logic.Character import Character
 from logic.enums.Role import Role
 from logic.enums.SignupStatus import SignupStatus
 import json
@@ -39,8 +39,8 @@ class DiscordMessage:
     def _role_emoji(self, role: Role) -> discord.Emoji:
         return self._get_emoji(ROLE_EMOJI[role])
 
-    def _role_class_emoji(self, player: Player) -> discord.Emoji:
-        return self._get_emoji(ROLE_CLASS_EMOJI[player.role][player.klass])
+    def _role_class_emoji(self, character: Character) -> discord.Emoji:
+        return self._get_emoji(ROLE_CLASS_EMOJI[character.role][character.klass])
 
     def _signup_choice_emoji(self, signup_choice: SignupStatus) -> discord.Emoji:
         return self._get_emoji(SIGNUP_STATUS_EMOJI[signup_choice])

@@ -9,6 +9,7 @@ from utils.Time import Time
 from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
 from datetime import datetime
 from typing import List, Dict, Any
+from logic.Character import Character
 
 
 class RaidEvent:
@@ -26,23 +27,23 @@ class RaidEvent:
         self.updated_at = datetime.now() if not updated_at else updated_at
         self.roster = Roster(name) if not rosters else rosters
 
-    def compose_roster(self) -> List[Player]:
+    def compose_roster(self) -> List[Character]:
         self.updated_at = datetime.now()
         return self.roster.compose()
 
     def add_to_signees(self, player: Player, signee_choice: SignupStatus) -> None:
         self.updated_at = datetime.now()
-        self.roster.put_player(player=player, signee_choice=signee_choice)
+        self.roster.put_player(character=player.get_selected_char(), signee_choice=signee_choice)
 
     def add_to_roster(self, player: Player, roster_choice: RosterStatus, team_index: int = None) -> None:
         self.updated_at = datetime.now()
-        self.roster.put_player(player=player, roster_choice=roster_choice, team_index=team_index)
+        self.roster.put_player(character=player.get_selected_char(), roster_choice=roster_choice, team_index=team_index)
 
     def remove_from_raid(self, player_name: str) -> bool:
         return self.roster.remove_player(player_name)
 
     def has_signed(self, player_name: str) -> bool:
-        return any(player for player in self.roster.players if player.name == player_name)
+        return any(player for player in self.roster.characters if player.name == player_name)
 
     def get_name(self, abbrev: bool = False) -> str:
         return self.name if abbrev else abbrev_to_full[self.name]

@@ -61,7 +61,7 @@ class BotCommand:
         else:
             self.discord_guild = message.guild
             self.member = get_member_by_id(self.discord_guild, message.author.id)
-        self.player = self.players_resource.get_character_by_id(self.member.id)
+        self.player = self.players_resource.get_player_by_id(self.member.id)
         self.guild = self.guilds_resource.get_guild(self.member.guild_id)
         self._raidgroup = GuildsResource.get_group(self.guild, self.player)
         self._logs_channel = get_channel(self.discord_guild, self.guild.logs_channel)

@@ -3,51 +3,35 @@ from persistence.PlayersTable import PlayersTable
 from logic.Player import Player
 from logic.RaidGroup import RaidGroup
 from typing import List, Optional
-from datetime import datetime
 from client.entities.GuildMember import GuildMember
+from exceptions.InvalidArgumentException import InvalidArgumentException
 
 
 class PlayersResource:
     def __init__(self):
         self.players_table: PlayersTable = TableFactory().get_players_table()
 
-    def list_characters(self) -> List[Player]:
-        return self.players_table.scan()
+    def list_players(self, guild_id: int) -> List[Player]:
+        return self.players_table.list_players(guild_id)
 
-    def get_character(self, name: str) -> Optional[Player]:
-        return self.players_table.get_player(name)
+    def get_player_by_name(self, name: str, guild_id: int) -> Optional[Player]:
+        return self.players_table.get_player_by_name(name, guild_id)
 
-    def get_character_by_id(self, discord_id: int) -> Optional[Player]:
-        return self.get_selected_character(self.get_characters_by_id(discord_id))
+    def get_player_by_id(self, discord_id: int) -> Optional[Player]:
+        return self.players_table.get_player_by_id(discord_id)
 
-    def get_characters_by_id(self, discord_id: int) -> List[Player]:
-        return self.players_table.get_players_by_id(discord_id)
-
-    def update_character(self, player: Player):
+    def update_player(self, player: Player):
         return self.players_table.put_player(player)
 
-    def remove_character(self, player_name: str) -> bool:
-        return self.players_table.remove_player(player_name)
-
-    def select_character(self, player_name: str) -> bool:
-        player = self.get_character(player_name)
-        if not player:
-            return False
-        player.last_selected_time = datetime.now()
-        self.update_character(player)
-        return True
-
-    @staticmethod
-    def get_selected_character(players: List[Player]) -> Optional[Player]:
-        if len(players) == 0:
-            return None
-        elif all(player.last_selected_time is None for player in players):
-            return players[0]
-        else:
-            return max([player for player in players if player.last_selected_time],
-                       key=lambda player: player.last_selected_time)
+    def select_character(self, char_name: str, guild_id: int):
+        player = self.get_player_by_name(char_name, guild_id)
+        char_names = [char.name for char in player.characters]
+        if not any(x == char_name for x in char_names):
+            raise InvalidArgumentException(f"You don't have a character named {char_name}. Your characters are: " + ", ".join(char_names))
+        player.selected_char = char_name
+        self.update_player(player)
 
     def select_raidgroup(self, guild_member: GuildMember, raidgroup: RaidGroup):
-        for character in self.get_characters_by_id(guild_member.id):
-            character.selected_raidgroup_id = raidgroup.group_id
-            self.update_character(character)
+        player = self.get_player_by_id(guild_member.id)
+        player.selected_raidgroup_id = raidgroup.group_id
+        self.update_player(player)

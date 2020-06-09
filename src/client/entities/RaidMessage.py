@@ -9,16 +9,16 @@ from logic.enums.RosterStatus import RosterStatus
 from logic.RaidComposition import actual_vs_expected_per_role
 from discord import Embed
 from typing import List, Optional, Dict, Union
-from logic.Player import Player
 import asyncio
 import discord
+from logic.Character import Character
 
 
 class RaidMessage(DiscordMessage):
     def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, raid_event: RaidEvent):
         self.discord_client = discord_client
         self.raid_event = raid_event
-        self.raid_players = raid_event.roster.players
+        self.raid_players = raid_event.roster.characters
         self.discord_guild = discord_guild
         self.embed = self._raid_to_embed()
         super().__init__(discord_client, discord_guild, embed=self.embed)
@@ -77,15 +77,15 @@ class RaidMessage(DiscordMessage):
         ])
         return fields
 
-    def _get_field_for_role(self, raid_team: List[Player], role: Role) -> Dict[str, str]:
-        players = [player for player in raid_team if player.role == role and not player.is_declined()]
-        player_lines = '\n'.join(sorted([self._get_player_line(player) for player in players]))
-        value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(players)}):\n{player_lines}'
+    def _get_field_for_role(self, raid_team: List[Character], role: Role) -> Dict[str, str]:
+        characters = [character for character in raid_team if character.role == role and not character.is_declined()]
+        player_lines = '\n'.join(sorted([self._get_character_line(character) for character in characters]))
+        value = f'{self._role_emoji(role)} **__{role.name.capitalize()}__** ({len(characters)}):\n{player_lines}'
         return self._field(value)
 
-    def _get_player_line(self, player: Player) -> str:
-        signup_choice = player.signup_status
-        roster_choice = player.roster_status
+    def _get_character_line(self, character: Character) -> str:
+        signup_choice = character.signup_status
+        roster_choice = character.roster_status
         signup_choice_indicator = '' if signup_choice == SignupStatus.ACCEPT else self._signup_choice_emoji(signup_choice)
         if roster_choice == RosterStatus.ACCEPT:
             roster_choice_indicator = ('__', '__')
@@ -93,7 +93,7 @@ class RaidMessage(DiscordMessage):
             roster_choice_indicator = ('~~', '~~')
         else:
             roster_choice_indicator = ('', '')
-        return f'{self._role_class_emoji(player)} {roster_choice_indicator[0]}{player.name}{roster_choice_indicator[1]} {signup_choice_indicator}'
+        return f'{self._role_class_emoji(character)} {roster_choice_indicator[0]}{character.name}{roster_choice_indicator[1]} {signup_choice_indicator}'
 
     def _get_summary_field(self, raid_team) -> Dict[str, str]:
         summary = ", ".join([f"**{role.capitalize()}** ({actual}/{expected})" for role, (actual, expected) in
@@ -106,9 +106,9 @@ class RaidMessage(DiscordMessage):
         return self._field(value, inline=False)
 
 
-def signed_and_not_declined_count(players: List[Player]) -> int:
-    return sum(1 for player in players if player.signup_status != SignupStatus.DECLINE and player.roster_status != RosterStatus.DECLINE)
+def signed_and_not_declined_count(characters: List[Character]) -> int:
+    return sum(1 for player in characters if player.signup_status != SignupStatus.DECLINE and player.roster_status != RosterStatus.DECLINE)
 
 
-def roster_accepted_count(players: List[Player]) -> int:
-    return sum(1 for player in players if player.roster_status == RosterStatus.ACCEPT)
+def roster_accepted_count(characters: List[Character]) -> int:
+    return sum(1 for player in characters if player.roster_status == RosterStatus.ACCEPT)

@@ -1,5 +1,5 @@
 from commands.BotCommand import BotCommand
-from logic.Player import Player
+from logic.Character import Character
 from logic.RaidEvent import RaidEvent
 from logic.enums.RosterStatus import RosterStatus
 from typing import List, Optional
@@ -11,8 +11,8 @@ class RosterCommand(BotCommand):
     def __init__(self, *, subname: str, description: str, argformat: Optional[str] = None):
         super(RosterCommand, self).__init__(name='roster', subname=subname, description=description, argformat=argformat)
 
-    def publish_roster_changes(self, players: List[Player], raid_event: RaidEvent) -> None:
-        for player in players:
+    def publish_roster_changes(self, characters: List[Character], raid_event: RaidEvent) -> None:
+        for player in characters:
             verbs = {
                 RosterStatus.ACCEPT: 'accepted',
                 RosterStatus.EXTRA: 'benched',
