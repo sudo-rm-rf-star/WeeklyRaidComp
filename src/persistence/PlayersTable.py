@@ -33,6 +33,7 @@ class PlayersTable(DynamoDBTable[Player]):
             self.table.put_item(Item={
                 'discord_id': player.discord_id,
                 'guild_id': player.guild_id,
+                'created_at': player.created_at,
                 'present_dates': player.present_dates,
                 'standby_dates': player.standby_dates,
                 'selected_char': player.selected_char,
@@ -113,23 +114,23 @@ class PlayersTable(DynamoDBTable[Player]):
 def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
     players = {}
     for item in items['Items']:
-        char_name = item['name']
-        klass = Class[item['class']]
-        role = Role[item['role']]
-        race = Race[item['race']]
         discord_id = item['discord_id']
         guild_id = item['guild_id']
+        created_at = item['created_at']
         selected_char = item.get('selected_char', None)
         selected_raidgroup_id = item.get('selected_raidgroup_id', None)
         standby_dates = item.get('standby_dates', None)
         present_dates = item.get('present_dates', None)
+        char_name = item['name']
+        klass = Class[item['class']]
+        role = Role[item['role']]
+        race = Race[item['race']]
         if discord_id not in players:
-            players[discord_id] = Player(discord_id=discord_id, guild_id=guild_id, selected_char=selected_char, characters=[],
-                                         present_dates=present_dates,
-                                         standby_dates=standby_dates, selected_raidgroup_id=selected_raidgroup_id)
+            players[discord_id] = Player(discord_id=discord_id, guild_id=guild_id, selected_char=selected_char, characters=[], created_at=created_at,
+                                         present_dates=present_dates, standby_dates=standby_dates, selected_raidgroup_id=selected_raidgroup_id)
         player = players[discord_id]
         if guild_id != player.guild_id or selected_char != player.selected_char or selected_raidgroup_id != player.selected_raidgroup_id or \
-                present_dates != player.present_dates or standby_dates != player.standby_dates:
+                present_dates != player.present_dates or standby_dates != player.standby_dates or created_at != player.created_at:
             raise InternalBotException("Player rows are not consistent.")
         player.characters.append(Character(char_name=char_name, discord_id=discord_id, guild_id=guild_id, klass=klass, role=role, race=race,
                                            standby_count=player.get_standby_counts()))

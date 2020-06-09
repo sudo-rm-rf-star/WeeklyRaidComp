@@ -8,6 +8,7 @@ from client.entities.GuildMember import GuildMember
 from client.PlayersResource import PlayersResource
 import asyncio
 import discord
+from datetime import datetime
 
 TRIES = 3
 
@@ -24,7 +25,7 @@ async def register(client: discord.Client, guild: discord.Guild, players_resourc
     klass = await interact(member, GetClassMessage(client, guild))
     race = await interact(member, GetRaceMessage(client, guild))
     if not player:
-        player = Player(discord_id=member.id, guild_id=member.guild_id, characters=[], selected_char=char_name)
+        player = Player(discord_id=member.id, guild_id=member.guild_id, characters=[], selected_char=char_name, created_at=datetime.now().timestamp())
     character = Character(discord_id=member.id, guild_id=guild.id, char_name=char_name, role=role, klass=klass, race=race,
                           standby_count=player.get_standby_counts())
     player.characters.append(character)
