@@ -1,6 +1,4 @@
 import utils.Logger as Log
-from client.DiscordClient import DiscordClient
-from utils.Constants import RAIDER_RANK
 from commands.player.PlayerCommand import PlayerCommand
 import discord
 
@@ -10,11 +8,10 @@ class AnnounceCommand(PlayerCommand):
         argformat = '[announcement]'
         subname = 'announce'
         description = 'Stuurt een aankondiging naar alle raiders'
-        super(AnnounceCommand, self).__init__(subname, description, argformat)
+        super(AnnounceCommand, self).__init__(subname=subname, description=description, argformat=argformat)
 
     async def execute(self, announcement: str, **kwargs) -> None:
-        raiders = self.client.get_members_for_role(RAIDER_RANK)
-        for raider in raiders:
+        for raider in self.get_raiders():
             try:
                 await raider.send(content=announcement)
             except discord.Forbidden:

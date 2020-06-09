@@ -1,6 +1,5 @@
-from exceptions.BotException import BotException
-import discord
 from client.entities.GuildMember import GuildMember
+from exceptions.BotException import BotException
 
 
 class NotAuthorizedException(BotException):

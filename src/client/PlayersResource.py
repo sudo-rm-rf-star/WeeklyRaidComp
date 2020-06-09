@@ -37,7 +37,8 @@ class PlayersResource:
         self.update_character(player)
         return True
 
-    def get_selected_character(self, players: List[Player]) -> Optional[Player]:
+    @staticmethod
+    def get_selected_character(players: List[Player]) -> Optional[Player]:
         if len(players) == 0:
             return None
         elif all(player.last_selected_time is None for player in players):

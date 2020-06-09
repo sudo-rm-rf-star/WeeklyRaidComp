@@ -6,4 +6,4 @@ class AcceptPlayerCommand(UpdateRosterCommand):
     def __init__(self):
         subname = 'accept'
         description = 'Voeg een speler toe aan de raid compositie'
-        super(AcceptPlayerCommand, self).__init__(subname, description, RosterStatus.ACCEPT)
+        super(AcceptPlayerCommand, self).__init__(subname=subname, description=description, roster_choice=RosterStatus.ACCEPT)

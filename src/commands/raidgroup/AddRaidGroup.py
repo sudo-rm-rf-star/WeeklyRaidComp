@@ -4,10 +4,9 @@ from commands.utils.RaidGroupHelper import create_raidgroup
 
 class AddRaidGroup(RaidGroupCommand):
     def __init__(self):
-        argformat = ""
         subname = 'add'
         description = 'Voeg een nieuwe raid group toe'
-        super(AddRaidGroup, self).__init__(subname, description, argformat, required_rank=RAIDER_RANK)
+        super(AddRaidGroup, self).__init__(subname=subname, description=description)
 
     async def execute(self, **kwargs) -> None:
         guild = self.guilds_resource.get_guild(self.discord_guild.id)

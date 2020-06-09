@@ -79,8 +79,9 @@ async def find_bot_command(message: Optional[discord.Message], command_name: str
             raise InvalidCommandException(f"{command_name} {subcommand_name} is not a valid bot command.")
 
 
-async def find_and_execute_command(client: discord.Client, events_resource: RaidEventsResource, players_resource: PlayersResource, guilds_resource: GuildsResource,
-                                   message: Optional[discord.Message] = None, raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> None:
+async def find_and_execute_command(client: discord.Client, events_resource: RaidEventsResource, players_resource: PlayersResource,
+                                   guilds_resource: GuildsResource, message: Optional[discord.Message] = None,
+                                   raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> None:
     cmd = None
     cmd_args = None
     try:
@@ -97,8 +98,9 @@ async def find_and_execute_command(client: discord.Client, events_resource: Raid
         await execute_command(cmd, cmd_args, client, events_resource, players_resource, guilds_resource, message, raw_reaction)
 
 
-async def execute_command(command: BotCommand, cmd_args: str, client: discord.Client, events_resource: RaidEventsResource, players_resource: PlayersResource, guilds_resource: GuildsResource,
-                          message: Optional[discord.Message] = None, raw_reaction: Optional[discord.RawReactionActionEvent] = None):
+async def execute_command(command: BotCommand, cmd_args: str, client: discord.Client, events_resource: RaidEventsResource, players_resource: PlayersResource,
+                          guilds_resource: GuildsResource, message: Optional[discord.Message] = None,
+                          raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> None:
     await command.call(client, players_resource, events_resource, guilds_resource, message, raw_reaction, cmd_args)
 
 

@@ -1,4 +1,3 @@
-from client.DiscordClient import DiscordClient
 from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 from logic.enums.SignupStatus import SignupStatus
 from logic.RaidEvent import RaidEvent
@@ -10,11 +9,11 @@ import asyncio
 
 
 class RaidNotification(DiscordMessage):
-    def __init__(self, client: DiscordClient, raid_event: RaidEvent):
+    def __init__(self, client: discord.Client, guild: discord.Guild, raid_event: RaidEvent):
         self.client = client
         self.raid_event = raid_event
         content = f"You have been invited for {raid_event.get_name()} on {raid_event.datetime}. Please sign by clicking one of the reaction boxes."
-        super(RaidNotification, self).__init__(content=content)
+        super(RaidNotification, self).__init__(client, guild, content=content)
 
     async def send_to(self, recipient: GuildMember) -> discord.Message:
         msgs = await super(RaidNotification, self).send_to(recipient)

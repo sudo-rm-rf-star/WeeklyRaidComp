@@ -1,29 +1,32 @@
 from exceptions.InternalBotException import InternalBotException
+from exceptions.NoRaidGroupSpecifiedException import NoRaidGroupSpecifiedException
 from commands.utils.ArgParser import ArgParser
 from commands.utils.CommandUtils import check_authority
 from client.entities.GuildMember import GuildMember
-from utils.Constants import DATETIMESEC_FORMAT, LOGS_CHANNEL
-from utils.DiscordUtils import get_member_by_id
+from utils.Constants import DATETIMESEC_FORMAT
+from utils.DiscordUtils import get_member_by_id, get_members_for_role, get_channel
 from discord import Message, TextChannel, RawReactionActionEvent
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import Optional, List
 from client.PlayersResource import PlayersResource
 from client.RaidEventsResource import RaidEventsResource
 from client.GuildsResource import GuildsResource
 from logic.Player import Player
 from logic.Guild import Guild
+from logic.RaidGroup import RaidGroup
 import asyncio
 import discord
 
 
 class BotCommand:
-    def __init__(self, name: str, subname: str, description: str, argformat: str = '', required_rank: str = None, example_args: str = None):
+    def __init__(self, *, name: str, subname: str, description: str, argformat: Optional[str] = None, example_args: Optional[str] = None,
+                 req_manager_rank: Optional[bool] = True):
         self.name = name
         self.subname = subname
         self.argformat = argformat
         self.argparser = ArgParser(argformat)
         self.description = description
-        self.required_rank = required_rank
+        self.req_manager_rank = req_manager_rank
         if not example_args:
             self.example_args = self.argparser.get_example_args()
         else:
@@ -37,6 +40,9 @@ class BotCommand:
         self.raw_reaction: Optional[RawReactionActionEvent] = None
         self.member: Optional[GuildMember] = None
         self.player: Optional[Player] = None
+        self.guild: Optional[Guild] = None
+        self._raidgroup: Optional[RaidGroup] = None
+        self._logs_channel: Optional[TextChannel] = None
 
     async def execute(self, **kwargs):
         raise InternalBotException("Please specify logic for this command. Do not call this method directly.")
@@ -55,17 +61,23 @@ class BotCommand:
         else:
             self.discord_guild = message.guild
             self.member = get_member_by_id(self.discord_guild, message.author.id)
+        self.player = self.players_resource.get_character_by_id(self.member.id)
+        self.guild = self.guilds_resource.get_guild(self.member.guild_id)
+        self._raidgroup = GuildsResource.get_group(self.guild, self.player)
+        self._logs_channel = get_channel(self.discord_guild, self.guild.logs_channel)
 
         if argv.strip() == 'help':
             await self.show_help(message.channel)
         else:
-            check_authority(self.member, self.required_rank)
+            required_rank = self.guild.manager_rank if self.req_manager_rank else None
+            check_authority(self.member, required_rank)
             kwargs = self.argparser.parse(argv)
             await self.execute(**kwargs)
 
     def respond(self, content: str):
-        log_message = f'{datetime.now().strftime(DATETIMESEC_FORMAT)} - {self.member.display_name} - {self.message.content if self.message else self.raw_reaction.emoji} - {content}'
-        asyncio.create_task(self.client.get_channel(LOGS_CHANNEL).send(content=log_message))
+        action = self.message.content if self.message else self.raw_reaction.emoji
+        log_message = f'{datetime.now().strftime(DATETIMESEC_FORMAT)} - {self.member.display_name} - {action} - {content} '
+        asyncio.create_task(self._logs_channel.send(content=log_message))
         asyncio.create_task(self.member.send(content=content))
 
     async def show_help(self, channel: TextChannel) -> None:
@@ -77,17 +89,13 @@ class BotCommand:
         command_with_arg_examples = f'\n`{prefix} {self.example_args}`' if self.example_args else ''
         return f'**{self.description}**{command_with_arg_names}{command_with_arg_examples}'
 
-    def get_guild(self) -> Guild:
-        return self.guilds_resource.get_guild(self.discord_guild.id)
+    def get_raidgroup(self):
+        if not self._raidgroup:
+            raise NoRaidGroupSpecifiedException(self.discord_guild)
+        return self._raidgroup
 
-    def get_guild_id_and_group_id(self) -> Tuple[Optional[int], Optional[int]]:
-        player = self.players_resource.get_character_by_id(self.member.id)
-        guild, group = self.guilds_resource.get_guild_and_group(player)
-        if group:
-            return guild.guild_id, group.group_id
-        else:
-            self.respond(f"There are multiple raid groups available for {guild.name}, please select one of the "
-                         f"following groups {', '.join([group.name for group in guild.raid_groups])}. For more "
-                         f"information, use the `!raidgroup help` command.")
-            return None, None
+    def get_raiders(self) -> List[GuildMember]:
+        return get_members_for_role(self.discord_guild, self.get_raidgroup().raider_rank)
 
+    def get_events_channel(self):
+        return get_channel(self.discord_guild, self.get_raidgroup().events_channel)

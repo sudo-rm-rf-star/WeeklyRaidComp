@@ -9,9 +9,9 @@ TRIES = 3
 
 
 class InteractionMessage(DiscordMessage):
-    def __init__(self, client: discord.Client, content: str, *args, **kwargs):
+    def __init__(self, client: discord.Client, guild: discord.Guild, content: str, *args, **kwargs):
         self.client = client
-        super(InteractionMessage, self).__init__(content, *args, **kwargs)
+        super(InteractionMessage, self).__init__(client, guild, content, *args, **kwargs)
         # These variables will be filled once the message is sent
         self.channel_id = None
         self.recipient_id = None
@@ -39,11 +39,11 @@ T = TypeVar('T')
 
 
 class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
-    def __init__(self, client: discord.Client, content: str, enum: T, *args, **kwargs):
+    def __init__(self, client: discord.Client, guild: discord.Guild, content: str, enum: T, *args, **kwargs):
         self.enum = enum
         self.options = '/'.join([' '.join(map(lambda x: x.capitalize(), value.split('_'))) for value in enum.__members__.keys()])
         content += f': [{self.options}]'
-        super().__init__(client, content, *args, **kwargs)
+        super().__init__(client, guild, content, *args, **kwargs)
 
     async def get_response(self) -> T:
         response = await super(EnumResponseInteractionMessage, self).get_response()

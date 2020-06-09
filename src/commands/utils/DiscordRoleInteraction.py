@@ -9,7 +9,7 @@ class DiscordRoleInteraction(InteractionMessage):
         self.options = '/'.join([' '.join([role.name for role in get_roles(guild)])])
         content += f': [{self.options}]'
         self.guild = guild
-        super().__init__(client, content, *args, **kwargs)
+        super().__init__(client, guild, content, *args, **kwargs)
 
     async def get_response(self) -> str:
         response = await super(DiscordRoleInteraction, self).get_response()

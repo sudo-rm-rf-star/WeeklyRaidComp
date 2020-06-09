@@ -9,7 +9,7 @@ class DiscordChannelInteraction(InteractionMessage):
         self.options = '/'.join([' '.join([role.name for role in get_channels(guild)])])
         content += f': [{self.options}]'
         self.guild = guild
-        super().__init__(client, content, *args, **kwargs)
+        super().__init__(client, guild, content, *args, **kwargs)
 
     async def get_response(self) -> str:
         response = await super(DiscordChannelInteraction, self).get_response()

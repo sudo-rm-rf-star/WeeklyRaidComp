@@ -32,7 +32,6 @@ def run() -> None:
 
     @discord_client.event
     async def on_ready() -> None:
-        events_resource.on_ready()
         logging.getLogger().info(f'{discord_client.user} has connected.')
 
     @discord_client.event

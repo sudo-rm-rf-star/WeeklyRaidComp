@@ -4,11 +4,10 @@ from commands.player.PlayerCommand import PlayerCommand
 
 class ListPlayersCommand(PlayerCommand):
     def __init__(self):
-        argformat = ''
         subname = 'list'
-        description = 'Toon een overzicht van alle spelers'
-        super(ListPlayersCommand, self).__init__(subname, description, argformat)
+        description = 'Toon een overzicht van alle spelers in je raid groep'
+        super(ListPlayersCommand, self).__init__(subname=subname, description=description)
 
     async def execute(self, **kwargs):
         destination = self.message.channel
-        await ShowPlayersMessage(self.client, self.players_resource).send_to(destination)
+        await ShowPlayersMessage(self.client, self.discord_guild, self.players_resource, self.get_raiders()).send_to(destination)

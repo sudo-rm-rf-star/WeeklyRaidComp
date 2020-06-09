@@ -1,8 +1,10 @@
-import discord
-from client.entities.GuildMember import GuildMember
-from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
-from exceptions.InternalBotException import InternalBotException
 from typing import List
+
+import discord
+
+from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
+from client.entities.GuildMember import GuildMember
+from exceptions.InternalBotException import InternalBotException
 
 
 def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:

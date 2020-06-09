@@ -5,9 +5,9 @@ from utils.Constants import default_num_per_raid_role, default_min_per_raid_role
 class RaidGroup:
     def __init__(self,
                  name: str,
-                 raider_rank: str,
                  group_id: int,
-                 events_channel=str,
+                 events_channel: str,
+                 raider_rank: str,
                  wl_group_id: Optional[int] = None,
                  num_per_raid_role: Optional[Dict[str, Dict[str, int]]] = None,
                  min_per_raid_role_class: Optional[Dict[str, Dict[str, Dict[str, int]]]] = None,
@@ -37,7 +37,7 @@ class RaidGroup:
     def from_dict(item):
         return RaidGroup(
             name=item['name'],
-            raider_rank=item['raider_rank'],
+            raider_rank=item['raider_ranks'],
             group_id=item['group_id'],
             events_channel=item['events_channel'],
             wl_group_id=item.get('wl_group_id'),
@@ -45,5 +45,3 @@ class RaidGroup:
             min_per_raid_role_class=item.get('min_per_raid_role_class'),
             max_per_raid_role_class=item.get('max_per_raid_role_class')
         )
-
-

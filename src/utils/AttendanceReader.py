@@ -1,15 +1,15 @@
 import re
-import requests
-from utils.DateOptionalTime import DateOptionalTime
-
-from utils.Constants import USE_SIGNUP_HISTORY, WARCRAFT_LOGS_TEAM_ID, WARCRAFT_LOGS_GUILD_ID, ZONE_ID, SUPPORTED_RAIDS
-from exceptions.InvalidArgumentException import InvalidArgumentException
-from typing import List, Any
 from datetime import datetime, timedelta
-from utils.Date import Date
+from typing import List, Any
+
+import requests
+
 from client.PlayersResource import PlayersResource
 from client.RaidEventsResource import RaidEventsResource
-import utils.Logger as Log
+from exceptions.InvalidArgumentException import InvalidArgumentException
+from utils.Constants import USE_SIGNUP_HISTORY, WARCRAFT_LOGS_TEAM_ID, WARCRAFT_LOGS_GUILD_ID, ZONE_ID, SUPPORTED_RAIDS
+from utils.Date import Date
+from utils.DateOptionalTime import DateOptionalTime
 
 
 # https://classic.warcraftlogs.com/guild/attendance/510080
@@ -37,7 +37,7 @@ last_updated_at = None
 def update_raid_presence(players_resource: PlayersResource, events_resource: RaidEventsResource) -> None:
     """ Currently there is a lot of overhead every timeutil this method is called as everything is recomputed. The current way of querying WL logs doesn't
     allow a more efficient way of handling this. We only do this operation at most once a day or upon startup. """
-    return # TODO
+    return  # TODO
     global last_updated_at
     if last_updated_at is None or last_updated_at + timedelta(days=1) < datetime.now():
         last_updated_at = datetime.now()

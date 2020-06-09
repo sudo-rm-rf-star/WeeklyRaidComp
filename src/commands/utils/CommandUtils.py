@@ -1,11 +1,12 @@
 import discord
-from client.DiscordClient import DiscordClient
 from exceptions.NotAuthorizedException import NotAuthorizedException
 from client.entities.GuildMember import GuildMember
 
 
-async def delete_bot_messages(client: DiscordClient, text_channel: discord.TextChannel):
-    is_me = lambda msg: msg.author == client.discord_client.user
+async def delete_bot_messages(client: discord.Client, text_channel: discord.TextChannel):
+    def is_me(msg: discord.Message):
+        return msg.author == client.user
+
     await text_channel.purge(check=is_me)
 
 

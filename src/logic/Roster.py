@@ -1,12 +1,13 @@
 """ Utility class to help for raids with multiple rosters. """
 
-from utils.Constants import player_count
-from logic.RaidComposition import make_raid_composition, actual_vs_expected_per_role
+from collections import defaultdict
+from typing import Dict, List, Any
+
+from logic.Player import Player
+from logic.RaidComposition import make_raid_composition
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
-from typing import Dict, List, Any, Tuple
-from logic.Player import Player
-from collections import defaultdict
+from utils.Constants import player_count
 
 
 class Roster:

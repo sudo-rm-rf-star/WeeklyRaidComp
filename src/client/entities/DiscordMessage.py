@@ -1,13 +1,23 @@
-import discord
-import utils.Logger as Log
 from client.entities.GuildMember import GuildMember
+from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
 from exceptions.InternalBotException import InternalBotException
 from typing import Union, Dict, Any, List, Optional
+from utils.DiscordUtils import get_emoji, get_message
+from utils.EmojiNames import ROLE_EMOJI, ROLE_CLASS_EMOJI, SIGNUP_STATUS_EMOJI
+from logic.Player import Player
+from logic.enums.Role import Role
+from logic.enums.SignupStatus import SignupStatus
 import json
+import discord
+import utils.Logger as Log
+
+EMPTY_FIELD = '\u200e'
 
 
 class DiscordMessage:
-    def __init__(self, content: str = None, embed: discord.Embed = None):
+    def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, content: str = None, embed: discord.Embed = None):
+        self.discord_client = discord_client
+        self.discord_guild = discord_guild
         self.content = content
         self.embed = embed
 
@@ -25,6 +35,32 @@ class DiscordMessage:
             if e.code == "50035":  # Invalid Form Body
                 Log.warn(f'Failed to send following message to {recipient}: content {self.content}, embed: {self.embed.to_dict()}. Splitting message')
             raise e
+
+    def _role_emoji(self, role: Role) -> discord.Emoji:
+        return self._get_emoji(ROLE_EMOJI[role])
+
+    def _role_class_emoji(self, player: Player) -> discord.Emoji:
+        return self._get_emoji(ROLE_CLASS_EMOJI[player.role][player.klass])
+
+    def _signup_choice_emoji(self, signup_choice: SignupStatus) -> discord.Emoji:
+        return self._get_emoji(SIGNUP_STATUS_EMOJI[signup_choice])
+
+    def _get_emoji(self, name: str) -> discord.Emoji:
+        return get_emoji(self.discord_guild, name)
+
+    @staticmethod
+    def _field(content: str, inline: bool = True):
+        return {'name': EMPTY_FIELD, 'value': content, 'inline': inline}
+
+    def _empty_field(self, inline: bool = True):
+        return self._field(EMPTY_FIELD, inline)
+
+    async def _update_message(self, message_id: DiscordMessageIdentifier):
+        message = await get_message(self.discord_guild, message_id)
+        if self.embed:
+            await message.edit(embed=self.embed)
+        if self.content:
+            await message.edit(content=self.content)
 
 
 def split_large_embed(embed: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:

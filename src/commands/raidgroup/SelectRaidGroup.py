@@ -1,5 +1,4 @@
 from commands.raidgroup.RaidGroupCommand import RaidGroupCommand
-from utils.Constants import RAIDER_RANK
 from exceptions.InternalBotException import InternalBotException
 from exceptions.InvalidArgumentException import InvalidArgumentException
 
@@ -9,11 +8,10 @@ class SelectRaidGroup(RaidGroupCommand):
         argformat = "raidgroup"
         subname = 'select'
         description = 'Kies welke raid groep je wilt beheren'
-        super(SelectRaidGroup, self).__init__(subname, description, argformat, required_rank=RAIDER_RANK)
+        super(SelectRaidGroup, self).__init__(subname=subname, description=description, argformat=argformat)
 
     async def execute(self, raidgroup: str, **kwargs) -> None:
-        guild = self.get_guild()
-        raidgroups = [raid_group for raid_group in guild.raid_groups if raid_group.name == raidgroup]
+        raidgroups = [raid_group for raid_group in self.guild.raid_groups if raid_group.name == raidgroup]
         if len(raidgroups) == 0:
             raise InvalidArgumentException('The given raid group does not exist.')
         if len(raidgroups) > 1:

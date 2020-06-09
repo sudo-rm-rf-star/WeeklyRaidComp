@@ -1,5 +1,4 @@
 from commands.character.CharacterCommand import CharacterCommand
-from utils.Constants import RAIDER_RANK
 
 
 class SelectCharacter(CharacterCommand):
@@ -7,7 +6,7 @@ class SelectCharacter(CharacterCommand):
         argformat = "player"
         subname = 'select'
         description = 'Kies je huidige character waarmee je je inschrijft voor raids'
-        super(SelectCharacter, self).__init__(subname, description, argformat, required_rank=RAIDER_RANK)
+        super(SelectCharacter, self).__init__(subname=subname, description=description, argformat=argformat)
 
     async def execute(self, player: str, **kwargs) -> None:
         success = self.players_resource.select_character(player)
