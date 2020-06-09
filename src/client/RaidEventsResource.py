@@ -40,10 +40,10 @@ class RaidEventsResource:
         if raid_datetime < DateOptionalTime.now():
             return f'Raid event must be in future'
         event = RaidEvent(raid_name, raid_datetime, discord_guild.id, group_id)
-        await self.send_raid_message(discord_guild, events_channel, event)
-        await self.send_raid_notification(discord_guild, event, raiders)
         self.events_table.put_raid_event(event)
         self._update_cache(event, CacheOperation.CREATE)
+        await self.send_raid_message(discord_guild, events_channel, event)
+        await self.send_raid_notification(discord_guild, event, raiders)
         return f'Raid event for {event.get_name()} on {event.get_datetime()} has been successfully created.'
 
     async def remove_raid(self, discord_guild: discord.Guild, group_id: int, raid_name: str, raid_datetime: DateOptionalTime) -> str:

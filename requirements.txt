@@ -15,7 +15,6 @@ six==1.15.0
 typing-extensions==3.7.4.2
 websockets==8.1
 yarl==1.4.2
-
 setuptools~=47.1.1
 boto3~=1.13.26
 requests~=2.23.0
