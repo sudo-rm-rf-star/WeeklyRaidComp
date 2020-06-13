@@ -7,7 +7,7 @@ import uuid
 import discord
 
 
-def create_raidgroup(client: discord.Client, discord_guild: discord.Guild, member: GuildMember) -> RaidGroup:
+async def create_raidgroup(client: discord.Client, discord_guild: discord.Guild, member: GuildMember) -> RaidGroup:
     raidgroup_name = await interact(member, InteractionMessage(client, discord_guild, "Please fill in the name for your raiding group."))
     msg = f"Please select a Discord role for your raiders. These will receive personal messages for any updates for {raidgroup_name}"
     raider_rank = await interact(member, DiscordRoleInteraction(client, discord_guild, msg))

@@ -1,7 +1,7 @@
 # DiscordBot.py
 from exceptions.BotException import BotException
 from websockets.exceptions import InvalidStatusCode
-from commands.BotCommands import find_and_execute_command, execute_command
+from commands.CommandRunner import CommandRunner
 from commands.player.SignupPlayerCommand import SignupPlayerCommand
 from utils.Constants import MAINTAINER_ID
 from utils.EmojiNames import EMOJI_SIGNUP_STATUS
@@ -28,7 +28,8 @@ def run() -> None:
     events_resource = RaidEventsResource(discord_client)
     players_resource = PlayersResource()
     guilds_resource = GuildsResource(discord_client)
-    maintainer = await discord_client.fetch_user(MAINTAINER_ID)
+    command_runner = CommandRunner(client=discord_client, players_resource=players_resource, events_resource=events_resource, guilds_resource=guilds_resource)
+    maintainer = None
 
     @discord_client.event
     async def on_ready() -> None:
@@ -39,7 +40,7 @@ def run() -> None:
         if not discord_client.is_ready() or message.author == discord_client.user:
             return
         try:
-            await find_and_execute_command(discord_client, events_resource, players_resource, guilds_resource, message=message)
+            await command_runner.run_command_for_message(message)
         except Exception as ex:
             await handle_exception(ex, author=message.author, content=message.content)
 
@@ -48,7 +49,7 @@ def run() -> None:
         if not discord_client.is_ready() or reaction_event.user_id == discord_client.user.id or reaction_event.emoji.name not in EMOJI_SIGNUP_STATUS.keys():
             return
         try:
-            await execute_command(SignupPlayerCommand(), "", discord_client, events_resource, players_resource, guilds_resource, raw_reaction=reaction_event)
+            await command_runner.run_command_for_reaction_event(reaction_event, SignupPlayerCommand)
         except Exception as ex:
             user = await discord_client.fetch_user(reaction_event.user_id)
             await handle_exception(ex, author=user, content="Raid signup failed")
@@ -58,6 +59,9 @@ def run() -> None:
         if isinstance(ex, BotException):
             await author.send(ex.message)
         else:
+            global maintainer
+            if maintainer is None:
+                maintainer = await discord_client.fetch_user(MAINTAINER_ID)
             await author.send(f"There were internal difficulties. Sending a message to {maintainer.display_name}")
             await maintainer.send(f'{author.display_name}, {content}, {ex}')
 

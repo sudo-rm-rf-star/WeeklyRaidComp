@@ -62,11 +62,15 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
             ],
             'AttributeDefinitions': [
                 {
-                    'AttributeName': 'name',
+                    'AttributeName': 'name#timestamp',
                     'AttributeType': 'S'
                 },
                 {
-                    'AttributeName': 'timestamp',
+                    'AttributeName': 'guild_id#group_id',
+                    'AttributeType': 'S'
+                },
+                {
+                    'AttributeName': 'guild_id',
                     'AttributeType': 'N'
                 }
             ],

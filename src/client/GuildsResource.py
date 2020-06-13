@@ -19,6 +19,8 @@ class GuildsResource:
 
     @staticmethod
     def get_group(guild: Guild, player: Player) -> Optional[RaidGroup]:
+        if guild is None:
+            return None
         groups = [group for group in guild.raid_groups if group.group_id == player.selected_raidgroup_id or not player.selected_raidgroup_id]
         return groups[0] if len(groups) == 1 else None
 

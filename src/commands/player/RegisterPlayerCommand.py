@@ -4,11 +4,14 @@ from utils.DiscordUtils import get_member
 
 
 class RegisterPlayerCommand(PlayerCommand):
-    def __init__(self):
-        argformat = 'player'
-        subname = 'register'
-        description = 'Registreer iemand als raider. Stuurt een DM voor de registratie'
-        super(RegisterPlayerCommand, self).__init__(subname=subname, description=description, argformat=argformat)
+    @classmethod
+    def subname(cls) -> str: return "register"
+
+    @classmethod
+    def argformat(cls) -> str: return "player"
+
+    @classmethod
+    def description(cls) -> str: return "Register a new player for your team. Sends a PM to the player to register."
 
     async def execute(self, player: str, **kwargs) -> None:
         member = get_member(self.discord_guild, player)

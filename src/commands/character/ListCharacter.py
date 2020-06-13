@@ -2,11 +2,13 @@ from commands.character.CharacterCommand import CharacterCommand
 from client.entities.ShowCharactersMessage import ShowCharactersMessage
 
 
-class AddCharacter(CharacterCommand):
-    def __init__(self):
-        subname = 'list'
-        description = 'Toon je characters'
-        super(AddCharacter, self).__init__(subname=subname, description=description)
+class ListCharacter(CharacterCommand):
+    @classmethod
+    def subname(cls) -> str: return "list"
+
+    @classmethod
+    def description(cls) -> str: return "List all your characters"
+
 
     async def execute(self, **kwargs) -> None:
         await ShowCharactersMessage(self.client, self.discord_guild, self.players_resource, self.member).send_to(self.member)

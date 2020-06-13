@@ -3,11 +3,14 @@ from utils.AttendanceReader import update_raid_presence
 
 
 class CreateRosterCommand(RosterCommand):
-    def __init__(self):
-        argformat = "raid_name [raid_date][raid_time]"
-        subname = 'create'
-        description = 'Maak een raid compositie voor een event'
-        super(RosterCommand, self).__init__(name='roster', subname=subname, description=description, argformat=argformat)
+    @classmethod
+    def subname(cls) -> str: return "create"
+
+    @classmethod
+    def description(cls) -> str: return "Create a roster for a raid event. This command can be used several times for the same event."
+
+    @classmethod
+    def argformat(cls) -> str: return "raid_name [raid_date][raid_time]"
 
     async def execute(self, raid_name, raid_datetime, **kwargs):
         update_raid_presence(self.players_resource, self.events_resource)

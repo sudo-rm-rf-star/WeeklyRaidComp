@@ -3,10 +3,11 @@ from commands.player.PlayerCommand import PlayerCommand
 
 
 class ListPlayersCommand(PlayerCommand):
-    def __init__(self):
-        subname = 'list'
-        description = 'Toon een overzicht van alle spelers in je raid groep'
-        super(ListPlayersCommand, self).__init__(subname=subname, description=description)
+    @classmethod
+    def subname(cls) -> str: return "list"
+
+    @classmethod
+    def description(cls) -> str: return "Show an overview of all players in your raiding group"
 
     async def execute(self, **kwargs):
         destination = self.message.channel

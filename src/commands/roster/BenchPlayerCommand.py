@@ -3,7 +3,11 @@ from logic.enums.RosterStatus import RosterStatus
 
 
 class BenchPlayerCommand(UpdateRosterCommand):
-    def __init__(self):
-        subname = 'bench'
-        description = 'Plaats een speler op standby'
-        super(BenchPlayerCommand, self).__init__(subname=subname, description=description, roster_choice=RosterStatus.EXTRA)
+    @classmethod
+    def subname(cls) -> str: return "accept"
+
+    @classmethod
+    def description(cls) -> str: return "Bench a player for the raid"
+
+    @classmethod
+    def roster_choice(cls) -> RosterStatus: return RosterStatus.EXTRA

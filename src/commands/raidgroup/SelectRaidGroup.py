@@ -4,11 +4,14 @@ from exceptions.InvalidArgumentException import InvalidArgumentException
 
 
 class SelectRaidGroup(RaidGroupCommand):
-    def __init__(self):
-        argformat = "raidgroup"
-        subname = 'select'
-        description = 'Kies welke raid groep je wilt beheren'
-        super(SelectRaidGroup, self).__init__(subname=subname, description=description, argformat=argformat)
+    @classmethod
+    def subname(cls) -> str: return "select"
+
+    @classmethod
+    def argformat(cls) -> str: return "raidgroup"
+
+    @classmethod
+    def description(cls) -> str: return "Select the raid group you'd like to manage"
 
     async def execute(self, raidgroup: str, **kwargs) -> None:
         raidgroups = [raid_group for raid_group in self.guild.raid_groups if raid_group.name == raidgroup]

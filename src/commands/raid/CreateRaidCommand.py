@@ -2,11 +2,14 @@ from commands.raid.RaidCommand import RaidCommand
 
 
 class CreateRaidCommand(RaidCommand):
-    def __init__(self):
-        argformat = "raid_name raid_date raid_time [channel_name]"
-        subname = 'create'
-        description = 'Maak een event voor een raid'
-        super(CreateRaidCommand, self).__init__(subname=subname, description=description, argformat=argformat)
+    @classmethod
+    def subname(cls) -> str: return "create"
+
+    @classmethod
+    def argformat(cls) -> str: return "raid_name raid_date raid_time"
+
+    @classmethod
+    def description(cls) -> str: return "Create a new event for a raid"
 
     async def execute(self, raid_name, raid_datetime, **kwargs):
         raiders = self.get_raiders()

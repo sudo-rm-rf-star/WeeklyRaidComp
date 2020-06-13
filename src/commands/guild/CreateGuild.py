@@ -8,10 +8,11 @@ from logic.Guild import Guild
 
 
 class CreateGuild(GuildCommand):
-    def __init__(self):
-        subname = 'add'
-        description = 'Maak een guild aan'
-        super(CreateGuild, self).__init__(subname=subname, description=description)
+    @classmethod
+    def subname(cls) -> str: return "create"
+
+    @classmethod
+    def description(cls) -> str: return "Make a new guild"
 
     async def execute(self, **kwargs) -> None:
         guild = self.guilds_resource.get_guild(self.discord_guild.id)
@@ -46,7 +47,7 @@ class CreateGuild(GuildCommand):
             "a raid group as a team who periodically comes together to tackle certain raids. You could have an A-team and a B-team for example, let's start"
             "with your first team. You can create more teams later with: !raidgroup create. Let's continue."
         )
-        raidgroup = create_raidgroup(self.client, self.discord_guild, self.member)
+        raidgroup = await create_raidgroup(self.client, self.discord_guild, self.member)
         guild = Guild(name=guild_name, realm=realm, manager_rank=manager_rank, guild_id=self.discord_guild.id, logs_channel=logs_channel,
                       wl_guild_id=int(wl_guild_id) if wl_guild_id else None, groups=[raidgroup])
         self.guilds_resource.create_guild(guild)

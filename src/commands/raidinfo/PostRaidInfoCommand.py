@@ -6,10 +6,11 @@ import discord
 
 
 class PostRaidInfoCommand(RaidInfoCommand):
-    def __init__(self):
-        subname = 'post'
-        description = f'Vernieuw het #{INFO_CHANNEL} kanaal'
-        super(PostRaidInfoCommand, self).__init__(subname=subname, description=description)
+    @classmethod
+    def subname(cls) -> str: return "post"
+
+    @classmethod
+    def description(cls) -> str: return "Update the raid-info channel. (This is an old command and hasn't been reviewed in a while)"
 
     async def execute(self, **kwargs) -> None:
         text_channel = self.client.get_channel(INFO_CHANNEL)

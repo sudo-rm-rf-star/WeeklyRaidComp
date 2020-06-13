@@ -4,11 +4,14 @@ import discord
 
 
 class AnnounceCommand(PlayerCommand):
-    def __init__(self):
-        argformat = '[announcement]'
-        subname = 'announce'
-        description = 'Stuurt een aankondiging naar alle raiders'
-        super(AnnounceCommand, self).__init__(subname=subname, description=description, argformat=argformat)
+    @classmethod
+    def subname(cls) -> str: return "announce"
+
+    @classmethod
+    def argformat(cls) -> str: return "[announcement]"
+
+    @classmethod
+    def description(cls) -> str: return "Send an announcement to all of the raiders in your raiding group"
 
     async def execute(self, announcement: str, **kwargs) -> None:
         for raider in self.get_raiders():

@@ -6,10 +6,11 @@ from utils.EmojiNames import EMOJI_SIGNUP_STATUS
 
 
 class SignupPlayerCommand(PlayerCommand):
-    def __init__(self):
-        subname = 'signup'
-        description = 'Schrijf je in voor een raid. (Voorlopig is dit commando niet bruikbaar)'
-        super(SignupPlayerCommand, self).__init__(subname=subname, description=description)
+    @classmethod
+    def subname(cls) -> str: return "signup"
+
+    @classmethod
+    def description(cls) -> str: return "Signs you up for a raid. Currently this command is unusable manually"
 
     async def execute(self, **kwargs) -> None:
         notification_id = DiscordMessageIdentifier(self.raw_reaction.message_id, self.member.id)

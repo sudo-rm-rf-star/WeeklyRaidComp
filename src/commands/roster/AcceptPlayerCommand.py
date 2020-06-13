@@ -3,7 +3,12 @@ from logic.enums.RosterStatus import RosterStatus
 
 
 class AcceptPlayerCommand(UpdateRosterCommand):
-    def __init__(self):
-        subname = 'accept'
-        description = 'Voeg een speler toe aan de raid compositie'
-        super(AcceptPlayerCommand, self).__init__(subname=subname, description=description, roster_choice=RosterStatus.ACCEPT)
+    @classmethod
+    def subname(cls) -> str: return "accept"
+
+    @classmethod
+    def description(cls) -> str: return "Accept a player to the raid"
+
+    @classmethod
+    def roster_choice(cls) -> RosterStatus: return RosterStatus.ACCEPT
+

@@ -8,8 +8,8 @@ import asyncio
 
 
 class RosterCommand(BotCommand):
-    def __init__(self, *, subname: str, description: str, argformat: Optional[str] = None):
-        super(RosterCommand, self).__init__(name='roster', subname=subname, description=description, argformat=argformat)
+    @classmethod
+    def name(cls) -> str: return "roster"
 
     def publish_roster_changes(self, characters: List[Character], raid_event: RaidEvent) -> None:
         for player in characters:

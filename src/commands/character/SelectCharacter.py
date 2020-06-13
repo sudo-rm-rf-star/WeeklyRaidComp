@@ -2,11 +2,14 @@ from commands.character.CharacterCommand import CharacterCommand
 
 
 class SelectCharacter(CharacterCommand):
-    def __init__(self):
-        argformat = "player"
-        subname = 'select'
-        description = 'Kies je huidige character waarmee je je inschrijft voor raids'
-        super(SelectCharacter, self).__init__(subname=subname, description=description, argformat=argformat)
+    @classmethod
+    def subname(cls) -> str: return "select"
+
+    @classmethod
+    def argformat(cls) -> str: return "player"
+
+    @classmethod
+    def description(cls) -> str: return "Choose the character with which you want to sign up for raids"
 
     async def execute(self, player: str, **kwargs) -> None:
         success = self.players_resource.select_character(player, self.discord_guild.id)

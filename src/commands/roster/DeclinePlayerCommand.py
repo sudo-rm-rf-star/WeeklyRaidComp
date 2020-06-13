@@ -3,7 +3,11 @@ from logic.enums.RosterStatus import RosterStatus
 
 
 class DeclinePlayerCommand(UpdateRosterCommand):
-    def __init__(self):
-        subname = 'decline'
-        description = 'Haal een speler uit de raid compositie'
-        super(DeclinePlayerCommand, self).__init__(subname=subname, description=description, roster_choice=RosterStatus.DECLINE)
+    @classmethod
+    def subname(cls) -> str: return "decline"
+
+    @classmethod
+    def description(cls) -> str: return "Decline a player for the raid"
+
+    @classmethod
+    def roster_choice(cls) -> RosterStatus: return RosterStatus.DECLINE

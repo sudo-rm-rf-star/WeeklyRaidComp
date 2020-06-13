@@ -2,7 +2,7 @@ from boto3.dynamodb.conditions import Key
 from logic.Player import Player
 from typing import Dict, Any
 from persistence.DynamoDBTable import DynamoDBTable
-from typing import List
+from typing import List, Optional
 from logic.enums.Role import Role
 from logic.enums.Class import Class
 from logic.enums.Race import Race
@@ -17,11 +17,11 @@ class PlayersTable(DynamoDBTable[Player]):
     def __init__(self, ddb):
         super().__init__(ddb, PlayersTable.TABLE_NAME)
 
-    def get_player_by_name(self, player_name: str, guild_id: int) -> Player:
+    def get_player_by_name(self, player_name: str, guild_id: int) -> Optional[Player]:
         return _synthesize_player(
             self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=Key('guild_id').eq(guild_id) & Key('name').eq(player_name)))
 
-    def get_player_by_id(self, discord_id: int) -> Player:
+    def get_player_by_id(self, discord_id: int) -> Optional[Player]:
         return _synthesize_player(self.table.query(KeyConditionExpression=Key('discord_id').eq(discord_id)))
 
     def list_players(self, guild_id: int) -> List[Player]:
@@ -137,8 +137,10 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
     return list(players.values())
 
 
-def _synthesize_player(items: Dict[str, Any]) -> Player:
+def _synthesize_player(items: Dict[str, Any]) -> Optional[Player]:
     players = _synthesize_players(items)
+    if len(players) == 0:
+        return None
     if len(players) != 1:
         raise InternalBotException("Invalid player count")
     return players[0]
