@@ -31,6 +31,7 @@ class DynamoDBTable(Generic[T]):
         return [self._to_object(item) for item in response['Items']]
 
     def put_item(self, t: T) -> None:
+        print(self._to_item(t))
         self.table.put_item(Item=self._to_item(t))
 
     def _table_kwargs(self, **kwargs):

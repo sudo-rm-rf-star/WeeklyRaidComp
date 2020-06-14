@@ -16,7 +16,7 @@ TRIES = 3
 async def register(client: discord.Client, guild: discord.Guild, players_resource: PlayersResource, member: GuildMember,
                    allow_multiple_chars: bool = False) -> Player:
     player = players_resource.get_player_by_id(member.id)
-    if len(player.characters) >= 1 and not allow_multiple_chars:
+    if player and len(player.characters) >= 1 and not allow_multiple_chars:
         member.send(f'You have already signed up: {player}')
         return player
 

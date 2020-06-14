@@ -22,7 +22,7 @@ class GuildsTable(DynamoDBTable[Guild]):
         return raid_event.to_dict()
 
     def _to_key(self, guild_id: int):
-        return {'guild_id': guild_id}
+        return {'guild_id': str(guild_id)}
 
     def _table_kwargs(self):
         return {
@@ -35,7 +35,7 @@ class GuildsTable(DynamoDBTable[Guild]):
             'AttributeDefinitions': [
                 {
                     'AttributeName': 'guild_id',
-                    'AttributeType': 'N'
+                    'AttributeType': 'S'
                 }
             ],
             'ProvisionedThroughput': {

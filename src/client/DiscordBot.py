@@ -16,6 +16,8 @@ import logging
 import os
 import traceback
 
+maintainer = None
+
 
 def run() -> None:
     load_dotenv()
@@ -29,7 +31,6 @@ def run() -> None:
     players_resource = PlayersResource()
     guilds_resource = GuildsResource(discord_client)
     command_runner = CommandRunner(client=discord_client, players_resource=players_resource, events_resource=events_resource, guilds_resource=guilds_resource)
-    maintainer = None
 
     @discord_client.event
     async def on_ready() -> None:

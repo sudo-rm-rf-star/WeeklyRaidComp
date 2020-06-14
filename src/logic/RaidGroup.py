@@ -25,7 +25,7 @@ class RaidGroup:
         return {
             'name': self.name,
             'raider_rank': self.raider_rank,
-            'group_id': self.group_id,
+            'group_id': str(self.group_id),
             'events_channel': self.events_channel,
             'wl_group_id': self.wl_group_id,
             'num_per_raid_role': self.num_per_raid_role,
@@ -37,8 +37,8 @@ class RaidGroup:
     def from_dict(item):
         return RaidGroup(
             name=item['name'],
-            raider_rank=item['raider_ranks'],
-            group_id=item['group_id'],
+            raider_rank=item['raider_rank'],
+            group_id=int(item['group_id']),
             events_channel=item['events_channel'],
             wl_group_id=item.get('wl_group_id'),
             num_per_raid_role=item.get('num_per_raid_role'),

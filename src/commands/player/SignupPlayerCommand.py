@@ -14,14 +14,11 @@ class SignupPlayerCommand(PlayerCommand):
 
     async def execute(self, **kwargs) -> None:
         notification_id = DiscordMessageIdentifier(self.raw_reaction.message_id, self.member.id)
-        player = self.players_resource.get_player_by_id(self.member.id)
-        if player is None:
-            await register(self.client, self.discord_guild, self.players_resource, self.member)
         raid_event = self.events_resource.get_raid_by_notification_id(self.discord_guild, notification_id)
         if raid_event:
             # Remove character from signees if any other of his characters have already signed
-            for char in player.characters:
-                if char != player.get_selected_char() and raid_event.has_signed(char.name):
+            for char in self.player.characters:
+                if char != self.player.get_selected_char() and raid_event.has_signed(char.name):
                     raid_event.remove_from_raid(char.name)
             # Add player to raid_event
             signup_choice = EMOJI_SIGNUP_STATUS[self.raw_reaction.emoji.name]

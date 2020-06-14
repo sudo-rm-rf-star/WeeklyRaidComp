@@ -19,25 +19,25 @@ class PlayersTable(DynamoDBTable[Player]):
 
     def get_player_by_name(self, player_name: str, guild_id: int) -> Optional[Player]:
         return _synthesize_player(
-            self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=Key('guild_id').eq(guild_id) & Key('name').eq(player_name)))
+            self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=Key('guild_id').eq(str(guild_id)) & Key('name').eq(player_name)))
 
     def get_player_by_id(self, discord_id: int) -> Optional[Player]:
-        return _synthesize_player(self.table.query(KeyConditionExpression=Key('discord_id').eq(discord_id)))
+        return _synthesize_player(self.table.query(KeyConditionExpression=Key('discord_id').eq(str(discord_id))))
 
     def list_players(self, guild_id: int) -> List[Player]:
-        return _synthesize_players(self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=Key('guild_id').eq(guild_id)))
+        return _synthesize_players(self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=Key('guild_id').eq(str(guild_id))))
 
     def put_player(self, player: Player) -> None:
         # TODO: optimalization possible here, we don't always need to update all of the characters
         for character in player.characters:
             self.table.put_item(Item={
-                'discord_id': player.discord_id,
-                'guild_id': player.guild_id,
-                'created_at': player.created_at,
+                'discord_id': str(player.discord_id),
+                'guild_id': str(player.guild_id),
+                'created_at': str(player.created_at),
                 'present_dates': player.present_dates,
                 'standby_dates': player.standby_dates,
                 'selected_char': player.selected_char,
-                'selected_raidgroup_id': player.selected_raidgroup_id,
+                'selected_raidgroup_id': str(player.selected_raidgroup_id),
                 'name': character.name,
                 'class': character.klass.name,
                 'role': character.role.name,
@@ -74,11 +74,11 @@ class PlayersTable(DynamoDBTable[Player]):
                 },
                 {
                     'AttributeName': 'discord_id',
-                    'AttributeType': 'N'
+                    'AttributeType': 'S'
                 },
                 {
                     'AttributeName': 'guild_id',
-                    'AttributeType': 'N'
+                    'AttributeType': 'S'
                 }
             ],
             'ProvisionedThroughput': {
@@ -114,11 +114,11 @@ class PlayersTable(DynamoDBTable[Player]):
 def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
     players = {}
     for item in items['Items']:
-        discord_id = item['discord_id']
-        guild_id = item['guild_id']
-        created_at = item['created_at']
+        discord_id = int(item['discord_id'])
+        guild_id = int(item['guild_id'])
+        created_at = float(item['created_at'])
         selected_char = item.get('selected_char', None)
-        selected_raidgroup_id = item.get('selected_raidgroup_id', None)
+        selected_raidgroup_id = int(item['selected_raidgroup_id']) if item.get('selected_raidgroup_id', 'None') != 'None' else None  # This isn't great
         standby_dates = item.get('standby_dates', None)
         present_dates = item.get('present_dates', None)
         char_name = item['name']

@@ -19,7 +19,7 @@ class Guild:
             'name': self.name,
             'manager_rank': self.manager_rank,
             'realm': self.realm,
-            'guild_id': self.guild_id,
+            'guild_id': str(self.guild_id),
             'wl_guild_id': self.wl_guild_id,
             'groups': [group.to_dict() for group in self.raid_groups],
             'logs_channel': self.logs_channel
@@ -31,7 +31,7 @@ class Guild:
             name=item['name'],
             realm=item['realm'],
             manager_rank=item['manager_rank'],
-            guild_id=item.get('guild_id'),
+            guild_id=int(item.get('guild_id')),
             wl_guild_id=item.get('wl_guild_id'),
             groups=[RaidGroup.from_dict(team) for team in item['groups']] if 'groups' in item else None,
             logs_channel=item.get('logs_channel')

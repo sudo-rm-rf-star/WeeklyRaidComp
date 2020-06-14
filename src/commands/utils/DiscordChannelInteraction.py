@@ -7,7 +7,7 @@ import discord
 class DiscordChannelInteraction(InteractionMessage):
     def __init__(self, client: discord.Client, guild: discord.Guild, content: str, *args, **kwargs):
         self.options = '/'.join([' '.join([role.name for role in get_channels(guild)])])
-        content += f': [{self.options}]'
+        content += f':\n [{self.options}]'
         self.guild = guild
         super().__init__(client, guild, content, *args, **kwargs)
 

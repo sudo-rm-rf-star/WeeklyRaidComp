@@ -39,8 +39,7 @@ class BotCommand:
 
     def __init__(self, client: discord.Client, players_resource: PlayersResource, events_resource: RaidEventsResource, guilds_resource: GuildsResource,
                  message: Optional[Message], raw_reaction: Optional[RawReactionActionEvent], argv: str, member: GuildMember, player: Player,
-                 discord_guild: discord.Guild, guild: Guild, raidgroup: RaidGroup, logs_channel: TextChannel):
-        assert message or raw_reaction
+                 discord_guild: discord.Guild, guild: Guild, raidgroup: RaidGroup, channel: Optional[TextChannel], logs_channel: TextChannel):
         self.kwargs = ArgParser(BotCommand.argformat()).parse(argv)
         self.client: discord.Client = client
         self.players_resource: PlayersResource = players_resource
@@ -52,11 +51,12 @@ class BotCommand:
         self.player = player
         self.discord_guild = discord_guild
         self.guild = guild
+        self.channel = channel
         self._raidgroup = raidgroup
         self._logs_channel = logs_channel
 
     async def execute(self, **kwargs):
-        raise MissingImplementationException()
+        raise MissingImplementationException(BotCommand)
 
     async def call(self):
         required_rank = self.guild.manager_rank if self.req_manager_rank else None
@@ -69,15 +69,18 @@ class BotCommand:
         asyncio.create_task(self._logs_channel.send(content=log_message))
         asyncio.create_task(self.member.send(content=content))
 
+    def post(self, content: str):
+        asyncio.create_task(self.channel.send(content=content))
+
     async def show_help(self, channel: TextChannel) -> None:
         await channel.send(content=self.get_help())
 
-    @staticmethod
-    def get_help() -> str:
-        prefix = f'!{BotCommand.name()} {BotCommand.subname()}'
-        command_with_arg_names = f'\n`{prefix} {BotCommand.argformat()}`'
-        command_with_arg_examples = f'\n`{prefix} {BotCommand.example_args()}`' if BotCommand.example_args() else ''
-        return f'**{BotCommand.description()}**{command_with_arg_names}{command_with_arg_examples}'
+    @classmethod
+    def get_help(cls) -> str:
+        prefix = f'!{cls.name()} {cls.subname()}'
+        command_with_arg_names = f'\n`{prefix} {cls.argformat()}`'
+        command_with_arg_examples = f'\n`{prefix} {cls.example_args()}`' if cls.example_args() else ''
+        return f'**{cls.description()}**{command_with_arg_names}{command_with_arg_examples}'
 
     def get_raidgroup(self):
         if not self._raidgroup:
