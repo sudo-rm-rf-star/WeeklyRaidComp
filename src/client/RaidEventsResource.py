@@ -6,11 +6,12 @@ from typing import Optional, Dict, List
 import discord
 
 import utils.Logger as Log
-from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
 from client.entities.GuildMember import GuildMember
 from client.entities.RaidMessage import RaidMessage
 from client.entities.RaidNotification import RaidNotification
+from client.MessagesResource import MessagesResource
 from logic.RaidEvent import RaidEvent
+from logic.MessageRef import MessageRef
 from persistence.RaidEventsTable import RaidEventsTable
 from persistence.TableFactory import TableFactory
 from utils.DateOptionalTime import DateOptionalTime
@@ -24,9 +25,10 @@ class CacheOperation(Enum):
 
 
 class RaidEventsResource:
-    def __init__(self, discord_client: discord.Client):
+    def __init__(self, discord_client: discord.Client, messages_resource: MessagesResource):
         self.discord_client = discord_client
         self.events_table: RaidEventsTable = TableFactory().get_raid_events_table()
+        self.messages_resource = messages_resource
         # Cache these to improve performance on hot keys
         self.upcoming_cache: Dict[int, Dict[int, Dict[str, RaidEvent]]] = defaultdict(lambda: defaultdict(dict))
         # TODO: Optimization of this is possible by using timestamp as range and querying the time range rather than scanning
@@ -39,10 +41,10 @@ class RaidEventsResource:
             return f'Raid event for {raid_name} on {raid_datetime} already exists.'
         if raid_datetime < DateOptionalTime.now():
             return f'Raid event must be in future'
-        event = RaidEvent(raid_name, raid_datetime, discord_guild.id, group_id)
+        event = RaidEvent(name=raid_name, raid_datetime=raid_datetime, guild_id=discord_guild.id, group_id=group_id)
+        await self.send_raid_message(discord_guild, events_channel, event)
         self.events_table.put_raid_event(event)
         self._update_cache(event, CacheOperation.CREATE)
-        await self.send_raid_message(discord_guild, events_channel, event)
         await self.send_raid_notification(discord_guild, event, raiders)
         return f'Raid event for {event.get_name()} on {event.get_datetime()} has been successfully created.'
 
@@ -53,8 +55,8 @@ class RaidEventsResource:
 
         self.events_table.remove_raid_event(raid_name, raid_datetime)
         self._update_cache(raid_event, CacheOperation.REMOVE)
-        for message_id in raid_event.message_ids:
-            asyncio.create_task((await get_message(discord_guild, message_id)).remove())
+        for message_ref in raid_event.message_refs:
+            asyncio.create_task((await get_message(discord_guild, message_ref)).remove())
         return f'Raid event for {raid_name} on {raid_datetime} has been successfully deleted.'
 
     def update_raid(self, discord_guild: discord.Guild, raid_event: RaidEvent):
@@ -71,23 +73,24 @@ class RaidEventsResource:
     def get_raids(self, discord_guild: discord.Guild, group_id: int) -> List[RaidEvent]:
         return self.events_table.list_raid_events(discord_guild.id, group_id)
 
-    def get_raid_by_notification_id(self, discord_guild: discord.Guild, message_id: DiscordMessageIdentifier) -> Optional[RaidEvent]:
-        return self.events_table.get_raid_event_by_message_id(discord_guild.id, message_id, True)
-
-    def get_raid_by_message_id(self, discord_guild: discord.Guild, message_id: DiscordMessageIdentifier) -> Optional[RaidEvent]:
-        return self.events_table.get_raid_event_by_message_id(discord_guild.id, message_id, False)
+    def get_raid_by_message(self, message: MessageRef):
+        return self.events_table.get_raid_event(raid_name=message.raid_name, raid_datetime=message.raid_datetime, guild_id=message.guild_id,
+                                                group_id=message.group_id)
 
     async def send_raid_notification(self, discord_guild: discord.Guild, raid_event: RaidEvent, raiders: List[GuildMember]) -> None:
         for raider in raiders:
             try:
                 msg = await RaidNotification(self.discord_client, discord_guild, raid_event).send_to(raider)
-                raid_event.notification_ids.append(DiscordMessageIdentifier(msg.id, raider.id))
+                self.messages_resource.create_personal_message(message_id=msg.id, guild_id=discord_guild.id, user_id=raider.id, raid_name=raid_event.name,
+                                                               raid_datetime=raid_event.datetime, group_id=raid_event.group_id)
             except discord.Forbidden:
                 Log.error(f'Received 403 when sending raid notification to {raider} for raid {raid_event}')
 
     async def send_raid_message(self, discord_guild: discord.Guild, events_channel: discord.TextChannel, raid_event: RaidEvent) -> None:
         msg = await RaidMessage(self.discord_client, discord_guild, raid_event).send_to(events_channel)
-        raid_event.message_ids.append(DiscordMessageIdentifier(msg.id, events_channel.id))
+        message_ref = MessageRef(message_id=msg.id, guild_id=discord_guild.id, channel_id=events_channel.id, raid_name=raid_event.name,
+                                 raid_datetime=raid_event.datetime, group_id=raid_event.group_id)
+        raid_event.message_refs.append(message_ref)
 
     def raid_exists(self, guild_id: int, group_id: int, raid_name: str, raid_datetime: DateOptionalTime) -> bool:
         return self.events_table.get_raid_event(guild_id, group_id, raid_name, raid_datetime) is not None

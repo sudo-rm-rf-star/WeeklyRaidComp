@@ -6,26 +6,23 @@ from utils.Constants import abbrev_to_full
 from utils.DateOptionalTime import DateOptionalTime
 from utils.Date import Date
 from utils.Time import Time
-from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
 from datetime import datetime
 from typing import List, Dict, Any
 from logic.Character import Character
+from logic.MessageRef import MessageRef
 
 
 class RaidEvent:
-    def __init__(self, name: str, raid_datetime: DateOptionalTime, guild_id: int, group_id: int,
-                 message_ids: List[DiscordMessageIdentifier] = None,
-                 notification_ids: List[DiscordMessageIdentifier] = None, rosters=None, created_at: datetime = None,
-                 updated_at: datetime = None):
+    def __init__(self, name: str, raid_datetime: DateOptionalTime, guild_id: int, group_id: int, rosters=None, created_at: datetime = None,
+                 updated_at: datetime = None, message_refs: List[MessageRef] = None):
         self.name = name
-        self.guild_id = guild_id,
-        self.group_id = group_id,
+        self.guild_id = guild_id
+        self.group_id = group_id
         self.datetime = raid_datetime
-        self.message_ids = [] if not message_ids else message_ids  # Tuples of message ID, channel ID
-        self.notification_ids = [] if not notification_ids else notification_ids  # Tuples of message ID, channel ID
         self.created_at = datetime.now() if not created_at else created_at
         self.updated_at = datetime.now() if not updated_at else updated_at
         self.roster = Roster(name) if not rosters else rosters
+        self.message_refs = [] if not message_refs else message_refs
 
     def compose_roster(self) -> List[Character]:
         self.updated_at = datetime.now()
@@ -64,26 +61,24 @@ class RaidEvent:
     def from_dict(item: Dict[str, Any]):
         raid_name = item['name']
         return RaidEvent(name=raid_name,
-                         raid_datetime=DateOptionalTime.from_timestamp(item['timestamp']),
+                         raid_datetime=DateOptionalTime.from_timestamp(int(item['timestamp'])),
                          guild_id=int(item['guild_id']),
                          group_id=int(item['group_id']),
-                         message_ids=[DiscordMessageIdentifier.from_str(msg) for msg in item['message_ids']],
-                         notification_ids=[DiscordMessageIdentifier.from_str(msg) for msg in item['notification_ids']],
-                         created_at=datetime.fromtimestamp(item['created_at']),
-                         updated_at=datetime.fromtimestamp(item['updated_at']),
-                         rosters=Roster.from_dict(raid_name, item['roster']))
+                         created_at=datetime.fromtimestamp(float(item['created_at'])),
+                         updated_at=datetime.fromtimestamp(float(item['updated_at'])),
+                         rosters=Roster.from_dict(raid_name, item['roster']),
+                         message_refs=[MessageRef.from_dict(msg) for msg in item['message_refs']])
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             'name': self.name,
-            'guild_id': self.guild_id,
-            'group_id': self.group_id,
-            'timestamp': self.datetime.to_timestamp(),
-            'created_at': int(self.created_at.timestamp()),
-            'updated_at': int(self.updated_at.timestamp()),
+            'guild_id': str(self.guild_id),
+            'group_id': str(self.group_id),
+            'timestamp': str(self.datetime.to_timestamp()),
+            'created_at': str(self.created_at.timestamp()),
+            'updated_at': str(self.updated_at.timestamp()),
             'roster': self.roster.to_dict(),
-            'message_ids': [msg.to_str() for msg in self.message_ids],
-            'notification_ids': [msg.to_str() for msg in self.notification_ids],
+            'message_refs': [msg.to_dict() for msg in self.message_refs],
         }
 
     def __str__(self):

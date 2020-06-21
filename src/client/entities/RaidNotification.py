@@ -5,7 +5,7 @@ from client.entities.DiscordMessage import DiscordMessage
 from exceptions.InternalBotException import InternalBotException
 from client.entities.GuildMember import GuildMember
 import discord
-import asyncio
+from utils.DiscordUtils import get_emoji
 
 
 class RaidNotification(DiscordMessage):
@@ -21,5 +21,5 @@ class RaidNotification(DiscordMessage):
             raise InternalBotException("Unhandled case")
         message = msgs[0]
         for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if status != SignupStatus.UNDECIDED]:
-            asyncio.create_task(message.add_reaction(emoji=self.client.get_emoji(emoji)))
+            await message.add_reaction(emoji=get_emoji(self.discord_guild, emoji))
         return message

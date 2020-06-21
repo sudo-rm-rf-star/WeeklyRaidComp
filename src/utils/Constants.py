@@ -5,6 +5,7 @@ from raids import ZGConstants
 
 BOT_NAME = 'DokBot'
 MAINTAINER_ID = 229262793331703810
+TESTER_ID = 582301840260071465
 RAID_STORAGE = os.path.join('data', 'raids')
 PLAYER_STORAGE = os.path.join('data', 'players')
 RAID_INFO_EMBEDS = os.path.join('data', 'embeds', 'raid-info.json')

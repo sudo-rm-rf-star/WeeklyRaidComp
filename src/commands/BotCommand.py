@@ -1,19 +1,20 @@
 from exceptions.MissingImplementationException import MissingImplementationException
 from exceptions.NoRaidGroupSpecifiedException import NoRaidGroupSpecifiedException
-from commands.utils.ArgParser import ArgParser
 from commands.utils.CommandUtils import check_authority
 from client.entities.GuildMember import GuildMember
 from utils.Constants import DATETIMESEC_FORMAT
-from utils.DiscordUtils import get_member_by_id, get_members_for_role, get_channel
+from utils.DiscordUtils import get_members_for_role, get_channel
 from discord import Message, TextChannel, RawReactionActionEvent
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from client.PlayersResource import PlayersResource
 from client.RaidEventsResource import RaidEventsResource
 from client.GuildsResource import GuildsResource
+from client.MessagesResource import MessagesResource
 from logic.Player import Player
 from logic.Guild import Guild
 from logic.RaidGroup import RaidGroup
+from logic.MessageRef import MessageRef
 import asyncio
 import discord
 
@@ -38,14 +39,16 @@ class BotCommand:
     def req_manager_rank(cls) -> bool: return True
 
     def __init__(self, client: discord.Client, players_resource: PlayersResource, events_resource: RaidEventsResource, guilds_resource: GuildsResource,
-                 message: Optional[Message], raw_reaction: Optional[RawReactionActionEvent], argv: str, member: GuildMember, player: Player,
-                 discord_guild: discord.Guild, guild: Guild, raidgroup: RaidGroup, channel: Optional[TextChannel], logs_channel: TextChannel):
-        self.kwargs = ArgParser(BotCommand.argformat()).parse(argv)
+                 messages_resource: MessagesResource, message: Optional[Message], message_ref: Optional[MessageRef], raw_reaction: discord.RawReactionActionEvent,
+                 member: GuildMember, player: Player, discord_guild: discord.Guild, guild: Guild, raidgroup: RaidGroup, channel: Optional[TextChannel],
+                 logs_channel: TextChannel):
         self.client: discord.Client = client
         self.players_resource: PlayersResource = players_resource
         self.events_resource = events_resource
         self.guilds_resource = guilds_resource
+        self.messages_resource = messages_resource
         self.message = message
+        self.message_ref = message_ref
         self.raw_reaction = raw_reaction
         self.member = member
         self.player = player
@@ -58,10 +61,10 @@ class BotCommand:
     async def execute(self, **kwargs):
         raise MissingImplementationException(BotCommand)
 
-    async def call(self):
+    async def call(self, **kwargs):
         required_rank = self.guild.manager_rank if self.req_manager_rank else None
         check_authority(self.member, required_rank)
-        await self.execute(**self.kwargs)
+        await self.execute(**kwargs)
 
     def respond(self, content: str):
         action = self.message.content if self.message else self.raw_reaction.emoji
@@ -82,7 +85,7 @@ class BotCommand:
         command_with_arg_examples = f'\n`{prefix} {cls.example_args()}`' if cls.example_args() else ''
         return f'**{cls.description()}**{command_with_arg_names}{command_with_arg_examples}'
 
-    def get_raidgroup(self):
+    def get_raidgroup(self) -> RaidGroup:
         if not self._raidgroup:
             raise NoRaidGroupSpecifiedException(self.discord_guild)
         return self._raidgroup
@@ -90,5 +93,5 @@ class BotCommand:
     def get_raiders(self) -> List[GuildMember]:
         return get_members_for_role(self.discord_guild, self.get_raidgroup().raider_rank)
 
-    def get_events_channel(self):
-        return get_channel(self.discord_guild, self.get_raidgroup().events_channel)
+    async def get_events_channel(self):
+        return await get_channel(self.discord_guild, self.get_raidgroup().events_channel)

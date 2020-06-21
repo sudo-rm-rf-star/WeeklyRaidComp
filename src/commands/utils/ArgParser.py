@@ -24,7 +24,7 @@ class ArgParser:
 
         if len(self.mandatory_argnames) != len(mandatory_args):
             raise InvalidArgumentException(
-                f"Expected {len(self.mandatory_argnames)} arguments, but found {len(mandatory_args)}.")
+                f"Expected arguments for {self.mandatory_argnames} but got {mandatory_args}")
 
         optional_args += ['' for _ in range(len(self.optional_argnames) - len(optional_args))]
 

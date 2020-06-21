@@ -11,7 +11,7 @@ class RosterCommand(BotCommand):
     @classmethod
     def name(cls) -> str: return "roster"
 
-    def publish_roster_changes(self, characters: List[Character], raid_event: RaidEvent) -> None:
+    async def publish_roster_changes(self, characters: List[Character], raid_event: RaidEvent) -> None:
         for player in characters:
             verbs = {
                 RosterStatus.ACCEPT: 'accepted',
@@ -22,7 +22,8 @@ class RosterCommand(BotCommand):
             if roster_choice != RosterStatus.UNDECIDED:
                 verb = verbs[roster_choice]
                 formatted_msg = f'{player.name}, you were {verb} for {raid_event.get_name()} on {raid_event.get_date()} ({raid_event.get_weekday()})'
-                asyncio.create_task(get_member_by_id(self.discord_guild, player.discord_id).send(content=formatted_msg))
+                member = await get_member_by_id(self.discord_guild, player.discord_id)
+                asyncio.create_task(member.send(content=formatted_msg))
 
 
 

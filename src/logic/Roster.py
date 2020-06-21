@@ -79,7 +79,7 @@ class Roster:
 
     @staticmethod
     def from_dict(raid_name, item):
-        return Roster(raid_name, [Character.from_dict(player) for player in item['players']])
+        return Roster(raid_name, [Character.from_dict(player) for player in item['characters']])
 
 
 def _team_count(raid_name: str) -> int:

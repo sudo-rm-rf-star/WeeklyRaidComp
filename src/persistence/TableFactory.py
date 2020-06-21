@@ -5,6 +5,7 @@ from persistence.GuildsTable import GuildsTable
 import boto3
 from dotenv import load_dotenv
 import os
+from persistence.MessagesTable import MessagesTable
 
 
 class TableFactory(metaclass=Singleton):
@@ -22,3 +23,6 @@ class TableFactory(metaclass=Singleton):
 
     def get_guilds_table(self) -> GuildsTable:
         return GuildsTable(self.ddb)
+
+    def get_messages_table(self) -> MessagesTable:
+        return MessagesTable(self.ddb)

@@ -3,24 +3,17 @@ from typing import Optional, Dict, Any, List
 from persistence.DynamoDBTable import DynamoDBTable
 from utils.DateOptionalTime import DateOptionalTime
 from boto3.dynamodb.conditions import Attr, Key
-from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
 
 
 class RaidEventsTable(DynamoDBTable[RaidEvent]):
     TABLE_NAME = 'raid_events'
-    INDEX_NAME = 'guild_team_index'
+    INDEX_NAME = 'guild_group_index'
 
     def __init__(self, ddb):
         super().__init__(ddb, RaidEventsTable.TABLE_NAME)
 
     def get_raid_event(self, guild_id: int, group_id: int, raid_name: str, raid_datetime: DateOptionalTime) -> Optional[RaidEvent]:
-        return super(RaidEventsTable, self).get_item(guild_id=guild_id, group_id=group_id, name=raid_name, timestamp=raid_datetime)
-
-    def get_raid_event_by_message_id(self, guild_id: int, message_id: DiscordMessageIdentifier, is_notification: bool) -> Optional[RaidEvent]:
-        attr_name = 'notification_ids' if is_notification else 'message_ids'
-        return self.to_unique_object(self.table.query(IndexName=RaidEventsTable.INDEX_NAME,
-                                                      KeyConditionExpression=Key('guild_id').eq(guild_id),
-                                                      FilterExpression=Attr(attr_name).contains(message_id.to_str())))
+        return super(RaidEventsTable, self).get_item(guild_id=guild_id, group_id=group_id, raid_name=raid_name, raid_datetime=raid_datetime)
 
     def list_raid_events(self, guild_id: int, group_id: Optional[int]) -> List[RaidEvent]:
         return self.table.query(IndexName=RaidEventsTable.INDEX_NAME, KeyConditionExpression=Key('guild_id#group_id').eq(f'{guild_id}#{group_id}'))
@@ -68,10 +61,6 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
                 {
                     'AttributeName': 'guild_id#group_id',
                     'AttributeType': 'S'
-                },
-                {
-                    'AttributeName': 'guild_id',
-                    'AttributeType': 'N'
                 }
             ],
             'ProvisionedThroughput': {
@@ -83,7 +72,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
                     'IndexName': RaidEventsTable.INDEX_NAME,
                     'KeySchema': [
                         {
-                            'AttributeName': 'guild_id',
+                            'AttributeName': 'guild_id#group_id',
                             'KeyType': 'HASH'
                         },
                     ],

@@ -1,22 +1,31 @@
 from typing import List
+from exceptions.MissingImplementationException import MissingImplementationException
 
 import discord
 
-from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
+from logic.MessageRef import MessageRef
 from client.entities.GuildMember import GuildMember
 from exceptions.InternalBotException import InternalBotException
 
 
-def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
-    return discord.utils.get(guild.text_channels, name=channel_name)
+async def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
+    channels = await get_channels(guild)
+    return discord.utils.get(channels, name=channel_name)
 
 
-def get_channels(guild: discord.Guild) -> List[discord.TextChannel]:
-    return guild.text_channels
+async def get_channels(guild: discord.Guild) -> List[discord.TextChannel]:
+    if len(guild.channels) > 0:
+        return guild.channels
+    return await guild.fetch_channels()
+
+
+def get_channels_non_async(guild: discord.Guild) -> List[discord.TextChannel]:
+    return guild.channels
 
 
 async def get_channel_by_id(guild: discord.Guild, channel_id: int) -> discord.TextChannel:
-    return discord.utils.get(guild.text_channels, id=channel_id)
+    channels = await get_channels(guild)
+    return discord.utils.get(channels, id=channel_id)
 
 
 def get_emoji(guild: discord.Guild, emoji_name: str) -> discord.Emoji:
@@ -27,8 +36,9 @@ def get_member(guild: discord.Guild, user_name: str) -> GuildMember:
     return GuildMember(guild.get_member_named(user_name), guild.id)
 
 
-def get_member_by_id(guild: discord.Guild, user_id: int) -> GuildMember:
-    return GuildMember(guild.get_member(user_id), guild.id)
+async def get_member_by_id(guild: discord.Guild, user_id: int) -> GuildMember:
+    member = await guild.fetch_member(user_id)
+    return GuildMember(member, guild.id)
 
 
 def get_users(guild: discord.Guild) -> List[GuildMember]:
@@ -47,9 +57,13 @@ def get_members_for_role(guild: discord.Guild, role_name: str) -> List[GuildMemb
     return [GuildMember(member, guild.id) for member in get_role(guild, role_name).members]
 
 
-async def get_message(guild: discord.Guild, message_id: DiscordMessageIdentifier) -> discord.Message:
-    text_channel = await get_channel_by_id(guild, message_id.channel_id)
-    try:
-        return await text_channel.fetch_message(message_id.message_id)
-    except discord.NotFound:
-        raise InternalBotException("Could not find message")
+async def get_message(guild: discord.Guild, message_ref: MessageRef) -> discord.Message:
+    if message_ref.channel_id:
+        text_channel = await get_channel_by_id(guild, message_ref.channel_id)
+        try:
+            return await text_channel.fetch_message(message_ref.message_id)
+        except discord.NotFound:
+            raise InternalBotException("Could not find message")
+    else:
+        raise MissingImplementationException()
+

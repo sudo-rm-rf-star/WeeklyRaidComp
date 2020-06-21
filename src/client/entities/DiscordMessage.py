@@ -1,5 +1,4 @@
 from client.entities.GuildMember import GuildMember
-from client.entities.DiscordMessageIdentifier import DiscordMessageIdentifier
 from exceptions.InternalBotException import InternalBotException
 from typing import Union, Dict, Any, List, Optional
 from utils.DiscordUtils import get_emoji, get_message
@@ -7,6 +6,7 @@ from utils.EmojiNames import ROLE_EMOJI, ROLE_CLASS_EMOJI, SIGNUP_STATUS_EMOJI
 from logic.Character import Character
 from logic.enums.Role import Role
 from logic.enums.SignupStatus import SignupStatus
+from logic.MessageRef import MessageRef
 import json
 import discord
 import utils.Logger as Log
@@ -55,8 +55,8 @@ class DiscordMessage:
     def _empty_field(self, inline: bool = True):
         return self._field(EMPTY_FIELD, inline)
 
-    async def _update_message(self, message_id: DiscordMessageIdentifier):
-        message = await get_message(self.discord_guild, message_id)
+    async def _update_message(self, message_ref: MessageRef):
+        message = await get_message(self.discord_guild, message_ref)
         if self.embed:
             await message.edit(embed=self.embed)
         if self.content:

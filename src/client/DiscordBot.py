@@ -8,6 +8,7 @@ from utils.EmojiNames import EMOJI_SIGNUP_STATUS
 from client.RaidEventsResource import RaidEventsResource
 from client.PlayersResource import PlayersResource
 from client.GuildsResource import GuildsResource
+from client.MessagesResource import MessagesResource
 from dotenv import load_dotenv
 
 import utils.Logger as Log
@@ -27,10 +28,12 @@ def run() -> None:
     assert token, "Could not find any discord token"
 
     discord_client = discord.Client()
-    events_resource = RaidEventsResource(discord_client)
     players_resource = PlayersResource()
     guilds_resource = GuildsResource(discord_client)
-    command_runner = CommandRunner(client=discord_client, players_resource=players_resource, events_resource=events_resource, guilds_resource=guilds_resource)
+    messages_resource = MessagesResource()
+    events_resource = RaidEventsResource(discord_client, messages_resource)
+    command_runner = CommandRunner(client=discord_client, players_resource=players_resource, events_resource=events_resource, guilds_resource=guilds_resource,
+                                   messages_resource=messages_resource)
 
     @discord_client.event
     async def on_ready() -> None:

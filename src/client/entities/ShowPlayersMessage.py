@@ -55,5 +55,4 @@ class ShowPlayersMessage(DiscordMessage):
         value = '**Nog niet ingeschreven:** '
         signed_ids = [player.discord_id for player in self.players]
         value += ', '.join([member.display_name for member in self.raiders if member.id not in signed_ids])
-        print(value)
         return self._field(value, inline=False)
