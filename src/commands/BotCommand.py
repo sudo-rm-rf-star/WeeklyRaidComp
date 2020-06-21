@@ -36,7 +36,7 @@ class BotCommand:
     def example_args(cls) -> Optional[str]: return None
 
     @classmethod
-    def req_manager_rank(cls) -> bool: return False  # TODO
+    def req_manager_rank(cls) -> bool: return True
 
     def __init__(self, client: discord.Client, players_resource: PlayersResource, events_resource: RaidEventsResource, guilds_resource: GuildsResource,
                  messages_resource: MessagesResource, message: Optional[Message], message_ref: Optional[MessageRef], raw_reaction: discord.RawReactionActionEvent,
@@ -62,7 +62,7 @@ class BotCommand:
         raise MissingImplementationException(BotCommand)
 
     async def call(self, **kwargs):
-        required_rank = self.guild.manager_rank if self.req_manager_rank else None
+        required_rank = self.guild.manager_rank if self.req_manager_rank() else None
         check_authority(self.member, required_rank)
         await self.execute(**kwargs)
 

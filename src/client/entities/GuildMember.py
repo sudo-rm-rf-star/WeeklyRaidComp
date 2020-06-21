@@ -17,3 +17,6 @@ class GuildMember:
 
     def __str__(self):
         return str(self.member)
+
+    def __repr__(self):
+        return str(self)
