@@ -15,7 +15,7 @@ from commands.raidgroup.SelectRaidGroup import SelectRaidGroup
 from commands.raidgroup.AddRaidGroup import AddRaidGroup
 from commands.roster.AcceptPlayerCommand import AcceptPlayerCommand
 from commands.roster.BenchPlayerCommand import BenchPlayerCommand
-from commands.roster.DeclinePlayerCommand import Dse
+from commands.roster.DeclinePlayerCommand import DeclinePlayerCommand
 from commands.roster.CreateRosterCommand import CreateRosterCommand
 from commands.utils.GuildHelper import create_guild
 from commands.utils.RegistrationHelper import register
