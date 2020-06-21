@@ -2,7 +2,7 @@
 from exceptions.BotException import BotException
 from websockets.exceptions import InvalidStatusCode
 from commands.CommandRunner import CommandRunner
-from commands.character.SignupCharacterCommand import SignupPlayerCommand
+from commands.character.SignupCharacterCommand import SignupCharacterCommand
 from utils.Constants import MAINTAINER_ID
 from utils.EmojiNames import EMOJI_SIGNUP_STATUS
 from client.RaidEventsResource import RaidEventsResource
@@ -53,7 +53,7 @@ def run() -> None:
         if not discord_client.is_ready() or reaction_event.user_id == discord_client.user.id or reaction_event.emoji.name not in EMOJI_SIGNUP_STATUS.keys():
             return
         try:
-            await command_runner.run_command_for_reaction_event(reaction_event, SignupPlayerCommand)
+            await command_runner.run_command_for_reaction_event(reaction_event, SignupCharacterCommand)
         except Exception as ex:
             user = await discord_client.fetch_user(reaction_event.user_id)
             await handle_exception(ex, author=user, content="Raid signup failed")
