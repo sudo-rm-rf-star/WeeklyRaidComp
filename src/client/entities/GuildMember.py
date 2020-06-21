@@ -14,3 +14,6 @@ class GuildMember:
 
     def __getattr__(self, item):
         return self.member.__getattribute__(item)
+
+    def __str__(self):
+        return str(self.member)

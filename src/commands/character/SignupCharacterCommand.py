@@ -1,9 +1,9 @@
-from commands.player.PlayerCommand import PlayerCommand
+from commands.character import CharacterCommand
 from client.entities.RaidMessage import RaidMessage
 from utils.EmojiNames import EMOJI_SIGNUP_STATUS
 
 
-class SignupPlayerCommand(PlayerCommand):
+class SignupCharacterCommand(CharacterCommand):
     @classmethod
     def subname(cls) -> str: return "signup"
 
