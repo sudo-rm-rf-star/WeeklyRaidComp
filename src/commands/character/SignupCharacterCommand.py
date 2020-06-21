@@ -1,4 +1,4 @@
-from commands.character import CharacterCommand
+from commands.character.CharacterCommand import CharacterCommand
 from client.entities.RaidMessage import RaidMessage
 from utils.EmojiNames import EMOJI_SIGNUP_STATUS
 
