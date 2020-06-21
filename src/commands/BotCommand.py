@@ -36,7 +36,7 @@ class BotCommand:
     def example_args(cls) -> Optional[str]: return None
 
     @classmethod
-    def req_manager_rank(cls) -> bool: return True
+    def req_manager_rank(cls) -> bool: return False  # TODO
 
     def __init__(self, client: discord.Client, players_resource: PlayersResource, events_resource: RaidEventsResource, guilds_resource: GuildsResource,
                  messages_resource: MessagesResource, message: Optional[Message], message_ref: Optional[MessageRef], raw_reaction: discord.RawReactionActionEvent,
