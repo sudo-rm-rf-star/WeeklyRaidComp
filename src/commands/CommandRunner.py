@@ -7,7 +7,7 @@ from commands.character.SelectCharacter import SelectCharacter
 from commands.guild.CreateGuild import CreateGuild
 from commands.player.AnnounceCommand import AnnounceCommand
 from commands.player.RegisterPlayerCommand import RegisterPlayerCommand
-from commands.character.SignupCharacterCommand import SignupPlayerCommand
+from commands.character.SignupCharacterCommand import SignupCharacterCommand
 from commands.raid.CreateRaidCommand import CreateRaidCommand
 from commands.raid.RemoveRaidEvent import RemoveRaidCommand
 from commands.raidgroup.ListRaidGroups import ListRaidGroups
@@ -30,7 +30,7 @@ from utils.DiscordUtils import get_channel, get_member_by_id
 from collections import defaultdict
 from exceptions.InternalBotException import InternalBotException
 
-COMMANDS = [AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupPlayerCommand, CreateRaidCommand,
+COMMANDS = [AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand, CreateRaidCommand,
             RemoveRaidCommand, RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
             CreateRosterCommand]
 
