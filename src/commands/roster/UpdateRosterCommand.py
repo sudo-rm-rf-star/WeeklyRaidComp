@@ -18,5 +18,5 @@ class UpdateRosterCommand(RosterCommand):
         raid_event.add_to_roster(player, UpdateRosterCommand.roster_choice())
         self.events_resource.update_raid(self.discord_guild, raid_event)
         RaidMessage(self.client, self.discord_guild, raid_event).sync()
-        self.publish_roster_changes([player.get_selected_char()], raid_event)
+        await self.publish_roster_changes([player.get_selected_char()], raid_event)
         self.respond(f'Raid event for {raid_event.get_name()} on {raid_event.get_datetime()} has been successfully updated.')

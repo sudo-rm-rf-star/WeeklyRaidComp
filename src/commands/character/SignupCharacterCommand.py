@@ -15,7 +15,7 @@ class SignupCharacterCommand(CharacterCommand):
         if raid_event:
             # Remove character from signees if any other of his characters have already signed
             for char in self.player.characters:
-                if char != self.player.get_selected_char() and raid_event.has_signed(char.name):
+                if char != self.player.get_selected_char() and raid_event.has_char_signed(char):
                     raid_event.remove_from_raid(char.name)
             # Add player to raid_event
             signup_choice = EMOJI_SIGNUP_STATUS[self.raw_reaction.emoji.name]

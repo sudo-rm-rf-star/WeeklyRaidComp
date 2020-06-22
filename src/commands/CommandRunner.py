@@ -10,6 +10,8 @@ from commands.player.RegisterPlayerCommand import RegisterPlayerCommand
 from commands.character.SignupCharacterCommand import SignupCharacterCommand
 from commands.raid.CreateRaidCommand import CreateRaidCommand
 from commands.raid.RemoveRaidEvent import RemoveRaidCommand
+from commands.raid.RaidEventInvite import RaidEventInvite
+from commands.raid.RaidEventRemind import RaidEventRemind
 from commands.raidgroup.ListRaidGroups import ListRaidGroups
 from commands.raidgroup.SelectRaidGroup import SelectRaidGroup
 from commands.raidgroup.AddRaidGroup import AddRaidGroup
@@ -29,10 +31,11 @@ from logic.RaidGroup import RaidGroup
 from utils.DiscordUtils import get_channel, get_member_by_id
 from collections import defaultdict
 from exceptions.InternalBotException import InternalBotException
+from exceptions.MessageNotFoundException import MessageNotFoundException
 
 COMMANDS = [AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand, CreateRaidCommand,
             RemoveRaidCommand, RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
-            CreateRosterCommand]
+            CreateRosterCommand, RaidEventInvite, RaidEventRemind]
 
 
 class CommandRunner:
@@ -81,6 +84,8 @@ class CommandRunner:
         # This can probably be refactored quite a bit but there's a strict ordering in statements here.
         if raw_reaction:
             message_ref = self.messages_resource.get_message(raw_reaction.message_id)
+            if message_ref is None:
+                raise MessageNotFoundException("The message you reacted to is probably too old and could not be found.")
             guild_id = message_ref.guild_id
             user_id = message_ref.user_id
             discord_guild = await self.client.fetch_guild(guild_id)

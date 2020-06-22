@@ -39,8 +39,11 @@ class RaidEvent:
     def remove_from_raid(self, player_name: str) -> bool:
         return self.roster.remove_player(player_name)
 
-    def has_signed(self, player_name: str) -> bool:
-        return any(player for player in self.roster.characters if player.name == player_name)
+    def has_char_signed(self, character: Character) -> bool:
+        return any(char for char in self.roster.characters if char == character)
+
+    def has_user_signed(self, user_id: int) -> bool:
+        return any(char for char in self.roster.characters if char.discord_id == user_id)
 
     def get_name(self, abbrev: bool = False) -> str:
         return self.name if abbrev else abbrev_to_full[self.name]

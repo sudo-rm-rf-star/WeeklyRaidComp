@@ -14,8 +14,11 @@ class CreateRaidCommand(RaidCommand):
     def description(cls) -> str: return "Create a new event for a raid"
 
     async def execute(self, raid_name, raid_datetime, **kwargs):
-        raiders = self.get_raiders()
         events_channel = await self.get_events_channel()
-        response = await self.events_resource.create_raid(discord_guild=self.discord_guild, group_id=self._raidgroup.group_id, raid_name=raid_name,
-                                                          raid_datetime=raid_datetime, raiders=raiders, events_channel=events_channel)
-        self.respond(response)
+        raid_event, response = await self.events_resource.create_raid(discord_guild=self.discord_guild, group_id=self._raidgroup.group_id, raid_name=raid_name,
+                                                                      raid_datetime=raid_datetime, events_channel=events_channel)
+        if response:
+            self.respond(response)
+        if raid_event:
+            raiders = self.get_raiders()
+            await self.send_raid_notification(raid_event=raid_event, raiders=raiders)
