@@ -9,7 +9,5 @@ class ListCharacter(CharacterCommand):
     @classmethod
     def description(cls) -> str: return "List all your characters"
 
-
     async def execute(self, **kwargs) -> None:
         await ShowCharactersMessage(self.client, self.discord_guild, self.players_resource, self.member).send_to(self.member)
-

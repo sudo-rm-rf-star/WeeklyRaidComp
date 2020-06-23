@@ -23,8 +23,7 @@ class PlayersResource:
     def update_player(self, player: Player):
         return self.players_table.put_player(player)
 
-    def select_character(self, char_name: str, guild_id: int):
-        player = self.get_player_by_name(char_name, guild_id)
+    def select_character(self, player: Player, char_name: str):
         char_names = [char.name for char in player.characters]
         if not any(x == char_name for x in char_names):
             raise InvalidArgumentException(f"You don't have a character named {char_name}. Your characters are: " + ", ".join(char_names))

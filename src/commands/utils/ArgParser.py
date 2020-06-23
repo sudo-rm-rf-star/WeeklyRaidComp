@@ -108,6 +108,7 @@ def get_example(argname: str) -> str:
         'raid_time': '19:30',
         'team_index': '1',
         'player': 'Dok',
+        'character': 'Dok',
         'week_count_cutoff': '4',
         'channel_name': 'raid-signups',
         'announcement': 'Goedenavond beste kruisvaarder!',

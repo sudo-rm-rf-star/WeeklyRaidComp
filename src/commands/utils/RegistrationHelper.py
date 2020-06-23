@@ -24,7 +24,7 @@ async def register(client: discord.Client, guild: discord.Guild, players_resourc
     role = await interact(member, GetRoleMessage(client, guild))
     klass = await interact(member, GetClassMessage(client, guild))
     race = await interact(member, GetRaceMessage(client, guild))
-    if not player:
+    if player is None:
         player = Player(discord_id=member.id, guild_id=member.guild_id, characters=[], selected_char=char_name, created_at=datetime.now().timestamp())
     character = Character(discord_id=member.id, guild_id=guild.id, char_name=char_name, role=role, klass=klass, race=race,
                           standby_count=player.get_standby_counts())

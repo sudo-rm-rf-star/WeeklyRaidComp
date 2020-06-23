@@ -81,7 +81,7 @@ class CommandRunner:
 
     async def _create_command(self, command_type: Type[BotCommand], message: Optional[discord.Message] = None,
                               raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> Optional[BotCommand]:
-        # This can probably be refactored quite a bit but there's a strict ordering in statements here.
+        # This code urgently requires refactoring and has grown quite complex over time...
         if raw_reaction:
             message_ref = self.messages_resource.get_message(raw_reaction.message_id)
             if message_ref is None:
@@ -95,7 +95,13 @@ class CommandRunner:
             author = message.author
             user_id = author.id
             discord_guild = message.guild
-            guild_member = GuildMember(author, discord_guild.id)
+            if discord_guild is None:  # This happens when a message is sent in PM.
+                player = self.players_resource.get_player_by_id(user_id)
+                if not player:
+                    author.send("Please register first.")
+                    return None
+                discord_guild = await self.client.fetch_guild(player.guild_id)
+            guild_member = await get_member_by_id(discord_guild, user_id)
             channel = message.channel
             message_ref = None
         else:
