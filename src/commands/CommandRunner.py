@@ -7,6 +7,7 @@ from commands.character.SelectCharacter import SelectCharacter
 from commands.guild.CreateGuild import CreateGuild
 from commands.player.AnnounceCommand import AnnounceCommand
 from commands.player.RegisterPlayerCommand import RegisterPlayerCommand
+from commands.player.ListPlayersCommand import ListPlayersCommand
 from commands.character.SignupCharacterCommand import SignupCharacterCommand
 from commands.raid.CreateRaidCommand import CreateRaidCommand
 from commands.raid.RemoveRaidEvent import RemoveRaidCommand
@@ -26,7 +27,6 @@ from client.RaidEventsResource import RaidEventsResource
 from client.GuildsResource import GuildsResource
 from client.PlayersResource import PlayersResource
 from client.MessagesResource import MessagesResource
-from client.entities.GuildMember import GuildMember
 from logic.RaidGroup import RaidGroup
 from utils.DiscordUtils import get_channel, get_member_by_id
 from collections import defaultdict
@@ -35,7 +35,7 @@ from exceptions.MessageNotFoundException import MessageNotFoundException
 
 COMMANDS = [AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand, CreateRaidCommand,
             RemoveRaidCommand, RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
-            CreateRosterCommand, RaidEventInvite, RaidEventRemind]
+            CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListPlayersCommand]
 
 
 class CommandRunner:
@@ -72,12 +72,14 @@ class CommandRunner:
                 except discord.Forbidden:  # This happens when users are performing actions in DM.
                     pass
             command = await self._create_command(self.commands[name][subname], message=message)
-            kwargs = ArgParser(command.argformat()).parse(argv)
-            await command.call(**kwargs)
+            if command:
+                kwargs = ArgParser(command.argformat()).parse(argv)
+                await command.call(**kwargs)
 
     async def run_command_for_reaction_event(self, raw_reaction: discord.RawReactionActionEvent, command_type: Type[BotCommand]):
         command = await self._create_command(command_type, raw_reaction=raw_reaction)
-        await command.call()
+        if command:
+            await command.call()
 
     async def _create_command(self, command_type: Type[BotCommand], message: Optional[discord.Message] = None,
                               raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> Optional[BotCommand]:
@@ -85,7 +87,7 @@ class CommandRunner:
         if raw_reaction:
             message_ref = self.messages_resource.get_message(raw_reaction.message_id)
             if message_ref is None:
-                raise MessageNotFoundException("The message you reacted to is probably too old and could not be found.")
+                return None
             guild_id = message_ref.guild_id
             user_id = message_ref.user_id
             discord_guild = await self.client.fetch_guild(guild_id)

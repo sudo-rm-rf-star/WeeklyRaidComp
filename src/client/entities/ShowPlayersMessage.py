@@ -12,10 +12,12 @@ EMPTY_FIELD = '\u200e'
 
 class ShowPlayersMessage(DiscordMessage):
     def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, players_resource: PlayersResource, raiders: List[GuildMember]):
+        self.discord_guild = discord_guild
+        self.discord_client = discord_client
         self.players = players_resource.list_players(discord_guild.id)
         self.characters = [char for player in self.players for char in player.characters]
-        self.embed = self._players_to_embed()
         self.raiders = raiders
+        self.embed = self._players_to_embed()
         super().__init__(discord_client, discord_guild, embed=self.embed)
 
     def _players_to_embed(self) -> discord.Embed:
