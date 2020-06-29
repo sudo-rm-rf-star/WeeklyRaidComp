@@ -48,7 +48,26 @@ class ArgParser:
 def parse_mandatory_args(args: str) -> List[str]:
     if args is None:
         return []
-    return [arg.strip() for arg in re.findall(r'[^[]*', args)[0].split(' ') if arg]
+    parts = [arg.strip() for arg in re.findall(r'[^[]*', args)[0].split(' ') if arg]
+    mandatory_args = []
+    # Some additional code for parsing arguments with multiple spaces.
+    opener = '"'
+    closer = '"'
+    current_argument = ""
+    for part in parts:
+        if part.startswith(opener) and part.endswith(closer):
+            mandatory_args.append(part.lstrip(opener).rstrip(closer))
+        elif part.startswith(opener):
+            current_argument = part.lstrip(opener)
+        elif part.endswith(closer):
+            current_argument += " " + part.rstrip(closer)
+            mandatory_args.append(current_argument)
+            current_argument = ""
+        elif len(current_argument) > 0:
+            current_argument += " " + part
+        else:
+            mandatory_args.append(part)
+    return mandatory_args
 
 
 def parse_optional_args(args: str) -> List[str]:

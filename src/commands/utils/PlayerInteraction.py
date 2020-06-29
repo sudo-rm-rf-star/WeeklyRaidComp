@@ -4,6 +4,7 @@ from client.entities.DiscordMessage import DiscordMessage
 from typing import Generic, TypeVar, Union, Any
 import discord
 from client.entities.GuildMember import GuildMember
+from exceptions.CancelInteractionException import CancelInteractionException
 
 TRIES = 3
 
@@ -18,7 +19,10 @@ class InteractionMessage(DiscordMessage):
 
     async def get_response(self) -> str:
         msg = await self.client.wait_for('message', check=lambda response: _check_if_response(self, response))
-        return msg.content
+        content = msg.content
+        if content.strip() == '!done':
+            raise CancelInteractionException
+        return content
 
     async def send_to(self, recipient: Union[GuildMember, discord.TextChannel]) -> discord.Message:
         msgs = await super(InteractionMessage, self).send_to(recipient)

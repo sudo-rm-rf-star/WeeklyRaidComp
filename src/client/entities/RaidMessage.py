@@ -12,6 +12,8 @@ from typing import List, Optional, Dict, Union
 import asyncio
 import discord
 from logic.Character import Character
+from utils.EmojiNames import SIGNUP_STATUS_EMOJI
+from utils.DiscordUtils import get_emoji
 
 
 class RaidMessage(DiscordMessage):

@@ -1,5 +1,5 @@
 import discord
-from typing import Optional, List, Dict, Type
+from typing import Optional, List, Dict, Type, Set
 from commands.BotCommand import BotCommand
 from commands.character.AddCharacter import AddCharacter
 from commands.character.ListCharacter import ListCharacter
@@ -9,7 +9,8 @@ from commands.player.AnnounceCommand import AnnounceCommand
 from commands.player.RegisterPlayerCommand import RegisterPlayerCommand
 from commands.player.ListPlayersCommand import ListPlayersCommand
 from commands.character.SignupCharacterCommand import SignupCharacterCommand
-from commands.raid.CreateRaidCommand import CreateRaidCommand
+from commands.raid.CreateOpenRaid import CreateOpenRaid
+from commands.raid.CreateClosedRaid import CreateClosedRaid
 from commands.raid.RemoveRaidEvent import RemoveRaidCommand
 from commands.raid.RaidEventInvite import RaidEventInvite
 from commands.raid.RaidEventRemind import RaidEventRemind
@@ -31,11 +32,10 @@ from logic.RaidGroup import RaidGroup
 from utils.DiscordUtils import get_channel, get_member_by_id
 from collections import defaultdict
 from exceptions.InternalBotException import InternalBotException
-from exceptions.MessageNotFoundException import MessageNotFoundException
 
-COMMANDS = [AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand, CreateRaidCommand,
-            RemoveRaidCommand, RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
-            CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListPlayersCommand]
+COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand,
+            RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
+            CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListPlayersCommand, CreateClosedRaid, CreateOpenRaid}
 
 
 class CommandRunner:
@@ -89,7 +89,7 @@ class CommandRunner:
             if message_ref is None:
                 return None
             guild_id = message_ref.guild_id
-            user_id = message_ref.user_id
+            user_id = raw_reaction.user_id
             discord_guild = await self.client.fetch_guild(guild_id)
             guild_member = await get_member_by_id(discord_guild, user_id)
             channel = None
@@ -125,9 +125,10 @@ class CommandRunner:
                             messages_resource=self.messages_resource)
 
 
-def _to_command_dict(commands: List[Type[BotCommand]]) -> Dict[str, Dict[str, Type[BotCommand]]]:
+def _to_command_dict(commands: Set[Type[BotCommand]]) -> Dict[str, Dict[str, Type[BotCommand]]]:
     dct = defaultdict(dict)
     for command in commands:
+        assert dct.get(command.name(), {}).get(command.subname(), None) is None
         dct[command.name()][command.subname()] = command
     for name, subcommands in dct.items():
         help_command = generate_help_page_command(name, list(subcommands.values()))
