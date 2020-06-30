@@ -21,7 +21,7 @@ class RaidEventRemind(RaidCommand):
         if not raid_event or raid_event.get_datetime() < DateOptionalTime.now():
             self.respond(f'Raid event not found for {raid_name}{f"on {raid_datetime}" if raid_datetime else ""} or is in the past.')
             return
-        for raider in self.get_raiders():
+        for raider in await self.get_raiders():
             if not raid_event.has_user_signed(raider.id):
                 await raider.send(
                     f'{raider.display_name}, this is a friendly reminder to sign for the upcoming raid for {raid_event.get_name()} on '

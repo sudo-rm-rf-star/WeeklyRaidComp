@@ -15,5 +15,5 @@ class CreateRaidCommand(RaidCommand):
         if response:
             self.respond(response)
         if raid_event:
-            raiders = self.get_raiders()
+            raiders = await self.get_raiders()
             await self.send_raid_notification(raid_event=raid_event, raiders=raiders)

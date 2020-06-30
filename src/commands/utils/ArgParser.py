@@ -87,7 +87,8 @@ def parse_argvalue(argname: str, argval: str) -> Optional[str]:
         'raid_time': get_time,
         'team_index': lambda x: parse_int(x) - 1,
         'player': lambda x: x.capitalize(),
-        'week_count_cutoff': parse_int
+        'week_count_cutoff': parse_int,
+        'character': lambda x: x.capitalize()
     }.get(argname, lambda _: argval)
     return argparser(argval)
 

@@ -18,28 +18,38 @@ from logic.MessageRef import MessageRef
 import asyncio
 import discord
 
+# Safety measure to avoid infinite loops
+MAX_ITERS = 1000000
+
 
 class BotCommand:
     @classmethod
-    def name(cls) -> str: raise MissingImplementationException(cls)
+    def name(cls) -> str:
+        raise MissingImplementationException(cls)
 
     @classmethod
-    def subname(cls) -> str: raise MissingImplementationException(cls)
+    def subname(cls) -> str:
+        raise MissingImplementationException(cls)
 
     @classmethod
-    def description(cls) -> str: raise MissingImplementationException(cls)
+    def description(cls) -> str:
+        raise MissingImplementationException(cls)
 
     @classmethod
-    def argformat(cls) -> str: return ""
+    def argformat(cls) -> str:
+        return ""
 
     @classmethod
-    def example_args(cls) -> Optional[str]: return None
+    def example_args(cls) -> Optional[str]:
+        return None
 
     @classmethod
-    def req_manager_rank(cls) -> bool: return True
+    def req_manager_rank(cls) -> bool:
+        return True
 
     def __init__(self, client: discord.Client, players_resource: PlayersResource, events_resource: RaidEventsResource, guilds_resource: GuildsResource,
-                 messages_resource: MessagesResource, message: Optional[Message], message_ref: Optional[MessageRef], raw_reaction: discord.RawReactionActionEvent,
+                 messages_resource: MessagesResource, message: Optional[Message], message_ref: Optional[MessageRef],
+                 raw_reaction: discord.RawReactionActionEvent,
                  member: GuildMember, player: Player, discord_guild: discord.Guild, guild: Guild, raidgroup: RaidGroup, channel: Optional[TextChannel],
                  logs_channel: TextChannel):
         self.client: discord.Client = client
@@ -90,8 +100,21 @@ class BotCommand:
             raise NoRaidGroupSpecifiedException(self.discord_guild)
         return self._raidgroup
 
-    def get_raiders(self) -> List[GuildMember]:
-        return get_members_for_role(self.discord_guild, self.get_raidgroup().raider_rank)
+    async def get_raiders(self) -> List[GuildMember]:
+        member_iterator = self.discord_guild.fetch_members(limit=None)
+        raider_rank = self.get_raidgroup().raider_rank
+        raiders = []
+        i = 0
+        more_items = True
+        while i < MAX_ITERS and more_items:
+            try:
+                member = await member_iterator.next()
+                if member and any(role.name == raider_rank for role in member.roles):
+                    raiders.append(GuildMember(member, self.discord_guild.id))
+            except discord.NoMoreItems:
+                more_items = False
+            i += 1
+        return raiders
 
     async def get_events_channel(self):
         return await get_channel(self.discord_guild, self.get_raidgroup().events_channel)

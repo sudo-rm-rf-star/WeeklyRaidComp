@@ -14,7 +14,7 @@ class AnnounceCommand(PlayerCommand):
     def description(cls) -> str: return "Send an announcement to all of the raiders in your raiding group"
 
     async def execute(self, announcement: str, **kwargs) -> None:
-        for raider in self.get_raiders():
+        for raider in await self.get_raiders():
             try:
                 await raider.send(content=announcement)
             except discord.Forbidden:
