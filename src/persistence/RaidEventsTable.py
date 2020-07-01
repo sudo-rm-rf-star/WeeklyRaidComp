@@ -16,7 +16,8 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
         return super(RaidEventsTable, self).get_item(guild_id=guild_id, group_id=group_id, raid_name=raid_name, raid_datetime=raid_datetime)
 
     def list_raid_events(self, guild_id: int, group_id: Optional[int]) -> List[RaidEvent]:
-        return self.table.query(IndexName=RaidEventsTable.INDEX_NAME, KeyConditionExpression=Key('guild_id#group_id').eq(f'{guild_id}#{group_id}'))
+        items = self.table.query(IndexName=RaidEventsTable.INDEX_NAME, KeyConditionExpression=Key('guild_id#group_id').eq(f'{guild_id}#{group_id}'))['Items']
+        return [self._to_object(obj) for obj in items]
 
     def put_raid_event(self, raid_event: RaidEvent) -> None:
         return super(RaidEventsTable, self).put_item(raid_event)

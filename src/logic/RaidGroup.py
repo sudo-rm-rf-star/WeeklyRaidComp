@@ -21,6 +21,9 @@ class RaidGroup:
         self.min_per_raid_role_class = min_per_raid_role_class if min_per_raid_role_class else default_min_per_raid_role_class
         self.max_per_raid_role_class = max_per_raid_role_class if max_per_raid_role_class else default_max_per_raid_role_class
 
+    def __str__(self):
+        return self.name
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             'name': self.name,
