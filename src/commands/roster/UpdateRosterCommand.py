@@ -1,6 +1,5 @@
 from commands.roster.RosterCommand import RosterCommand
 from logic.enums.RosterStatus import RosterStatus
-from client.entities.RaidMessage import RaidMessage
 from utils.DateOptionalTime import DateOptionalTime
 from exceptions.MissingImplementationException import MissingImplementationException
 from exceptions.InvalidArgumentException import InvalidArgumentException
@@ -20,6 +19,5 @@ class UpdateRosterCommand(RosterCommand):
             raise InvalidArgumentException(f"Could not find character {character}")
         raid_event.add_to_roster(player, self.roster_choice())
         self.events_resource.update_raid(self.discord_guild, raid_event)
-        RaidMessage(self.client, self.discord_guild, raid_event).sync()
         self.publish_roster_changes([self.player.get_selected_char()], raid_event)
         self.respond(f'Raid event for {raid_event.get_name()} on {raid_event.get_datetime()} has been successfully updated.')

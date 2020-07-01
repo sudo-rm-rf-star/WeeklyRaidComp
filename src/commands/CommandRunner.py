@@ -11,6 +11,7 @@ from commands.player.ListPlayersCommand import ListPlayersCommand
 from commands.character.SignupCharacterCommand import SignupCharacterCommand
 from commands.raid.CreateOpenRaid import CreateOpenRaid
 from commands.raid.CreateClosedRaid import CreateClosedRaid
+from commands.raid.EditRaidEvent import EditRaidEvent
 from commands.raid.RemoveRaidEvent import RemoveRaidCommand
 from commands.raid.RaidEventInvite import RaidEventInvite
 from commands.raid.RaidEventRemind import RaidEventRemind
@@ -35,7 +36,7 @@ from exceptions.InternalBotException import InternalBotException
 
 COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand,
             RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
-            CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListPlayersCommand, CreateClosedRaid, CreateOpenRaid}
+            CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListPlayersCommand, CreateClosedRaid, CreateOpenRaid, EditRaidEvent}
 
 
 class CommandRunner:

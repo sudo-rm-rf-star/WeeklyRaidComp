@@ -36,6 +36,15 @@ class ArgParser:
             kwargs['raid_datetime'] = datetime
             del kwargs['raid_date']
             del kwargs['raid_time']
+
+        if 'new_raid_date' in kwargs or 'new_raid_time' in kwargs:
+            date = kwargs.get('new_raid_date', None)
+            time = kwargs.get('new_raid_time', None)
+            datetime = None if not date else DateOptionalTime(date, time)
+            kwargs['new_raid_datetime'] = datetime
+            del kwargs['new_raid_date']
+            del kwargs['new_raid_time']
+
         return kwargs
 
     def get_example_args(self) -> str:
@@ -85,6 +94,10 @@ def parse_argvalue(argname: str, argval: str) -> Optional[str]:
         'raid_datetime': get_datetime,
         'raid_date': get_date,
         'raid_time': get_time,
+        'new_raid_name': get_raidname,
+        'new_raid_datetime': get_datetime,
+        'new_raid_date': get_date,
+        'new_raid_time': get_time,
         'team_index': lambda x: parse_int(x) - 1,
         'player': lambda x: x.capitalize(),
         'week_count_cutoff': parse_int,

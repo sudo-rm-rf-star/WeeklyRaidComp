@@ -60,6 +60,7 @@ class RaidEventsResource:
 
     def update_raid(self, discord_guild: discord.Guild, raid_event: RaidEvent):
         self._update_cache(raid_event, CacheOperation.UPDATE)
+        # TODO: we are taking copies
         self.events_table.put_raid_event(raid_event)
         RaidMessage(self.discord_client, discord_guild, raid_event).sync()
 

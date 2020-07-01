@@ -32,10 +32,9 @@ class RaidMessage(DiscordMessage):
         return msgs[0]
 
     def sync(self):
-        """Updates the existing RaidMessages if the raid_event has been updated"""
-        if self.raid_event.roster.was_updated():
-            for message_ref in self.raid_event.message_refs:
-                asyncio.create_task(self._update_message(message_ref))
+        """Updates the existing RaidMessages"""
+        for message_ref in self.raid_event.message_refs:
+            asyncio.create_task(self._update_message(message_ref))
 
     def _raid_to_embed(self) -> Embed:
         embed = {'title': self._get_title(),
