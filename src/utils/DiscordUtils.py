@@ -8,9 +8,8 @@ from client.entities.GuildMember import GuildMember
 from exceptions.InternalBotException import InternalBotException
 
 
-async def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
-    channels = await get_channels(guild)
-    return discord.utils.get(channels, name=channel_name)
+def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
+    return discord.utils.get(guild.text_channels, name=channel_name)
 
 
 async def get_channels(guild: discord.Guild) -> List[discord.TextChannel]:
@@ -24,7 +23,7 @@ def get_channels_non_async(guild: discord.Guild) -> List[discord.TextChannel]:
 
 
 async def get_channel_by_id(guild: discord.Guild, channel_id: int) -> discord.TextChannel:
-    channels = await get_channels(guild)
+    channels = await guild.fetch_channels() if not get_channels_non_async(guild) else get_channels_non_async(guild)
     return discord.utils.get(channels, id=channel_id)
 
 

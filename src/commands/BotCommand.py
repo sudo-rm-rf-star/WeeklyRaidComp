@@ -79,7 +79,8 @@ class BotCommand:
     def respond(self, content: str):
         action = self.message.content if self.message else self.raw_reaction.emoji
         log_message = f'{datetime.now().strftime(DATETIMESEC_FORMAT)} - {self.member.display_name} - {action} - {content} '
-        asyncio.create_task(self._logs_channel.send(content=log_message))
+        if self._logs_channel:
+            asyncio.create_task(self._logs_channel.send(content=log_message))
         asyncio.create_task(self.member.send(content=content))
 
     def post(self, content: str):
