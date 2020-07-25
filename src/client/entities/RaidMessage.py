@@ -15,7 +15,6 @@ from logic.Character import Character
 from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 from utils.DiscordUtils import get_emoji
 
-
 class RaidMessage(DiscordMessage):
     def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, raid_event: RaidEvent):
         self.discord_client = discord_client

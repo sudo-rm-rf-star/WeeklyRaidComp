@@ -9,6 +9,8 @@ from client.PlayersResource import PlayersResource
 import asyncio
 import discord
 from datetime import datetime
+import re
+from exceptions.InvalidArgumentException import InvalidArgumentException
 
 TRIES = 3
 
@@ -40,7 +42,10 @@ class GetNameMesage(InteractionMessage):
         super(GetNameMesage, self).__init__(client, guild, content, *args, **kwargs)
 
     async def get_response(self) -> str:
-        return (await super(GetNameMesage, self).get_response()).capitalize()
+        name = (await super(GetNameMesage, self).get_response()).strip().capitalize()
+        if re.search(r"\s", name):
+            raise InvalidArgumentException(f'Please use your character name')
+        return name
 
 
 class GetRoleMessage(EnumResponseInteractionMessage[Role]):

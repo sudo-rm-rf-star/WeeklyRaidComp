@@ -101,16 +101,18 @@ class BotCommand:
             raise NoRaidGroupSpecifiedException(self.discord_guild)
         return self._raidgroup
 
+    def get_raider_rank(self) -> str:
+        return self.get_raidgroup().raider_rank
+
     async def get_raiders(self) -> List[GuildMember]:
         member_iterator = self.discord_guild.fetch_members(limit=None)
-        raider_rank = self.get_raidgroup().raider_rank
         raiders = []
         i = 0
         more_items = True
         while i < MAX_ITERS and more_items:
             try:
                 member = await member_iterator.next()
-                if member and any(role.name == raider_rank for role in member.roles):
+                if member and any(role.name == self.get_raider_rank() for role in member.roles):
                     raiders.append(GuildMember(member, self.discord_guild.id))
             except discord.NoMoreItems:
                 more_items = False
@@ -118,4 +120,4 @@ class BotCommand:
         return raiders
 
     async def get_events_channel(self):
-        return await get_channel(self.discord_guild, self.get_raidgroup().events_channel)
+        return get_channel(self.discord_guild, self.get_raidgroup().events_channel)
