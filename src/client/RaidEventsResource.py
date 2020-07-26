@@ -70,8 +70,8 @@ class RaidEventsResource:
             return raid_event if raid_event and raid_event.get_datetime() > DateOptionalTime.now() else None
         return self.events_table.get_raid_event(discord_guild.id, group_id, raid_name, raid_datetime)
 
-    def get_raids(self, discord_guild: discord.Guild, group_id: int) -> List[RaidEvent]:
-        return self.events_table.list_raid_events(discord_guild.id, group_id)
+    def get_raids(self, guild_id: int, group_id: int) -> List[RaidEvent]:
+        return self.events_table.list_raid_events(guild_id, group_id)
 
     def get_raid_by_message(self, message: MessageRef):
         return self.events_table.get_raid_event(raid_name=message.raid_name, raid_datetime=message.raid_datetime, guild_id=message.guild_id,

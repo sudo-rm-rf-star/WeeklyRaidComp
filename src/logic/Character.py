@@ -59,5 +59,8 @@ class Character:
     def __str__(self) -> str:
         return f'{self.role.name.capitalize()} {self.klass.name.capitalize()} {self.name}'
 
+    def __repr__(self) -> str:
+        return str(self)
+
     def __hash__(self):
         return hash((self.name, self.discord_id))

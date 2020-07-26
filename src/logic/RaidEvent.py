@@ -45,6 +45,9 @@ class RaidEvent:
     def has_user_signed(self, user_id: int) -> bool:
         return any(char for char in self.roster.characters if char.discord_id == user_id)
 
+    def get_signed_characters(self) -> List[Character]:
+        return self.roster.characters
+
     def get_name(self, abbrev: bool = False) -> str:
         return self.name if abbrev else abbrev_to_full[self.name]
 

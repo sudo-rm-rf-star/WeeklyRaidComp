@@ -6,6 +6,7 @@ import discord
 from logic.MessageRef import MessageRef
 from client.entities.GuildMember import GuildMember
 from exceptions.InternalBotException import InternalBotException
+from typing import Optional
 
 
 def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
@@ -31,8 +32,11 @@ def get_emoji(guild: discord.Guild, emoji_name: str) -> discord.Emoji:
     return discord.utils.get(guild.emojis, name=emoji_name)
 
 
-def get_member(guild: discord.Guild, user_name: str) -> GuildMember:
-    return GuildMember(guild.get_member_named(user_name), guild.id)
+def get_member(guild: discord.Guild, user_name: str) -> Optional[GuildMember]:
+    member = guild.get_member_named(user_name)
+    if member is None:
+        return None
+    return GuildMember(member, guild.id)
 
 
 async def get_member_by_id(guild: discord.Guild, user_id: int) -> GuildMember:

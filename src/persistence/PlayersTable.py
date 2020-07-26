@@ -119,8 +119,8 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         created_at = float(item['created_at'])
         selected_char = item.get('selected_char', None)
         selected_raidgroup_id = int(item['selected_raidgroup_id']) if item.get('selected_raidgroup_id', 'None') != 'None' else None  # This isn't great
-        standby_dates = item.get('standby_dates', None)
-        present_dates = item.get('present_dates', None)
+        standby_dates = {k:set(map(int, v)) for k,v in item.get('standby_dates', {}).items()}
+        present_dates = {k:set(map(int, v)) for k,v in item.get('present_dates', {}).items()}
         char_name = item['name']
         klass = Class[item['class']]
         role = Role[item['role']]

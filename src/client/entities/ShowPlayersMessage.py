@@ -16,10 +16,10 @@ class ShowPlayersMessage(DiscordMessage):
     def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, players: List[Player], raiders: List[GuildMember]):
         self.discord_guild = discord_guild
         self.discord_client = discord_client
-        self.players = players
-        self.characters = [char for player in self.players for char in player.characters]
         self.raiders = raiders
         self.raider_ids = [raider.id for raider in raiders]
+        self.players = [player for player in players if player.discord_id in self.raider_ids]
+        self.characters = [char for player in self.players for char in player.characters]
         self.embed = self._players_to_embed()
         super().__init__(discord_client, discord_guild, embed=self.embed)
 
@@ -31,7 +31,7 @@ class ShowPlayersMessage(DiscordMessage):
         return discord.Embed.from_dict(embed)
 
     def _get_title(self) -> str:
-        return f'{self._get_emoji(SIGNUPS_EMOJI)} {len(self.characters)} geregistreerde kruisvaarder(s):'
+        return f'{self._get_emoji(SIGNUPS_EMOJI)} {len(self.characters)} geregistreerde kruisvaarder(s) - {len(self.players)} unieke spelers:'
 
     def _get_fields(self) -> List[Dict[str, str]]:
         fields = []
@@ -41,7 +41,7 @@ class ShowPlayersMessage(DiscordMessage):
         return fields
 
     def _get_field_for_role(self, role: Role) -> List[Dict[str, str]]:
-        chars_for_role = sorted([char for char in self.characters if char.role == role and char.discord_id in self.raider_ids], key=lambda char: str(char.klass))
+        chars_for_role = sorted([char for char in self.characters if char.role == role], key=lambda char: str(char.klass))
         i = 0
         fields = []
         while i < len(chars_for_role):

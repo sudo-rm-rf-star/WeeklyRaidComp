@@ -93,13 +93,8 @@ signup_choice_to_role_class = {
 raid_abbrev_long = {
     'Molten Core': 'mc',
     'Blackwing Lair': 'bwl',
-    "Zul'Gurub": 'zg'
-}
-
-raid_abbrev_short = {
-    'moltencore': 'mc',
-    'blackwinglair': 'bwl',
-    "zulgurub": 'zg'
+    "Zul'Gurub": 'zg',
+    'Onyxia': 'ony'
 }
 
 abbrev_to_full = {v: k for k, v in raid_abbrev_long.items()}
