@@ -21,6 +21,7 @@ maintainer = None
 
 
 def run() -> None:
+    os.environ['TZ'] = 'Europe/Brussels'
     load_dotenv()
     Log.setup()
 
