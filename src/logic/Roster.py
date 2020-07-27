@@ -26,7 +26,7 @@ class Roster:
                 updated_players.append(character)
         return updated_players
 
-    def put_player(self, character: Character, roster_choice: RosterStatus = None, signee_choice: SignupStatus = None, team_index: int = None):
+    def put_character(self, character: Character, roster_choice: RosterStatus = None, signee_choice: SignupStatus = None, team_index: int = None):
         self.updated_since_last_check = True
 
         try:
@@ -46,6 +46,7 @@ class Roster:
             character.signup_status = signee_choice
 
         self.characters[i] = character
+        return character
 
     def remove_player(self, player_name: str) -> bool:
         self.updated_since_last_check = True

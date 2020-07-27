@@ -28,13 +28,13 @@ class RaidEvent:
         self.updated_at = datetime.now()
         return self.roster.compose()
 
-    def add_to_signees(self, player: Player, signee_choice: SignupStatus) -> None:
+    def add_to_signees(self, player: Player, signee_choice: SignupStatus) -> Character:
         self.updated_at = datetime.now()
-        self.roster.put_player(character=player.get_selected_char(), signee_choice=signee_choice)
+        return self.roster.put_character(character=player.get_selected_char(), signee_choice=signee_choice)
 
-    def add_to_roster(self, player: Player, roster_choice: RosterStatus, team_index: int = None) -> None:
+    def add_to_roster(self, player: Player, roster_choice: RosterStatus, team_index: int = None) -> Character:
         self.updated_at = datetime.now()
-        self.roster.put_player(character=player.get_selected_char(), roster_choice=roster_choice, team_index=team_index)
+        return self.roster.put_character(character=player.get_selected_char(), roster_choice=roster_choice, team_index=team_index)
 
     def remove_from_raid(self, player_name: str) -> bool:
         return self.roster.remove_player(player_name)

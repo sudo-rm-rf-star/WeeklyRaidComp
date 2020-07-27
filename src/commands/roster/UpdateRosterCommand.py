@@ -17,7 +17,7 @@ class UpdateRosterCommand(RosterCommand):
         player = self.players_resource.get_player_by_name(character, self.guild.guild_id)
         if not player:
             raise InvalidArgumentException(f"Could not find character {character}")
-        raid_event.add_to_roster(player, self.roster_choice())
+        updated_character = raid_event.add_to_roster(player, self.roster_choice())
         self.events_resource.update_raid(self.discord_guild, raid_event)
-        self.publish_roster_changes([self.player.get_selected_char()], raid_event)
+        self.publish_roster_changes([updated_character], raid_event)
         self.respond(f'Raid event for {raid_event.get_name()} on {raid_event.get_datetime()} has been successfully updated.')

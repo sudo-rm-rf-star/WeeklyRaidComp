@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, Set
 
 from logic.enums.Class import Class
 from logic.enums.Race import Race
@@ -8,7 +8,8 @@ from logic.enums.SignupStatus import SignupStatus
 
 
 class Character:
-    def __init__(self, *, char_name: str, klass: Class, role: Role, race: Race, discord_id: int, guild_id: int, standby_count: Dict[str, int],
+    def __init__(self, *, char_name: str, klass: Class, role: Role, race: Race, discord_id: int, guild_id: int, created_at: float,
+                 standby_dates: Dict[str, Set[int]],
                  roster_status: Optional[RosterStatus] = None,
                  signup_status: Optional[SignupStatus] = None,
                  team_index: Optional[int] = None):
@@ -18,10 +19,11 @@ class Character:
         self.race = race
         self.discord_id = discord_id
         self.guild_id = guild_id
-        self.standby_count = standby_count
+        self.standby_dates = standby_dates
         self.roster_status = roster_status if roster_status else RosterStatus.UNDECIDED
         self.signup_status = signup_status if signup_status else SignupStatus.UNDECIDED
         self.team_index = team_index
+        self.created_at = created_at
 
     def is_declined(self) -> bool:
         return (self.signup_status == SignupStatus.DECLINE and self.roster_status != RosterStatus.ACCEPT) or self.roster_status == RosterStatus.DECLINE
@@ -37,7 +39,9 @@ class Character:
                          roster_status=RosterStatus[item['roster_status']] if 'roster_status' in item else None,
                          signup_status=SignupStatus[item['signup_status']] if 'signup_status' in item else None,
                          team_index=item.get('team_index', None),
-                         standby_count=item['standby_count'])
+                         # Backwards compatibility
+                         standby_dates=item.get('standby_dates', {}),
+                         created_at=item.get('created_at', None))
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -50,7 +54,8 @@ class Character:
             'roster_status': self.roster_status.name,
             'signup_status': self.signup_status.name,
             'team_index': self.team_index,
-            'standby_count': self.standby_count
+            'standby_dates': self.standby_dates,
+            'created_at': self.created_at
         }
 
     def __eq__(self, other) -> bool:

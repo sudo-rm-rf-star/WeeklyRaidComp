@@ -133,7 +133,7 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
                 present_dates != player.present_dates or standby_dates != player.standby_dates or created_at != player.created_at:
             raise InternalBotException("Player rows are not consistent.")
         player.characters.append(Character(char_name=char_name, discord_id=discord_id, guild_id=guild_id, klass=klass, role=role, race=race,
-                                           standby_count=player.get_standby_counts()))
+                                           standby_dates=standby_dates, created_at=created_at))
     return list(players.values())
 
 
