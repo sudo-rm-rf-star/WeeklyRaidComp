@@ -27,14 +27,11 @@ class ShowPlayerActivityMessage(DiscordMessage):
         super().__init__(discord_client, discord_guild, embed=self.embed)
 
     def _players_to_embed(self) -> discord.Embed:
-        embed = {'title': self._get_title(),
+        embed = {'title': 'Days since last present in raid:',
                  'fields': self._get_fields(),
                  'color': 2171428,
                  'type': 'rich'}
         return discord.Embed.from_dict(embed)
-
-    def _get_title(self) -> str:
-        return f'Days since last active:'
 
     def _get_fields(self) -> List[Dict[str, str]]:
         i = 0
