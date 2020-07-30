@@ -2,7 +2,9 @@ from logic.Character import Character
 from logic.enums.Class import Class
 from logic.enums.Role import Role
 from logic.enums.Race import Race
-from typing import Set
+from logic.enums.SignupStatus import SignupStatus
+from logic.enums.RosterStatus import RosterStatus
+from typing import List
 import math
 from datetime import datetime
 
@@ -23,14 +25,17 @@ Rules which only apply to specific raids
 class RaidCompositionEvaluator:
     """Evaluates a raid composition. Methods can be overrides for specific raids. """
 
-    def __init__(self, raid_name: str, characters: Set[Character]):
+    def __init__(self, raid_name: str, characters: List[Character]):
         self.characters = characters
         self.raid_name = raid_name
+        self.characters_per_class = {klass: 0 for klass in Class}
+        for character in self.characters:
+            self.characters_per_class[character.klass] += 1
 
     def score(self) -> float:
-        score_eval_functions = [self.buff_score, self.role_score, self.class_balance_score, self.size_score, self.raid_specific_score, self.standby_score]
-        for eval_score in score_eval_functions:
-            print(eval_score.__name__, eval_score())
+        score_eval_functions = [self.buff_score, self.role_score, self.class_balance_score, self.raid_specific_score, self.standby_score,
+                                self.signup_status_score]
+
         return sum(eval_score() for eval_score in score_eval_functions) / len(score_eval_functions)
 
     def buff_score(self) -> float:
@@ -98,10 +103,6 @@ class RaidCompositionEvaluator:
         healer_score = min(self.count_character(role=Role.HEALER) / 12, 1)
         return (tank_score + healer_score) / 2
 
-    def size_score(self) -> float:
-        """ Ensure full raids """
-        return len(self.characters) / 40 if len(self.characters) <= 40 else float("-inf")
-
     def class_balance_score(self) -> float:
         """ Optimize class representation. Shamelessly copied from https://www.youtube.com/watch?v=vqeYmtkhhVE """
         optimal_representation = {
@@ -127,28 +128,52 @@ class RaidCompositionEvaluator:
             total_score += cb_score / class_amount
         return total_score
 
+    def signup_status_score(self) -> float:
+        score_per_status = {
+            SignupStatus.ACCEPT: 1,
+            SignupStatus.UNDECIDED: 1,
+            SignupStatus.LATE: 0.75,
+            SignupStatus.TENTATIVE: 0.5,
+            SignupStatus.BENCH: 0.25,
+            SignupStatus.DECLINE: 0
+        }
+        return sum(score_per_status[character.signup_status] for character in self.characters) / len(self.characters)
+
+    def roster_status_scoer(self) -> float:
+        score_per_status = {
+            RosterStatus.ACCEPT: 1,
+            RosterStatus.EXTRA: 0.75,
+            RosterStatus.DECLINE: 0,
+            RosterStatus.UNDECIDED: 0.5
+        }
+        return sum(score_per_status[character.roster_status] for character in self.characters) / len(self.characters)
+
+
     def standby_score(self) -> float:
         """ Higher score for recent standby so these people are now in the raid comp """
         st_score = 1
+        now = datetime.now()
         for character in self.characters:
-            for standby_date in character.standby_dates.get(self.raid_name, {}):
-                print(datetime.fromtimestamp(float(standby_date)), datetime.now() - datetime.fromtimestamp(float(standby_date)))
-                weeks_since_standby = (datetime.now() - datetime.fromtimestamp(float(standby_date))).days // 7
-                st_score -= 0.1 / (1 + weeks_since_standby)
+            for standby_datetime in character.standby_dates.get(self.raid_name, {}):
+                if standby_datetime < now:
+                    weeks_since_standby = (now - standby_datetime).days // 7
+                    st_score -= 1 / (40 * (weeks_since_standby + 1))
         return max(0, st_score)
 
     def raid_specific_score(self) -> float:
         """ Score specific to a given raid """
-        return 0
+        return 1
 
     def contains_character(self, role: Role = None, klass: Class = None, race: Race = None) -> bool:
-        return bool(self.filter_characters(role=role, klass=klass, race=race))
+        return self.count_character(role=role, klass=klass, race=race) > 0
 
     def count_character(self, role: Role = None, klass: Class = None, race: Race = None) -> int:
+        if klass is not None and role is None and race is None:
+            return self.characters_per_class[klass]
         return len(self.filter_characters(role=role, klass=klass, race=race))
 
-    def filter_characters(self, role: Role = None, klass: Class = None, race: Race = None) -> Set[Character]:
-        return {char for char in self.characters
+    def filter_characters(self, role: Role = None, klass: Class = None, race: Race = None) -> List[Character]:
+        return [char for char in self.characters
                 if (role is None or char.role == role)
                 and (klass is None or char.klass == klass)
-                and (race is None or char.race == race)}
+                and (race is None or char.race == race)]

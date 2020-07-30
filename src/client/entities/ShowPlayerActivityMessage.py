@@ -51,7 +51,7 @@ class ShowPlayerActivityMessage(DiscordMessage):
     def _get_days_since_last_raid_per_character(self):
         days_since_last_raid_per_character = {}
         for player in self.players:
-            present_dates = {datetime.fromtimestamp(date) for dates in player.present_dates.values() for date in dates}
+            present_dates = {date.to_datetime() for dates in player.present_dates.values() for date in dates}
             days_since_last_raid = (datetime.now() - max(present_dates)).days if present_dates else float("inf")
             for character in player.characters:
                 days_since_last_raid_per_character[character] = days_since_last_raid

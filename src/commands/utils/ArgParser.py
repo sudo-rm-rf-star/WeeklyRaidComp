@@ -15,7 +15,7 @@ class ArgParser:
         self.argnames = self.mandatory_argnames + self.optional_argnames
 
     def parse(self, args: str) -> Dict[str, Any]:
-        """argformat specifies name and order of arguments. e.g. "raid_name player [team_index][raid_datetime]" """
+        """argformat specifies name and order of arguments. e.g. "raid_name player [raid_datetime]" """
         if not args:
             return {}
 
@@ -98,7 +98,6 @@ def parse_argvalue(argname: str, argval: str) -> Optional[str]:
         'new_raid_datetime': get_datetime,
         'new_raid_date': get_date,
         'new_raid_time': get_time,
-        'team_index': lambda x: parse_int(x) - 1,
         'player': lambda x: x.capitalize(),
         'week_count_cutoff': parse_int,
         'character': lambda x: x.capitalize()
@@ -139,7 +138,6 @@ def get_example(argname: str) -> str:
         'raid_datetime': '20-04-2020 19:30',
         'raid_date': '20-04-2020',
         'raid_time': '19:30',
-        'team_index': '1',
         'player': 'Dok',
         'character': 'Dok',
         'week_count_cutoff': '4',

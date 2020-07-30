@@ -8,6 +8,8 @@ from logic.enums.Class import Class
 from logic.enums.Race import Race
 from logic.Character import Character
 from exceptions.InternalBotException import InternalBotException
+from datetime import datetime
+from utils.DateOptionalTime import DateOptionalTime
 
 
 class PlayersTable(DynamoDBTable[Player]):
@@ -34,8 +36,8 @@ class PlayersTable(DynamoDBTable[Player]):
                 'discord_id': str(player.discord_id),
                 'guild_id': str(player.guild_id),
                 'created_at': str(player.created_at),
-                'present_dates': player.present_dates,
-                'standby_dates': player.standby_dates,
+                'present_dates': {k: [x.to_timestamp() for x in v] for k, v in player.present_dates.items()},
+                'standby_dates': {k: [x.to_timestamp() for x in v] for k, v in player.standby_dates.items()},
                 'selected_char': player.selected_char,
                 'selected_raidgroup_id': str(player.selected_raidgroup_id),
                 'name': character.name,
@@ -119,8 +121,8 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         created_at = float(item['created_at'])
         selected_char = item.get('selected_char', None)
         selected_raidgroup_id = int(item['selected_raidgroup_id']) if item.get('selected_raidgroup_id', 'None') != 'None' else None  # This isn't great
-        standby_dates = {k:set(map(int, v)) for k,v in item.get('standby_dates', {}).items()}
-        present_dates = {k:set(map(int, v)) for k,v in item.get('present_dates', {}).items()}
+        standby_dates = {k: [DateOptionalTime.from_timestamp(x) for x in v] for k, v in item.get('standby_dates', {}).items()}
+        present_dates = {k: [DateOptionalTime.from_timestamp(x) for x in v] for k, v in item.get('present_dates', {}).items()}
         char_name = item['name']
         klass = Class[item['class']]
         role = Role[item['role']]

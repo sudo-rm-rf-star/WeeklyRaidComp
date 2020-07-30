@@ -15,6 +15,7 @@ import utils.Logger as Log
 import discord
 import logging
 import os
+import sys
 import traceback
 
 maintainer = None
@@ -22,6 +23,9 @@ maintainer = None
 
 def run() -> None:
     os.environ['TZ'] = 'Europe/Brussels'
+    if sys.platform != 'win32':
+        from time import tzset
+        tzset()
     load_dotenv()
     Log.setup()
 

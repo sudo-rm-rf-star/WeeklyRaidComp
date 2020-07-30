@@ -1,18 +1,19 @@
-from typing import Dict, Optional, Any, Set
+from typing import Dict, Optional, Any, Set, List
 
 from logic.enums.Class import Class
 from logic.enums.Race import Race
 from logic.enums.Role import Role
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
+from datetime import datetime
+from utils.DateOptionalTime import DateOptionalTime
 
 
 class Character:
     def __init__(self, *, char_name: str, klass: Class, role: Role, race: Race, discord_id: int, guild_id: int, created_at: float,
-                 standby_dates: Dict[str, Set[int]],
+                 standby_dates: Dict[str, List[DateOptionalTime]],
                  roster_status: Optional[RosterStatus] = None,
-                 signup_status: Optional[SignupStatus] = None,
-                 team_index: Optional[int] = None):
+                 signup_status: Optional[SignupStatus] = None):
         self.name = char_name
         self.klass = klass
         self.role = role
@@ -22,7 +23,6 @@ class Character:
         self.standby_dates = standby_dates
         self.roster_status = roster_status if roster_status else RosterStatus.UNDECIDED
         self.signup_status = signup_status if signup_status else SignupStatus.UNDECIDED
-        self.team_index = team_index
         self.created_at = created_at
 
     def is_declined(self) -> bool:
@@ -38,9 +38,9 @@ class Character:
                          discord_id=item.get('discord_id', None),
                          roster_status=RosterStatus[item['roster_status']] if 'roster_status' in item else None,
                          signup_status=SignupStatus[item['signup_status']] if 'signup_status' in item else None,
-                         team_index=item.get('team_index', None),
-                         # Backwards compatibility
-                         standby_dates=item.get('standby_dates', {}),
+                         # Backwards compatibilit
+                         standby_dates={raid_name: [DateOptionalTime.from_timestamp(timestamp) for timestamp in dates] for raid_name, dates in
+                                        item.get('standby_dates', {}).items()},
                          created_at=item.get('created_at', None))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -53,9 +53,9 @@ class Character:
             'guild_id': self.guild_id,
             'roster_status': self.roster_status.name,
             'signup_status': self.signup_status.name,
-            'team_index': self.team_index,
-            'standby_dates': self.standby_dates,
-            'created_at': self.created_at
+            'standby_dates': {raid_name: [date.to_timestamp() for date in dates] for raid_name, dates in self.standby_dates.items()},
+            # Backwards compatibility
+            'created_at': int(self.created_at if self.created_at else datetime.now().timestamp())
         }
 
     def __eq__(self, other) -> bool:

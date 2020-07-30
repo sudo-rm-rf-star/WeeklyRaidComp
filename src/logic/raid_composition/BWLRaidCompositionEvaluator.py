@@ -1,21 +1,14 @@
 from logic.Character import Character
-from logic.enums.Class import Class
-from logic.enums.Role import Role
-from logic.enums.Race import Race
-from typing import Set
-import math
-from datetime import datetime
-from typing import Set
 from logic.raid_composition.RaidCompositionEvaluator import RaidCompositionEvaluator
-from logic.enums.Role import Role
 from logic.enums.Class import Class
 from logic.enums.Race import Race
+from typing import List
 
 
 class BWLRaidCompositionEvaluator(RaidCompositionEvaluator):
     """Evaluates a raid composition. Methods can be overrides for specific raids. """
 
-    def __init__(self, characters: Set[Character]):
+    def __init__(self, characters: List[Character]):
         super(BWLRaidCompositionEvaluator, self).__init__("bwl", characters)
 
     def raid_specific_score(self) -> float:

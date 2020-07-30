@@ -12,7 +12,7 @@ EMPTY_FIELD = '\u200e'
 MAX_CHARACTERS_PER_ROLE = 10  # Any field has a max amount of 1024 characters
 
 
-class ShowPlayersMessage(DiscordMessage):
+class ShowAllPlayersMessage(DiscordMessage):
     def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, players: List[Player], raiders: List[GuildMember]):
         self.discord_guild = discord_guild
         self.discord_client = discord_client

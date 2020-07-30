@@ -1,8 +1,8 @@
-from client.entities.ShowPlayersMessage import ShowPlayersMessage
+from client.entities.ShowAllPlayersMessage import ShowAllPlayersMessage
 from commands.player.PlayerCommand import PlayerCommand
 
 
-class ListPlayersCommand(PlayerCommand):
+class ListAllPlayersCommand(PlayerCommand):
     @classmethod
     def subname(cls) -> str: return "list"
 
@@ -13,4 +13,4 @@ class ListPlayersCommand(PlayerCommand):
         destination = self.message.channel
         raiders = await self.get_raiders()
         players = self.players_resource.list_players(self.discord_guild.id)
-        await ShowPlayersMessage(self.client, self.discord_guild, players, raiders).send_to(destination)
+        await ShowAllPlayersMessage(self.client, self.discord_guild, players, raiders).send_to(destination)

@@ -7,7 +7,7 @@ from utils.Constants import SUPPORTED_RAIDS
 
 class Player:
     def __init__(self, *, discord_id: int, guild_id: int, characters: List[Character], selected_char: str, created_at: float,
-                 present_dates: Optional[Dict[str, Set[int]]] = None, standby_dates: Optional[Dict[str, Set[int]]] = None,
+                 present_dates: Optional[Dict[str, List[DateOptionalTime]]] = None, standby_dates: Optional[Dict[str, List[DateOptionalTime]]] = None,
                  selected_raidgroup_id: Optional[int] = None):
         self.discord_id = discord_id
         self.guild_id = guild_id
@@ -20,22 +20,18 @@ class Player:
 
     def add_standby_date(self, raid_name: str, raid_datetime: DateOptionalTime):
         if raid_name not in self.standby_dates:
-            self.standby_dates[raid_name] = set()
-        self.standby_dates[raid_name].add(raid_datetime.to_timestamp())
+            self.standby_dates[raid_name] = []
+        if raid_datetime not in self.standby_dates[raid_name]:
+            self.standby_dates[raid_name].append(raid_datetime)
 
     def add_present_date(self, raid_name: str, raid_datetime: DateOptionalTime):
         if raid_name not in self.present_dates:
-            self.present_dates[raid_name] = set()
-        self.present_dates[raid_name].add(raid_datetime.to_timestamp())
-
-    def get_standby_dates(self, raid_name: str) -> Set[DateOptionalTime]:
-        return set(DateOptionalTime.from_timestamp(timestamp) for timestamp in self.standby_dates.get(raid_name, set()))
-
-    def get_present_dates(self, raid_name: str) -> Set[DateOptionalTime]:
-        return set(DateOptionalTime.from_timestamp(timestamp) for timestamp in self.present_dates.get(raid_name, set()))
+            self.present_dates[raid_name] = []
+        if raid_datetime not in self.present_dates[raid_name]:
+            self.present_dates[raid_name].append(raid_datetime)
 
     def get_standby_counts(self) -> Dict[str, int]:
-        return {raid_name: len(self.get_standby_dates(raid_name)) for raid_name in SUPPORTED_RAIDS}
+        return {raid_name: len(self.standby_dates[raid_name]) for raid_name in SUPPORTED_RAIDS}
 
     def get_selected_char(self) -> Character:
         for character in self.characters:

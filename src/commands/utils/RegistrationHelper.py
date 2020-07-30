@@ -29,7 +29,7 @@ async def register(client: discord.Client, guild: discord.Guild, players_resourc
     if player is None:
         player = Player(discord_id=member.id, guild_id=member.guild_id, characters=[], selected_char=char_name, created_at=datetime.now().timestamp())
     character = Character(discord_id=member.id, guild_id=guild.id, char_name=char_name, role=role, klass=klass, race=race,
-                          standby_count=player.get_standby_counts())
+                          created_at=datetime.now().timestamp(), standby_dates={})
     player.characters.append(character)
     players_resource.update_player(player)
     asyncio.create_task(member.send(content=f'You have successfully registered: {character}'))
