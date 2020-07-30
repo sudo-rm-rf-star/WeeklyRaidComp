@@ -14,8 +14,9 @@ class SignupCharacterCommand(CharacterCommand):
 
     async def execute(self, **kwargs) -> None:
         raid_event = self.events_resource.get_raid_by_message(self.message_ref)
-        # if ((raid_event.get_datetime().to_datetime() - datetime.now()).seconds // 60) < DEADLINE_SIGNUP:
-        #     self.respond("Sorry but you can no longer sign for the event as it starts in less than one hour.")
+        if (datetime.now() - raid_event.get_datetime().to_datetime()).seconds < DEADLINE_SIGNUP:
+            self.respond("Sorry but you can no longer sign for the event as it starts in less than one hour.")
+            return
         if raid_event:
             # Add player to raid_event
             signup_choice = EMOJI_SIGNUP_STATUS[self.raw_reaction.emoji.name]
