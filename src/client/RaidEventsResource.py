@@ -43,7 +43,7 @@ class RaidEventsResource:
             return None, f'Raid event must be in future'
         event = RaidEvent(name=raid_name, raid_datetime=raid_datetime, guild_id=discord_guild.id, group_id=group_id)
         await self.send_raid_message(discord_guild, events_channel, event, is_open)
-        self.events_table.put_raid_event(event)
+        self.events_table.create_raid_event(event)
         self._update_cache(event, CacheOperation.CREATE)
         return event, f'Raid event for {event.get_name()} on {event.get_datetime()} has been successfully created.'
 
@@ -52,16 +52,18 @@ class RaidEventsResource:
         if raid_event is None:
             return f'Raid event for {raid_name} on {raid_datetime} does not exist.'
 
-        self.events_table.remove_raid_event(raid_name, raid_datetime)
-        self._update_cache(raid_event, CacheOperation.REMOVE)
+        self.delete_raid(raid_event)
         for message_ref in raid_event.message_refs:
             asyncio.create_task((await get_message(discord_guild, message_ref)).remove())
         return f'Raid event for {raid_name} on {raid_datetime} has been successfully deleted.'
 
+    def delete_raid(self, raid_event: RaidEvent) -> None:
+        self._update_cache(raid_event, CacheOperation.REMOVE)
+        self.events_table.remove_raid_event(raid_event)
+
     def update_raid(self, discord_guild: discord.Guild, raid_event: RaidEvent):
         self._update_cache(raid_event, CacheOperation.UPDATE)
-        # TODO: we are taking copies
-        self.events_table.put_raid_event(raid_event)
+        self.events_table.create_raid_event(raid_event)
         RaidMessage(self.discord_client, discord_guild, raid_event).sync()
 
     def get_raid(self, discord_guild: discord.Guild, group_id: int, raid_name: str, raid_datetime: Optional[DateOptionalTime]) -> Optional[RaidEvent]:

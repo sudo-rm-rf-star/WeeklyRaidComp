@@ -144,4 +144,3 @@ class WarcraftLogs:
         except KeyError as ex:
             Log.error(f"Response to query is malformed: {response.json()}")
             raise ex
-

@@ -25,7 +25,8 @@ class EditRaidEvent(RaidCommand):
         old_event_str = str(raid_event)
         raid_event.name = new_raid_name
         raid_event.datetime = new_raid_datetime
+        self.events_resource.delete_raid(raid_event)
         self.events_resource.update_raid(self.discord_guild, raid_event)
         for character in raid_event.roster.characters:
             member = await get_member_by_id(self.discord_guild, character.discord_id)
-            await member.send(f'An event you signed up was changed from {old_event_str} to {str(raid_event)}.')
+            # await member.send(f'An event you signed up was changed from {old_event_str} to {str(raid_event)}.')
