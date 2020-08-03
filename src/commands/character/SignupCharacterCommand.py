@@ -17,8 +17,12 @@ class SignupCharacterCommand(CharacterCommand):
         if not raid_event:
             self.respond("The event you signed up for no longer exists...")
             return
-        if (datetime.now() - raid_event.get_datetime().to_datetime()).seconds < DEADLINE_SIGNUP:
-            self.respond("Sorry but you can no longer sign for the event as it starts in less than one hour.")
+        seconds_until_event = (datetime.now() - raid_event.get_datetime().to_datetime()).seconds
+        if seconds_until_event < 0:
+            self.respond(f"Sorry, but you cannot sign for {raid_event} as it has already started or finished.")
+            return
+        if seconds_until_event < DEADLINE_SIGNUP:
+            self.respond(f"Sorry, but you can no longer sign for {raid_event} as it starts in less than one hour.")
             return
         # Add player to raid_event
         signup_choice = EMOJI_SIGNUP_STATUS[self.raw_reaction.emoji.name]
