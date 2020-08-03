@@ -14,15 +14,17 @@ class SignupCharacterCommand(CharacterCommand):
 
     async def execute(self, **kwargs) -> None:
         raid_event = self.events_resource.get_raid_by_message(self.message_ref)
+        if not raid_event:
+            self.respond("The event you signed up for no longer exists...")
+            return
         if (datetime.now() - raid_event.get_datetime().to_datetime()).seconds < DEADLINE_SIGNUP:
             self.respond("Sorry but you can no longer sign for the event as it starts in less than one hour.")
             return
-        if raid_event:
-            # Add player to raid_event
-            signup_choice = EMOJI_SIGNUP_STATUS[self.raw_reaction.emoji.name]
-            raid_event.add_to_signees(self.player, signup_choice)
-            raid_message = RaidMessage(self.client, self.discord_guild, raid_event)
-            raid_message.sync()
-            self.events_resource.update_raid(self.discord_guild, raid_event)
-            self.respond(f'Thanks for signing up with {self.player.get_selected_char()} as {signup_choice.name.capitalize()} for '
-                         f'{raid_event.get_name()} on {raid_event.get_datetime()}')
+        # Add player to raid_event
+        signup_choice = EMOJI_SIGNUP_STATUS[self.raw_reaction.emoji.name]
+        raid_event.add_to_signees(self.player, signup_choice)
+        raid_message = RaidMessage(self.client, self.discord_guild, raid_event)
+        raid_message.sync()
+        self.events_resource.update_raid(self.discord_guild, raid_event)
+        self.respond(f'Thanks for signing up with {self.player.get_selected_char()} as {signup_choice.name.capitalize()} for '
+                     f'{raid_event.get_name()} on {raid_event.get_datetime()}')

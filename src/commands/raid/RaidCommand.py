@@ -14,5 +14,7 @@ class RaidCommand(BotCommand):
         for raider in raiders:
             if not raid_event.has_user_signed(raider.id):
                 msg = await RaidNotification(self.client, self.discord_guild, raid_event).send_to(raider)
-                self.messages_resource.create_personal_message(message_id=msg.id, guild_id=self.discord_guild.id, user_id=raider.id,
-                                                               raid_name=raid_event.name, raid_datetime=raid_event.datetime, group_id=raid_event.group_id)
+                if msg:
+                    self.messages_resource.create_personal_message(message_id=msg.id, guild_id=self.discord_guild.id,
+                                                                   user_id=raider.id, raid_name=raid_event.name,
+                                                                   raid_datetime=raid_event.datetime, group_id=raid_event.group_id)

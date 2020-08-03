@@ -10,6 +10,7 @@ from logic.MessageRef import MessageRef
 import json
 import discord
 import utils.Logger as Log
+from exceptions.InvalidArgumentException import InvalidArgumentException
 
 EMPTY_FIELD = '\u200e'
 
@@ -23,6 +24,8 @@ class DiscordMessage:
 
     async def send_to(self, recipient: Union[GuildMember, discord.TextChannel]) -> List[discord.Message]:
         messages = []
+        if recipient is None:
+            raise InvalidArgumentException(f'Recipient is empty.')
         try:
             if self.embed:
                 for embed in split_large_embed(self.embed.to_dict()):
@@ -30,11 +33,12 @@ class DiscordMessage:
                     messages.append(await recipient.send(embed=embed))
             if self.content:
                 messages.append(await recipient.send(content=self.content))
-            return messages
+        except discord.Forbidden as e:
+            Log.error(f'Could not send message to {recipient}')
         except discord.HTTPException as e:
             if e.code == 50035:  # Invalid Form Body
                 Log.warn(f'Failed to send following message to {recipient}: content {self.content}, embed: {self.embed.to_dict()}. \nSplitting message')
-            raise e
+        return messages
 
     def _role_emoji(self, role: Role) -> discord.Emoji:
         return self._get_emoji(ROLE_EMOJI[role])

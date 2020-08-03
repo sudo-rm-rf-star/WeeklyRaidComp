@@ -10,6 +10,7 @@ from client.PlayersResource import PlayersResource
 from client.GuildsResource import GuildsResource
 from client.MessagesResource import MessagesResource
 from dotenv import load_dotenv
+from datetime import datetime
 
 import utils.Logger as Log
 import discord
@@ -26,6 +27,8 @@ def run() -> None:
     if sys.platform != 'win32':
         from time import tzset
         tzset()
+
+    print(datetime.now())
     load_dotenv()
     Log.setup()
 

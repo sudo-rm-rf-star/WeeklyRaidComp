@@ -9,8 +9,9 @@ from exceptions.InternalBotException import InternalBotException
 from typing import Optional
 
 
-def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
-    return discord.utils.get(guild.text_channels, name=channel_name)
+async def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
+    channels = await get_channels(guild)
+    return discord.utils.get(channels, name=channel_name)
 
 
 async def get_channels(guild: discord.Guild) -> List[discord.TextChannel]:

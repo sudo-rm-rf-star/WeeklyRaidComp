@@ -120,4 +120,4 @@ class BotCommand:
         return raiders
 
     async def get_events_channel(self):
-        return get_channel(self.discord_guild, self.get_raidgroup().events_channel)
+        return await get_channel(self.discord_guild, self.get_raidgroup().events_channel)

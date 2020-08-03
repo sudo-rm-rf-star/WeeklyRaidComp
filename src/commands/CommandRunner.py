@@ -124,7 +124,7 @@ class CommandRunner:
             await guild_member.send("You need to register a character prior to using DokBot.")
             player = await register(self.client, discord_guild, self.players_resource, guild_member)
         raidgroup: RaidGroup = GuildsResource.get_group(guild, player)
-        logs_channel: discord.TextChannel = get_channel(discord_guild, guild.logs_channel)
+        logs_channel: discord.TextChannel = await get_channel(discord_guild, guild.logs_channel)
         return command_type(client=self.client, players_resource=self.players_resource, events_resource=self.events_resource,
                             guilds_resource=self.guilds_resource, message=message, message_ref=message_ref, raw_reaction=raw_reaction, member=guild_member,
                             player=player, discord_guild=discord_guild, guild=guild, raidgroup=raidgroup, channel=channel, logs_channel=logs_channel,

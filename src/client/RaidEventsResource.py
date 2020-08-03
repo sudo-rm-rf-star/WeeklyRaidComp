@@ -54,7 +54,7 @@ class RaidEventsResource:
 
         self.delete_raid(raid_event)
         for message_ref in raid_event.message_refs:
-            asyncio.create_task((await get_message(discord_guild, message_ref)).remove())
+            asyncio.create_task((await get_message(discord_guild, message_ref)).delete())
         return f'Raid event for {raid_name} on {raid_datetime} has been successfully deleted.'
 
     def delete_raid(self, raid_event: RaidEvent) -> None:
