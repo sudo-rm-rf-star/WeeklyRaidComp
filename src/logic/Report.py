@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Set, List
+from typing import Dict
 
 
 @dataclass
@@ -14,6 +15,8 @@ class Fight:
 class Report:
     code: str
     fights: List[Fight]
+    buff_counts: Dict[str, int]  # For a given buff, count the amount of occurrences on any player
+    buff_url: str  # Link to Warcraft Logs with buff info
 
     def get_url(self):
         return f'https://classic.warcraftlogs.com/reports/{self.code}'

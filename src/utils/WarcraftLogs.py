@@ -12,6 +12,10 @@ from typing import Optional
 from datetime import date
 from utils.Constants import abbrev_raid_name
 from logic.Report import Fight, Report
+from exceptions.InvalidArgumentException import InvalidArgumentException
+
+
+### TODO: pagination
 
 
 def attendance_query(guild_id: int, page: int) -> str:
@@ -40,15 +44,19 @@ def attendance_query(guild_id: int, page: int) -> str:
     """
 
 
-def report_query(report_id: str) -> str:
+def report_fights_query(report_id: str) -> str:
     return """
     query { 
       reportData { 
         report(code: """ + f'"{report_id}"' + """) {
           masterData { 
             actors(type: "Player") { 
-            id
-            name
+                id
+                name
+            }
+            abilities {
+                name
+                gameID
             }
           }
           fights {
@@ -58,6 +66,21 @@ def report_query(report_id: str) -> str:
               endTime
               friendlyPlayers
           }
+        }
+      }
+    }
+    """
+
+
+def report_buffs_query(report_id: str, start_time: int, end_time: int, abilityId: int) -> str:
+    return """
+    query { 
+      reportData { 
+        report(code: """ + f'"{report_id}"' + """) {
+            events(""" + f'startTime: {start_time}, endTime: {end_time}, dataType: Buffs, abilityID: {abilityId}' + """) {
+                nextPageTimestamp
+                data
+            }
         }
       }
     }
@@ -84,7 +107,8 @@ class WarcraftLogs:
             oauth = OAuth2Session(client=client)
             token = dict(oauth.fetch_token(token_url=TOKEN_URL, client_id=client_id, client_secret=client_secret))
             self.expiry_datetime = datetime.now() + timedelta(seconds=int(token['expires_in']))
-            self.auth_header = {"Content-Type": "application/json", "Authorization": f"{token['token_type']} {token['access_token']}"}
+            self.auth_header = {"Content-Type": "application/json",
+                                "Authorization": f"{token['token_type']} {token['access_token']}"}
         return self.auth_header
 
     def get_attendance(self) -> Dict[str, Dict[str, List[datetime]]]:
@@ -101,15 +125,39 @@ class WarcraftLogs:
             if raid_name == raid_name2 and raid_date == raid_date2:  # Naming is difficult okay...
                 return report_code
 
-    def get_report(self, raid_name, raid_date):
+    def get_report(self, raid_name, raid_date, consumable_name: str = None):
         report_code = self.get_report_code(raid_name, raid_date)
-        report = self.make_request(report_query(report_code))['data']['reportData']['report']
+        report = self.make_request(report_fights_query(report_code))['data']['reportData']['report']
         actors = {actor['id']: actor['name'] for actor in report['masterData']['actors']}
         fights = []
-        for fight in self.make_request(report_query(report_code))['data']['reportData']['report']['fights']:
+        for fight in report['fights']:
             if fight['bossPercentage'] == 0:
-                fights.append(Fight(fight['name'], fight['startTime'] // 1000, fight['endTime'] // 1000, {actors[actor] for actor in fight['friendlyPlayers']}))
-        return Report(code=report_code, fights=fights)
+                fights.append(Fight(fight['name'], fight['startTime'] // 1000, fight['endTime'] // 1000,
+                                    present_players={actors[actor] for actor in fight['friendlyPlayers']}))
+
+        buff_counts = defaultdict(int)
+        buff_url = None
+        if consumable_name is not None:
+            abilities = {ability['name'].strip(): ability['gameID'] for ability in report['masterData']['abilities']}
+            if consumable_name not in abilities:
+                raise InvalidArgumentException(f"{consumable_name} is not a valid consumable name.")
+
+            consumable_id = abilities[consumable_name]
+            buff_url = f'https://classic.warcraftlogs.com/reports/{report_code}#type=auras&options=16&ability={consumable_id}&boss=-3&difficulty=0'
+            events = self.get_events(report_code, 0, fights[-1].end_time * 1000, consumable_id)
+            for event in events:
+                if event['sourceID'] in actors:
+                    player = actors[event['sourceID']]
+                    buff_counts[player] += 1
+        return Report(code=report_code, fights=fights, buff_counts=dict(buff_counts), buff_url=buff_url)
+
+    def get_events(self, report_code: str, start_time: int, end_time: int, consumable_id: int):
+        events = []
+        while start_time is not None:
+            response = self.make_request(report_buffs_query(report_code, start_time, end_time, consumable_id))['data']['reportData']['report']['events']
+            start_time = response.get('nextPageTimestamp', None)
+            events.extend(response['data'])
+        return events
 
     def get_raids(self):
         """ Possible bottleneck """
@@ -140,7 +188,9 @@ class WarcraftLogs:
             if response.status_code == 200:
                 return response.json()
             else:
-                raise Exception("Query failed to run by returning code of {}: {}. {}".format(response.status_code, response.text, query))
+                raise Exception(
+                    "Query failed to run by returning code of {}: {}. {}".format(response.status_code, response.text,
+                                                                                 query))
         except KeyError as ex:
             Log.error(f"Response to query is malformed: {response.json()}")
             raise ex

@@ -30,7 +30,7 @@ abbrev_raid_name = {
     'Blackwing Lair': 'bwl',
     "Zul'Gurub": 'zg',
     'Onyxia': 'ony',
-    "Ahn'Qiraj": 'aq'
+    "Temple of Ahn'Qiraj": 'aq'
 }
 
 abbrev_to_full = {v: k for k, v in abbrev_raid_name.items()}
