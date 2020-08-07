@@ -138,17 +138,20 @@ class WarcraftLogs:
         buff_counts = defaultdict(int)
         buff_url = None
         if consumable_name is not None:
-            abilities = {ability['name'].strip(): ability['gameID'] for ability in report['masterData']['abilities']}
-            if consumable_name not in abilities:
-                raise InvalidArgumentException(f"{consumable_name} is not a valid consumable name.")
+            abilities = [(ability['name'].strip(), ability['gameID']) for ability in report['masterData']['abilities']]
 
-            consumable_id = abilities[consumable_name]
-            buff_url = f'https://classic.warcraftlogs.com/reports/{report_code}#type=auras&options=16&ability={consumable_id}&boss=-3&difficulty=0'
-            events = self.get_events(report_code, 0, fights[-1].end_time * 1000, consumable_id)
-            for event in events:
-                if event['sourceID'] in actors:
-                    player = actors[event['sourceID']]
-                    buff_counts[player] += 1
+            consumable_ids = [ability_id for ability_name, ability_id in abilities if
+                              ability_name == consumable_name]  # One consumable name can map onto multiple ids...
+            if len(consumable_ids) == 0:
+                raise InvalidArgumentException(f"{consumable_name} is not a valid consumable name.")
+            # buff_url = f'https://classic.warcraftlogs.com/reports/{report_code}#type=auras&options=16&ability={consumable_id}&boss=-3&difficulty=0'
+            buff_url = ''
+            for consumable_id in consumable_ids:
+                events = self.get_events(report_code, 0, fights[-1].end_time * 1000, consumable_id)
+                for event in events:
+                    if event['sourceID'] in actors:
+                        player = actors[event['sourceID']]
+                        buff_counts[player] += 1
         return Report(code=report_code, fights=fights, buff_counts=dict(buff_counts), buff_url=buff_url)
 
     def get_events(self, report_code: str, start_time: int, end_time: int, consumable_id: int):

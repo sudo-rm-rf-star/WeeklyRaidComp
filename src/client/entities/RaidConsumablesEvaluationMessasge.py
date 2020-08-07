@@ -36,13 +36,17 @@ class RaidConsumablesEvaluationMessage(DiscordMessage):
         return discord.Embed.from_dict(embed)
 
     def _get_fields(self) -> List[Dict[str, str]]:
-        all_players_in_raid = set.union(*[fight.present_players for fight in self.report.fights])
+        characters_in_raid = set.union(*[fight.present_players for fight in self.report.fights])
+        characters_by_name = {char.name: char for char in self.raid_event.get_signed_characters()}
         fields = []
 
-        values = []
-        buff_count = list(sorted({player: self.report.buff_counts.get(player, 0) for player in all_players_in_raid}.items(), key=lambda x: x[1]))
-        for player, count in buff_count:
-            values.append(f'{player}: {count}')
-        fields.append(self._field('\n'.join(values), inline=False))
+        player_lines = []
+        buff_count = list(sorted({char_name: self.report.buff_counts.get(char_name, 0) for char_name in characters_in_raid}.items(), key=lambda x: x[1]))
+        for char_name, count in buff_count:
+            character = characters_by_name.get(char_name)
+            role_class_emoji = self._role_class_emoji(character) if character is not None else ''
+            player_lines.append(f'{role_class_emoji} {char_name}: {count}')
 
+        fields.extend(self.split_column_evenly(player_lines))
         return fields
+
