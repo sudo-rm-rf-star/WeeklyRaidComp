@@ -98,7 +98,7 @@ class BotCommand:
 
     def get_raidgroup(self) -> RaidGroup:
         if not self._raidgroup:
-            raise NoRaidGroupSpecifiedException(self.discord_guild)
+            raise NoRaidGroupSpecifiedException(self.guild)
         return self._raidgroup
 
     def get_raider_rank(self) -> str:
