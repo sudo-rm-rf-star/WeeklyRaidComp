@@ -9,11 +9,10 @@ from collections import defaultdict
 import utils.Logger as Log
 from utils.Date import Date
 from typing import Optional
-from datetime import date
 from utils.Constants import abbrev_raid_name
 from logic.Report import Fight, Report
 from exceptions.InvalidArgumentException import InvalidArgumentException
-
+from utils.Consumables import EXPECTED_CONSUMABLES
 
 ### TODO: pagination
 
@@ -125,7 +124,7 @@ class WarcraftLogs:
             if raid_name == raid_name2 and raid_date == raid_date2:  # Naming is difficult okay...
                 return report_code
 
-    def get_report(self, raid_name, raid_date, consumable_name: str = None):
+    def get_report(self, raid_name, raid_date):
         report_code = self.get_report_code(raid_name, raid_date)
         report = self.make_request(report_fights_query(report_code))['data']['reportData']['report']
         actors = {actor['id']: actor['name'] for actor in report['masterData']['actors']}
@@ -135,24 +134,19 @@ class WarcraftLogs:
                 fights.append(Fight(fight['name'], fight['startTime'] // 1000, fight['endTime'] // 1000,
                                     present_players={actors[actor] for actor in fight['friendlyPlayers']}))
 
-        buff_counts = defaultdict(int)
-        buff_url = None
-        if consumable_name is not None:
+        buff_counts = defaultdict(lambda: defaultdict(int))
+        for _, consumables in EXPECTED_CONSUMABLES[raid_name]:
             abilities = [(ability['name'].strip(), ability['gameID']) for ability in report['masterData']['abilities']]
 
             consumable_ids = [ability_id for ability_name, ability_id in abilities if
-                              ability_name == consumable_name]  # One consumable name can map onto multiple ids...
-            if len(consumable_ids) == 0:
-                raise InvalidArgumentException(f"{consumable_name} is not a valid consumable name.")
-            # buff_url = f'https://classic.warcraftlogs.com/reports/{report_code}#type=auras&options=16&ability={consumable_id}&boss=-3&difficulty=0'
-            buff_url = ''
+                              ability_name in consumables]  # One consumable name can map onto multiple ids...
             for consumable_id in consumable_ids:
                 events = self.get_events(report_code, 0, fights[-1].end_time * 1000, consumable_id)
                 for event in events:
                     if event['sourceID'] in actors:
                         player = actors[event['sourceID']]
-                        buff_counts[player] += 1
-        return Report(code=report_code, fights=fights, buff_counts=dict(buff_counts), buff_url=buff_url)
+                        buff_counts[tuple(consumables)][player] += 1
+        return Report(code=report_code, fights=fights, buff_counts=dict(buff_counts))
 
     def get_events(self, report_code: str, start_time: int, end_time: int, consumable_id: int):
         events = []
