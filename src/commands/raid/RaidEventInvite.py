@@ -24,3 +24,4 @@ class RaidEventInvite(RaidCommand):
             self.respond(f'Raid event not found for {raid_name}{f"on {raid_datetime}" if raid_datetime else ""}.')
             return
         await self.send_raid_notification(raid_event=raid_event, raiders=[member])
+        self.respond(f'Invited {discord_name} to {raid_event}')
