@@ -1,7 +1,5 @@
 from commands.raid.RaidCommand import RaidCommand
 from utils.DateOptionalTime import DateOptionalTime
-from utils.Constants import MAINTAINER_ID, TESTER_ID
-from utils.DiscordUtils import get_member_by_id
 import discord
 
 
@@ -23,7 +21,9 @@ class RaidEventRemind(RaidCommand):
             self.respond(f'Raid event not found for {raid_name}{f" on {raid_datetime}" if raid_datetime else ""} '
                          f'or is in the past.')
             return
-        for raider in await self.get_raiders():
+        raiders = await self.get_raiders()
+        self.respond(f'Sending reminder to {len(raiders)} raiders for {raid_event}')
+        for raider in raiders:
             if not raid_event.has_user_signed(raider.id):
                 try:
                     await raider.send(
