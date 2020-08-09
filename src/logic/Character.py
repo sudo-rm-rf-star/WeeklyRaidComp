@@ -26,7 +26,7 @@ class Character:
         self.created_at = created_at
 
     def is_declined(self) -> bool:
-        return (self.signup_status == SignupStatus.DECLINE and self.roster_status != RosterStatus.ACCEPT) or self.roster_status == RosterStatus.DECLINE
+        return self.signup_status == SignupStatus.DECLINE and self.roster_status != RosterStatus.ACCEPT
 
     @staticmethod
     def from_dict(item: Dict[str, Any]):

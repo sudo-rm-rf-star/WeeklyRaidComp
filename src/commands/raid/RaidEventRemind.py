@@ -21,15 +21,14 @@ class RaidEventRemind(RaidCommand):
             self.respond(f'Raid event not found for {raid_name}{f" on {raid_datetime}" if raid_datetime else ""} '
                          f'or is in the past.')
             return
-        raiders = await self.get_raiders()
+        raiders = [raider for raider in await self.get_raiders() if not raid_event.has_user_signed(raider.id)]
         self.respond(f'Sending reminder to {len(raiders)} raiders for {raid_event}')
         for raider in raiders:
-            if not raid_event.has_user_signed(raider.id):
-                try:
-                    await raider.send(
-                        f'{raider.display_name}, this is a friendly reminder to sign for the upcoming raid for {raid_event.get_name()} on '
-                        f'{raid_event.get_datetime()}. If you have any further questions please notify {self.member}.'
-                    )
-                except discord.Forbidden:
-                    self.respond(f'Could not send a reminder to {raider}')
+            try:
+                await raider.send(
+                    f'{raider.display_name}, this is a friendly reminder to sign for the upcoming raid for {raid_event}. '
+                    f'If you have any further questions please notify {self.member}.'
+                )
+            except discord.Forbidden:
+                self.respond(f'Could not send a reminder to {raider}')
 

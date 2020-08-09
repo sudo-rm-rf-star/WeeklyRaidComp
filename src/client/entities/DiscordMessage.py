@@ -53,13 +53,24 @@ class DiscordMessage:
     def _get_emoji(self, name: str) -> discord.Emoji:
         return get_emoji(self.discord_guild, name)
 
-    def split_column_evenly(self, lines: List[str], column_count: int = 3):
-        assert 0 < column_count <= 3
+    def split_column_evenly(self, lines: List[str], column_count: int = 3, column_width=3):
+        max_column_width = 3
+        assert column_width <= max_column_width
         values_per_col = math.ceil(len(lines) / column_count)
         fields = []
+        current_width = 0
         for i in range(0, len(lines), values_per_col):
             column_lines = lines[i:i + values_per_col]
             fields.append(self._field("\n".join(column_lines), inline=True))
+            current_width += 1
+            while column_count <= current_width <= max_column_width:
+                fields.append(self._empty_field())
+                current_width += 1
+                if current_width == max_column_width:
+                    current_width = 0
+        while current_width <= max_column_width:
+            fields.append(self._empty_field())
+            current_width += 1
         return fields
 
 

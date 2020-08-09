@@ -46,6 +46,10 @@ class Roster:
         if signee_choice:
             selected_char.signup_status = signee_choice
 
+        # Automatically decline anyone who is not accepted to the roster, and declined the raid.
+        if selected_char.roster_status != RosterStatus.ACCEPT and selected_char.signup_status == RosterStatus.DECLINE:
+            selected_char.roster_status = RosterStatus.DECLINE
+
         self.characters[i] = selected_char
         return selected_char
 

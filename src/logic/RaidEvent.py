@@ -88,4 +88,4 @@ class RaidEvent:
         }
 
     def __str__(self):
-        return f'{self.get_name()}, {self.get_datetime()} ({self.get_weekday()})'
+        return f'{self.get_name()} on {self.get_datetime()} ({self.get_weekday()})'
