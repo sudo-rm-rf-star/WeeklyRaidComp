@@ -61,7 +61,7 @@ class RaidMessage(DiscordMessage):
 
         fields = []
         for roster_status in [RosterStatus.ACCEPT, RosterStatus.UNDECIDED, RosterStatus.EXTRA, RosterStatus.DECLINE]:
-            characters = [char for char in characters_by_status[roster_status] if not char.is_declined()]
+            characters = [char for char in characters_by_status[roster_status]]
             if len(characters) > 0:
                 fields.append(self._get_title_for_roster_status(characters, roster_status))
                 field_count = 0

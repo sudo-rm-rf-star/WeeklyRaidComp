@@ -130,9 +130,10 @@ class WarcraftLogs:
         actors = {actor['id']: actor['name'] for actor in report['masterData']['actors']}
         fights = []
         for fight in report['fights']:
-            if fight['bossPercentage'] == 0:
+            if fight['bossPercentage'] is not None:
                 fights.append(Fight(fight['name'], fight['startTime'] // 1000, fight['endTime'] // 1000,
-                                    present_players={actors[actor] for actor in fight['friendlyPlayers']}))
+                                    present_players={actors[actor] for actor in fight['friendlyPlayers']},
+                                    boss_percentage=fight['bossPercentage']))
 
         buff_counts = defaultdict(lambda: defaultdict(int))
         for _, consumables in EXPECTED_CONSUMABLES[raid_name]:

@@ -58,12 +58,12 @@ class RaidEvaluationMessage(DiscordMessage):
                 values.append(f'{self._signup_choice_emoji(player_signup_status.get(player, SignupStatus.UNDECIDED))} {player} ({len(fight_names)}): {", ".join(fight_names)}')
             fields.append(self._field("\n".join(values), inline=False))
 
-        values = ["**Killing time**:"]
+        values = ["**Boss fight time**:"]
         for fight in self.report.fights:
-            values.append(f'{fight.name}: {fight.end_time - fight.start_time} seconds')
+            values.append(f'{fight.name} ({fight.boss_percentage}%): {fight.end_time - fight.start_time} seconds')
         fields.append(self._field('\n'.join(values), inline=False))
 
-        values = ["**Time passed after each kill**:"]
+        values = ["**Time passed after each boss fight**:"]
         for fight in self.report.fights:
             values.append(f'{fight.name}: {fight.end_time // 60} mins')
         fields.append(self._field('\n'.join(values), inline=False))

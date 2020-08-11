@@ -8,6 +8,7 @@ class Fight:
     name: str
     start_time: int  # Start time of fight in seconds relative to start of report
     end_time: int  # End time of fight in seconds relative to start of report
+    boss_percentage: int  # Kill percentage
     present_players: Set[str]
 
 
