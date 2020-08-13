@@ -60,7 +60,7 @@ class RaidMessage(DiscordMessage):
             characters_by_status[character.roster_status].append(character)
 
         fields = []
-        for roster_status in [RosterStatus.ACCEPT, RosterStatus.UNDECIDED, RosterStatus.EXTRA, RosterStatus.DECLINE]:
+        for roster_status in [RosterStatus.ACCEPT, RosterStatus.UNDECIDED, RosterStatus.EXTRA]:
             characters = [char for char in characters_by_status[roster_status]]
             if len(characters) > 0:
                 fields.append(self._get_title_for_roster_status(characters, roster_status))
@@ -76,6 +76,11 @@ class RaidMessage(DiscordMessage):
                 while field_count != 3:
                     fields.append(self._empty_field())
                     field_count += 1
+
+        declined_characters = [char.name for char in characters_by_status[RosterStatus.DECLINE]]
+        if len(declined_characters) > 0:
+            value = f'**Declined**: {", ".join(declined_characters)}'
+            fields.append(self._field(value, inline=False))
 
         return fields
 
@@ -100,6 +105,7 @@ class RaidMessage(DiscordMessage):
         signup_choice = character.signup_status
         signup_choice_indicator = '' if signup_choice == SignupStatus.ACCEPT else self._signup_choice_emoji(signup_choice)
         return f'{self._role_class_emoji(character)} {character.name} {signup_choice_indicator}'
+
 
 
 def signed_and_not_declined_count(characters: List[Character]) -> int:
