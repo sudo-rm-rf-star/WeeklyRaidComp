@@ -55,7 +55,7 @@ class DiscordMessage:
 
     def split_column_evenly(self, lines: List[str], column_count: int = 3, column_width=3):
         assert column_width <= 3
-        values_per_col = math.ceil(len(lines) / column_count)
+        values_per_col = math.ceil(len(lines) / column_count) if len(lines) >= column_count else len(lines)
         fields = []
         current_width = 0
         for i in range(0, len(lines), values_per_col):

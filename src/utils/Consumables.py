@@ -10,7 +10,7 @@ EXPECTED_CONSUMABLES = {
         ([Role.TANK, Role.MELEE], ["Elixir of the Giants"]),
         ([Role.TANK], ["Health II"]),
         ([Role.RANGED], ["Greater Arcane Elixir", "Arcane Elixir"]),
-        ([Role.MAGE], ["Greater Firepower", "Fire Power", "Frost Power"]),
+        ([Class.MAGE], ["Greater Firepower", "Fire Power", "Frost Power"]),
     ]
 }
 
