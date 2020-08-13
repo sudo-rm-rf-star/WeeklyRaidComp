@@ -103,14 +103,6 @@ class RaidMessage(DiscordMessage):
 
     def _get_character_line(self, character: Character) -> str:
         signup_choice = character.signup_status
-        signup_choice_indicator = '' if signup_choice == SignupStatus.ACCEPT else self._signup_choice_emoji(signup_choice)
+        signup_choice_indicator = '' if signup_choice == SignupStatus.ACCEPT else self._signup_choice_emoji(
+            signup_choice)
         return f'{self._role_class_emoji(character)} {character.name} {signup_choice_indicator}'
-
-
-
-def signed_and_not_declined_count(characters: List[Character]) -> int:
-    return sum(1 for player in characters if player.signup_status != SignupStatus.DECLINE and player.roster_status != RosterStatus.DECLINE)
-
-
-def roster_accepted_count(characters: List[Character]) -> int:
-    return sum(1 for player in characters if player.roster_status == RosterStatus.ACCEPT)
