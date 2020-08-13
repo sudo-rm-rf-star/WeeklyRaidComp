@@ -5,9 +5,12 @@ from logic.enums.Role import Role
 EXPECTED_CONSUMABLES = {
     'aq': [
         ([Role.MELEE, Role.TANK, Role.HEALER, Role.RANGED], ["Nature Protection"]),
-        ([Role.MELEE, Class.HUNTER], ["Elixir of the Mongoose", "Greater Agility"]),
-        ([Role.MELEE], ["Elixir of the Giants"]),
-        ([Role.RANGED], ["Greater Arcane Elixir"]),
+        ([Role.TANK, Role.MELEE, Class.HUNTER], ["Elixir of the Mongoose", "Greater Agility"]),
+        ([Role.MELEE, Class.HUNTER], ["Winterfall Firewater"]),
+        ([Role.TANK, Role.MELEE], ["Elixir of the Giants"]),
+        ([Role.TANK], ["Health II"]),
+        ([Role.RANGED], ["Greater Arcane Elixir", "Arcane Elixir"]),
+        ([Role.MAGE], ["Greater Firepower", "Fire Power", "Frost Power"]),
     ]
 }
 
