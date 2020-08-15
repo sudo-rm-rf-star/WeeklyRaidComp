@@ -95,7 +95,7 @@ class BotCommand:
         prefix = f'!{cls.name()} {cls.subname()}'
         command_with_arg_names = f'\n`{prefix} {cls.argformat()}`'
         example_args = cls.example_args() if cls.example_args() else ArgParser(cls.argformat()).get_example_args()
-        command_with_arg_examples = f'\n`{prefix} {example_args}`'
+        command_with_arg_examples = f'\n`{prefix} {example_args}`' if example_args else ''
         return f'**{cls.description()}**{command_with_arg_names}{command_with_arg_examples}'
 
     def get_raidgroup(self) -> RaidGroup:

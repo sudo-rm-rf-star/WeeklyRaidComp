@@ -144,5 +144,9 @@ def get_example(argname: str) -> str:
         'channel_name': 'raid-signups',
         'announcement': 'Goedenavond beste kruisvaarder!',
         'role': 'Kruisvaarder',
-        'raidgroup': 'Kruisvaarders'
+        'raidgroup': 'Kruisvaarders',
+        'new_raid_name': 'MC',
+        'new_raid_date': '21-04-2020',
+        'new_raid_time': '21:30',
+        'discord_name': '"Soep/Voidptr"'
     }[argname]
