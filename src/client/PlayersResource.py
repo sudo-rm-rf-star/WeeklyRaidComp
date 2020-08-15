@@ -5,6 +5,7 @@ from logic.RaidGroup import RaidGroup
 from typing import List, Optional
 from client.entities.GuildMember import GuildMember
 from exceptions.InvalidArgumentException import InvalidArgumentException
+from logic.Character import Character
 
 
 class PlayersResource:
@@ -22,6 +23,9 @@ class PlayersResource:
 
     def update_player(self, player: Player):
         return self.players_table.put_player(player)
+
+    def remove_character(self, character: Character):
+        self.players_table.remove_character(character)
 
     def select_character(self, player: Player, char_name: str):
         char_names = [char.name for char in player.characters]

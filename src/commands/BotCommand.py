@@ -17,6 +17,7 @@ from logic.RaidGroup import RaidGroup
 from logic.MessageRef import MessageRef
 import asyncio
 import discord
+from commands.utils.ArgParser import ArgParser
 
 # Safety measure to avoid infinite loops
 MAX_ITERS = 1000000
@@ -93,7 +94,8 @@ class BotCommand:
     def get_help(cls) -> str:
         prefix = f'!{cls.name()} {cls.subname()}'
         command_with_arg_names = f'\n`{prefix} {cls.argformat()}`'
-        command_with_arg_examples = f'\n`{prefix} {cls.example_args()}`' if cls.example_args() else ''
+        example_args = cls.example_args() if cls.example_args() else ArgParser(cls.argformat()).get_example_args()
+        command_with_arg_examples = f'\n`{prefix} {example_args}`'
         return f'**{cls.description()}**{command_with_arg_names}{command_with_arg_examples}'
 
     def get_raidgroup(self) -> RaidGroup:

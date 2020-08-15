@@ -6,6 +6,8 @@ from logic.Player import Player
 from logic.raid_composition.CompositionOptimizer import CompositionOptimizer
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
+from typing import Optional
+from exceptions.InternalBotException import InternalBotException
 
 
 class Roster:
@@ -23,50 +25,44 @@ class Roster:
         optimizer = CompositionOptimizer(self.raid_name, self.characters)
         return optimizer.make_raid_composition()
 
-    def put_player(self, player: Player, roster_choice: RosterStatus = None, signee_choice: SignupStatus = None):
-
-        selected_char = player.get_selected_char()
-        # Remove previous player signups
-        for character in player.characters:
-            if selected_char != character:
-                self.remove_character(character.name)
-
+    def put_character(self, character: Character, roster_choice: RosterStatus = None, signee_choice: SignupStatus = None):
         self.updated_since_last_check = True
 
         try:
-            i = self.characters.index(selected_char)
-            selected_char = self.characters[i]
+            i = self.characters.index(character)
+            character = self.characters[i]
         except ValueError:
             i = len(self.characters)
-            self.characters.append(selected_char)
+            self.characters.append(character)
 
         if roster_choice:
-            selected_char.roster_status = roster_choice
+            character.roster_status = roster_choice
 
         if signee_choice:
-            selected_char.signup_status = signee_choice
+            character.signup_status = signee_choice
 
         # Automatically decline anyone who is not accepted to the roster, and declined the raid.
-        print(selected_char, selected_char.roster_status != RosterStatus.ACCEPT, selected_char.signup_status == SignupStatus.DECLINE)
-        if selected_char.roster_status != RosterStatus.ACCEPT and selected_char.signup_status == SignupStatus.DECLINE:
-            selected_char.roster_status = RosterStatus.DECLINE
+        if character.roster_status != RosterStatus.ACCEPT and character.signup_status == SignupStatus.DECLINE:
+            character.roster_status = RosterStatus.DECLINE
 
         # Automatically put anyone back to undecided if they accepted the raid after being declined to the roster
-        if selected_char.roster_status == RosterStatus.DECLINE and selected_char.signup_status == SignupStatus.ACCEPT:
-            selected_char.roster_status = RosterStatus.UNDECIDED
-        print(selected_char, selected_char.roster_status, selected_char.signup_status)
+        if character.roster_status == RosterStatus.DECLINE and character.signup_status == SignupStatus.ACCEPT:
+            character.roster_status = RosterStatus.UNDECIDED
 
-        self.characters[i] = selected_char
-        return selected_char
+        self.characters[i] = character
+        return character
 
-    def remove_character(self, player_name: str) -> bool:
+    def remove_player(self, player: Player) -> None:
         self.updated_since_last_check = True
-        players = [player for player in self.characters if player.name == player_name]
+        self.characters = [character for character in self.characters if character.discord_id != player.discord_id]
+
+    def get_signed_character(self, player: Player) -> Optional[Character]:
+        players = [char for char in self.characters if char.discord_id == player.discord_id]
         if len(players) == 0:
-            return False
-        player = players[0]
-        self.characters.remove(player)
-        return True
+            return None
+        if len(players) == 1:
+            return players[0]
+        raise InternalBotException(f'{player} in the event more than once.')
 
     def was_updated(self) -> bool:
         if self.updated_since_last_check:

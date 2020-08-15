@@ -86,10 +86,10 @@ class RaidMessage(DiscordMessage):
 
     def _get_title_for_roster_status(self, characters: List[Character], roster_status: RosterStatus):
         title = {
-            RosterStatus.ACCEPT: "Accepted",
+            RosterStatus.ACCEPT: "Raid Team",
             RosterStatus.EXTRA: "Standby",
             RosterStatus.DECLINE: "Declined",
-            RosterStatus.UNDECIDED: "Undecided"
+            RosterStatus.UNDECIDED: "Signees"
         }
         return self._field(f"**__{title[roster_status]}__** ({len(characters)})", inline=False)
 

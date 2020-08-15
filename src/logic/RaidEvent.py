@@ -30,14 +30,15 @@ class RaidEvent:
 
     def add_to_signees(self, player: Player, signee_choice: SignupStatus) -> Character:
         self.updated_at = datetime.now()
-        return self.roster.put_player(player=player, signee_choice=signee_choice)
+        self.roster.remove_player(player)
+        return self.roster.put_character(character=player.get_selected_char(), signee_choice=signee_choice)
 
     def add_to_roster(self, player: Player, roster_choice: RosterStatus) -> Character:
         self.updated_at = datetime.now()
-        return self.roster.put_player(player=player, roster_choice=roster_choice)
-
-    def remove_from_raid(self, player_name: str) -> bool:
-        return self.roster.remove_character(player_name)
+        character = self.roster.get_signed_character(player)
+        if character is None:
+            character = player.get_selected_char()
+        return self.roster.put_character(character=character, roster_choice=roster_choice)
 
     def has_char_signed(self, character: Character) -> bool:
         return any(char for char in self.roster.characters if char == character)
@@ -88,4 +89,4 @@ class RaidEvent:
         }
 
     def __str__(self):
-        return f'{self.get_name()} on {self.get_datetime()} ({self.get_weekday()})'
+        return f'{self.get_name()} on {self.get_datetime()} ({self.get_weekday().capitalize()})'

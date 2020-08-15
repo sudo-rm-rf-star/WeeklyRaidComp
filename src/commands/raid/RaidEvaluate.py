@@ -19,10 +19,14 @@ class RaidEvaluate(RaidCommand):
         destination = self.message.channel
         report = WarcraftLogs(self.guild.wl_guild_id).get_report(raid_name, raid_datetime.date)
         raid_event = self.events_resource.get_raid(self.discord_guild, self.get_raidgroup().group_id, raid_name, raid_datetime)
+        if raid_event.get_datetime() < DateOptionalTime.now():
+            self.respond(f'{raid_event} is not in the past.')
+            return
         if raid_event is None:
             self.respond(f"Could not find an event on {raid_datetime} for {raid_name}")
-        elif report is None:
+            return
+        if report is None:
             self.respond(f"Could not find a Warcraft Logs report on {raid_datetime} for {raid_name}")
-        else:
-            await RaidEvaluationMessage(self.client, self.discord_guild, report, raid_event).send_to(destination)
+            return
+        await RaidEvaluationMessage(self.client, self.discord_guild, report, raid_event).send_to(destination)
 

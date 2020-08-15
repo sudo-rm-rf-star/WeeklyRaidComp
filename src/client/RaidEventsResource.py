@@ -47,15 +47,10 @@ class RaidEventsResource:
         self._update_cache(event, CacheOperation.CREATE)
         return event, f'Raid event for {event.get_name()} on {event.get_datetime()} has been successfully created.'
 
-    async def remove_raid(self, discord_guild: discord.Guild, group_id: int, raid_name: str, raid_datetime: DateOptionalTime) -> str:
-        raid_event = self.events_table.get_raid_event(discord_guild.id, group_id, raid_name, raid_datetime)
-        if raid_event is None:
-            return f'Raid event for {raid_name} on {raid_datetime} does not exist.'
-
+    async def remove_raid(self, discord_guild: discord.Guild, raid_event: RaidEvent) -> None:
         self.delete_raid(raid_event)
         for message_ref in raid_event.message_refs:
             asyncio.create_task((await get_message(discord_guild, message_ref)).delete())
-        return f'Raid event for {raid_name} on {raid_datetime} has been successfully deleted.'
 
     def delete_raid(self, raid_event: RaidEvent) -> None:
         self._update_cache(raid_event, CacheOperation.REMOVE)

@@ -4,6 +4,7 @@ from commands.BotCommand import BotCommand
 from commands.character.AddCharacter import AddCharacter
 from commands.character.ListCharacter import ListCharacter
 from commands.character.SelectCharacter import SelectCharacter
+from commands.character.RemoveCharacter import RemoveCharacter
 from commands.guild.CreateGuild import CreateGuild
 from commands.player.AnnounceCommand import AnnounceCommand
 from commands.player.RegisterPlayerCommand import RegisterPlayerCommand
@@ -17,6 +18,7 @@ from commands.raid.EditRaidEvent import EditRaidEvent
 from commands.raid.RemoveRaidEvent import RemoveRaidCommand
 from commands.raid.RaidEventInvite import RaidEventInvite
 from commands.raid.RaidEventRemind import RaidEventRemind
+from commands.raid.RaidListUnsigned import RaidListUnsigned
 from commands.raid.ListRaidEvent import ListRaidEvent
 from commands.raid.RaidEvaluate import RaidEvaluate
 from commands.raid.RaidConsumablesEvaluate import RaidConsumableEvaluate
@@ -38,11 +40,12 @@ from logic.RaidGroup import RaidGroup
 from utils.DiscordUtils import get_channel, get_member_by_id
 from collections import defaultdict
 from exceptions.InternalBotException import InternalBotException
+from utils.Constants import BOT_NAME
 
 COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand,
             RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
             CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListAllPlayersCommand, CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ListRaidEvent,
-            ListPlayerActivityCommand, ListSelectedPlayersCommand, RaidEvaluate, RaidConsumableEvaluate}
+            ListPlayerActivityCommand, ListSelectedPlayersCommand, RaidEvaluate, RaidConsumableEvaluate, RemoveCharacter, RaidListUnsigned}
 
 
 class CommandRunner:
@@ -140,6 +143,11 @@ def _to_command_dict(commands: Set[Type[BotCommand]]) -> Dict[str, Dict[str, Typ
     for name, subcommands in dct.items():
         help_command = generate_help_page_command(name, list(subcommands.values()))
         dct[help_command.name()][help_command.subname()] = help_command
+
+    help_command = generate_help_page_command(BOT_NAME.lower(),
+                                              [command for _, command_group in dct.items() for _, command in
+                                               command_group.items()])
+    dct[help_command.name()][help_command.subname()] = help_command
     return dict(dct)
 
 
@@ -155,7 +163,7 @@ def generate_help_page_command(name: str, subcommands: List[Type[BotCommand]]):
         def description(cls) -> str: return f"Shows all commands for {name} and how to use them. Note that all arguments surround by [ ] are optional."
 
         async def execute(self, **kwargs) -> None:
-            content = '\n'.join([command.get_help() for command in subcommands])
-            self.post(content)
+            for command in subcommands:
+                self.post(command.get_help())
 
     return HelpCommand
