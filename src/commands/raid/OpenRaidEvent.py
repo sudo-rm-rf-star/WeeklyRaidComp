@@ -1,0 +1,16 @@
+from commands.raid.RaidCommand import RaidCommand
+
+
+class OpenRaidEvent(RaidCommand):
+    @classmethod
+    def subname(cls) -> str: return "open"
+
+    @classmethod
+    def argformat(cls) -> str: return "raid_name [raid_date][raid_time]"
+
+    @classmethod
+    def description(cls) -> str: return "Opens an event so that anyone can join."
+
+    async def execute(self, raid_name, raid_datetime, **kwargs):
+        raid_event = self.get_raid_event(raid_name, raid_datetime)
+        await self.events_resource.open_raid(self.discord_guild, raid_event)

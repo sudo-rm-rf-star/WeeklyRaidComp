@@ -61,6 +61,12 @@ class RaidEventsResource:
         self.events_table.create_raid_event(raid_event)
         RaidMessage(self.discord_client, discord_guild, raid_event).sync()
 
+    async def open_raid(self, discord_guild: discord.Guild, raid_event: RaidEvent):
+        for message_ref in raid_event.message_refs:
+            message = await get_message(discord_guild, message_ref)
+            for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if status != SignupStatus.UNDECIDED]:
+                await message.add_reaction(emoji=get_emoji(discord_guild, emoji))
+
     def get_raid(self, discord_guild: discord.Guild, group_id: int, raid_name: str, raid_datetime: Optional[DateOptionalTime]) -> Optional[RaidEvent]:
         if raid_datetime is None:
             raid_event = self.upcoming_cache[discord_guild.id][group_id].get(raid_name, None)
@@ -76,15 +82,14 @@ class RaidEventsResource:
 
     async def send_raid_message(self, discord_guild: discord.Guild, events_channel: discord.TextChannel, raid_event: RaidEvent, is_open: bool) -> None:
         msg = await RaidMessage(self.discord_client, discord_guild, raid_event).send_to(events_channel)
-        if is_open:
-            for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if status != SignupStatus.UNDECIDED]:
-                await msg.add_reaction(emoji=get_emoji(discord_guild, emoji))
         # There's probably some refactoring possible here.
         message_ref = MessageRef(message_id=msg.id, guild_id=discord_guild.id, channel_id=events_channel.id, raid_name=raid_event.name,
                                  raid_datetime=raid_event.datetime, group_id=raid_event.group_id)
         self.messages_resource.create_channel_message(message_id=msg.id, guild_id=discord_guild.id, channel_id=msg.channel.id, raid_name=raid_event.name,
                                                       raid_datetime=raid_event.datetime, group_id=raid_event.group_id)
         raid_event.message_refs.append(message_ref)
+        if is_open:
+            await self.open_raid(discord_guild, raid_event)
 
     def raid_exists(self, guild_id: int, group_id: int, raid_name: str, raid_datetime: DateOptionalTime) -> bool:
         return self.events_table.get_raid_event(guild_id, group_id, raid_name, raid_datetime) is not None

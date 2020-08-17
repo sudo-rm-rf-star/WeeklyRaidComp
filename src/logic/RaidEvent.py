@@ -30,8 +30,12 @@ class RaidEvent:
 
     def add_to_signees(self, player: Player, signee_choice: SignupStatus) -> Character:
         self.updated_at = datetime.now()
-        self.roster.remove_player(player)
-        return self.roster.put_character(character=player.get_selected_char(), signee_choice=signee_choice)
+        character = self.roster.get_signed_character(player)
+        if character and character != player.get_selected_char():
+            self.roster.remove_player(player)
+        else:
+            character = player.get_selected_char()
+        return self.roster.put_character(character=character, signee_choice=signee_choice)
 
     def add_to_roster(self, player: Player, roster_choice: RosterStatus) -> Character:
         self.updated_at = datetime.now()

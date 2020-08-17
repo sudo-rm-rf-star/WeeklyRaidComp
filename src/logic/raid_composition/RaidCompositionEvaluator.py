@@ -7,6 +7,7 @@ from logic.enums.RosterStatus import RosterStatus
 from typing import List
 import math
 from datetime import datetime
+from utils.DateOptionalTime import DateOptionalTime
 
 """
 # Goal
@@ -33,7 +34,8 @@ class RaidCompositionEvaluator:
             self.characters_per_class[character.klass] += 1
 
     def score(self) -> float:
-        score_eval_functions = [self.buff_score, self.role_score, self.class_balance_score, self.raid_specific_score, self.standby_score,
+        score_eval_functions = [self.buff_score, self.role_score, self.class_balance_score, self.raid_specific_score,
+                                self.standby_score,
                                 self.signup_status_score]
 
         return sum(eval_score() for eval_score in score_eval_functions) / len(score_eval_functions)
@@ -43,8 +45,10 @@ class RaidCompositionEvaluator:
         buff_count = 0
         total_buffs = 0
 
-        attack_power_group_count = int(math.ceil((self.count_character(role=Role.MELEE) + self.count_character(role=Role.TANK)) / 5))
-        spell_power_group_count = int(math.ceil((self.count_character(role=Role.RANGED) - self.count_character(klass=Class.HUNTER)) / 5))
+        attack_power_group_count = int(
+            math.ceil((self.count_character(role=Role.MELEE) + self.count_character(role=Role.TANK)) / 5))
+        spell_power_group_count = int(
+            math.ceil((self.count_character(role=Role.RANGED) - self.count_character(klass=Class.HUNTER)) / 5))
 
         # Warrior
         if self.contains_character(klass=Class.WARRIOR):
@@ -83,7 +87,8 @@ class RaidCompositionEvaluator:
             buff_count += 3
         total_buffs += 3
 
-        leader_of_the_pack_count = self.count_character(klass=Class.DRUID, role=Role.MELEE) + self.count_character(klass=Class.DRUID, role=Role.TANK)
+        leader_of_the_pack_count = self.count_character(klass=Class.DRUID, role=Role.MELEE) + self.count_character(
+            klass=Class.DRUID, role=Role.TANK)
         buff_count += min(leader_of_the_pack_count, attack_power_group_count)
         total_buffs += attack_power_group_count  # Leader of the Pack
 
@@ -148,15 +153,14 @@ class RaidCompositionEvaluator:
         }
         return sum(score_per_status[character.roster_status] for character in self.characters) / len(self.characters)
 
-
     def standby_score(self) -> float:
         """ Higher score for recent standby so these people are now in the raid comp """
         st_score = 1
-        now = datetime.now()
+        now = DateOptionalTime.now()
         for character in self.characters:
             for standby_datetime in character.standby_dates.get(self.raid_name, {}):
                 if standby_datetime < now:
-                    weeks_since_standby = (now - standby_datetime).days // 7
+                    weeks_since_standby = (now.to_datetime() - standby_datetime.to_datetime()).days // 7
                     st_score -= 1 / (40 * (weeks_since_standby + 1))
         return max(0, st_score)
 

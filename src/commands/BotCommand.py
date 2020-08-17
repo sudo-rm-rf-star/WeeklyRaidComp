@@ -18,6 +18,8 @@ from logic.MessageRef import MessageRef
 import asyncio
 import discord
 from commands.utils.ArgParser import ArgParser
+from utils.DateOptionalTime import DateOptionalTime
+from exceptions.InvalidArgumentException import InvalidArgumentException
 
 # Safety measure to avoid infinite loops
 MAX_ITERS = 1000000
@@ -123,3 +125,11 @@ class BotCommand:
 
     async def get_events_channel(self):
         return await get_channel(self.discord_guild, self.get_raidgroup().events_channel)
+
+    def get_raid_event(self, raid_name: str, raid_datetime: DateOptionalTime):
+        raid_event = self.events_resource.get_raid(discord_guild=self.discord_guild, group_id=self._raidgroup.group_id, raid_name=raid_name,
+                                                   raid_datetime=raid_datetime)
+        if not raid_event:
+            raise InvalidArgumentException(f'Raid event not found for {raid_name}')
+        return raid_event
+

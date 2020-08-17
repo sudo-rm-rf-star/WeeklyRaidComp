@@ -21,6 +21,7 @@ from commands.raid.RaidEventRemind import RaidEventRemind
 from commands.raid.RaidListUnsigned import RaidListUnsigned
 from commands.raid.ListRaidEvent import ListRaidEvent
 from commands.raid.RaidEvaluate import RaidEvaluate
+from commands.raid.OpenRaidEvent import OpenRaidEvent
 from commands.raid.RaidConsumablesEvaluate import RaidConsumableEvaluate
 from commands.raidgroup.ListRaidGroups import ListRaidGroups
 from commands.raidgroup.SelectRaidGroup import SelectRaidGroup
@@ -45,7 +46,8 @@ from utils.Constants import BOT_NAME
 COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand,
             RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
             CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListAllPlayersCommand, CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ListRaidEvent,
-            ListPlayerActivityCommand, ListSelectedPlayersCommand, RaidEvaluate, RaidConsumableEvaluate, RemoveCharacter, RaidListUnsigned}
+            ListPlayerActivityCommand, ListSelectedPlayersCommand, RaidEvaluate, RaidConsumableEvaluate, RemoveCharacter, RaidListUnsigned,
+            OpenRaidEvent}
 
 
 class CommandRunner:
