@@ -98,14 +98,13 @@ class RaidEventsResource:
 class RaidEventsCache:
     def __init__(self, raid_events: List[RaidEvent]):
         self.upcoming_cache: Dict[int, Dict[int, Dict[str, Dict[DateOptionalTime, RaidEvent]]]] = defaultdict(
-            lambda: defaultdict(dict))
+            lambda: defaultdict(lambda: defaultdict(dict)))
         for raid_event in raid_events:
             self.update(raid_event)
 
     def remove_if_exists(self, raid_event: RaidEvent) -> bool:
         try:
-            if raid_event == self.upcoming_cache[raid_event.guild_id][raid_event.group_id][raid_event.get_datetime()][
-                raid_event.name]:
+            if raid_event == self.upcoming_cache[raid_event.guild_id][raid_event.group_id][raid_event.get_datetime()][raid_event.name]:
                 del self.upcoming_cache[raid_event.guild_id][raid_event.group_id][raid_event.get_datetime()][
                     raid_event.name]
                 return True
@@ -114,15 +113,13 @@ class RaidEventsCache:
         return False
 
     def update(self, raid_event: RaidEvent):
-        self.upcoming_cache[raid_event.guild_id][raid_event.group_id][raid_event.get_datetime()][
-            raid_event.name] = raid_event
+        self.upcoming_cache[raid_event.guild_id][raid_event.group_id][raid_event.name][raid_event.datetime] = raid_event
 
-    def get(self, discord_guild: discord.Guild, group_id: int, raid_name: str,
+    def get(self, guild_id: int, group_id: int, raid_name: str,
             raid_datetime: Optional[DateOptionalTime]) -> Optional[RaidEvent]:
         try:
-            upcoming_raids = self.upcoming_cache[discord_guild.id][group_id][raid_name]
-            upcoming_datetime = raid_datetime if raid_datetime else min(upcoming_raids.keys(), key=lambda dt, _: dt)
+            upcoming_raids = self.upcoming_cache[guild_id][group_id][raid_name]
+            upcoming_datetime = raid_datetime if raid_datetime else min(upcoming_raids.keys())
             return upcoming_raids.get(upcoming_datetime, None)
-        except KeyError:
-            raise InvalidArgumentException(f'Failed to find raid for guild {discord_guild.id}, '
-                                           f'group {group_id} and raid name {raid_name} on {raid_datetime}')
+        except (KeyError, ValueError):
+            raise InvalidArgumentException(f'Failed to find raid {raid_name} on {raid_datetime}')

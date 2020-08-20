@@ -19,7 +19,7 @@ class RaidEvaluate(RaidCommand):
         destination = self.message.channel
         report = WarcraftLogs(self.guild.wl_guild_id).get_report(raid_name, raid_datetime.date)
         raid_event = self.events_resource.get_raid(self.discord_guild, self.get_raidgroup().group_id, raid_name, raid_datetime)
-        if raid_event.get_datetime() < DateOptionalTime.now():
+        if raid_event.get_datetime() > DateOptionalTime.now():
             self.respond(f'{raid_event} is not in the past.')
             return
         if raid_event is None:
