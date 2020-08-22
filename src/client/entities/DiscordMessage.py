@@ -78,12 +78,13 @@ class DiscordMessage:
     def _empty_field(self, inline: bool = True):
         return self._field(EMPTY_FIELD, inline)
 
-    async def _update_message(self, message_ref: MessageRef):
+    async def _update_message(self, message_ref: MessageRef) -> Optional[discord.Message]:
         message = await get_message(self.discord_guild, message_ref)
-        if self.embed:
-            await message.edit(embed=self.embed)
-        if self.content:
-            await message.edit(content=self.content)
+        if message:
+            if self.embed:
+                await message.edit(embed=self.embed)
+            if self.content:
+                await message.edit(content=self.content)
         return message
 
 

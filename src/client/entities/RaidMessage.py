@@ -38,11 +38,10 @@ class RaidMessage(DiscordMessage):
         """Updates the existing RaidMessages"""
         for message_ref in self.raid_event.message_refs:
             message = await self._update_message(message_ref)
-            await self.add_reactions(message)
+            if message:
+                await self.add_reactions(message)
 
     async def add_reactions(self, message: discord.Message) -> None:
-        for reaction in message.reactions:
-            print(reaction.emoji)
         if not self.raid_event.is_open:
             await message.clear_reactions()
         else:

@@ -22,6 +22,7 @@ from commands.raid.RaidListUnsigned import RaidListUnsigned
 from commands.raid.ListRaidEvent import ListRaidEvent
 from commands.raid.RaidEvaluate import RaidEvaluate
 from commands.raid.OpenRaidEvent import OpenRaidEvent
+from commands.raid.ShowRaidEvent import ShowRaidEvent
 from commands.raid.RaidConsumablesEvaluate import RaidConsumableEvaluate
 from commands.raidgroup.ListRaidGroups import ListRaidGroups
 from commands.raidgroup.SelectRaidGroup import SelectRaidGroup
@@ -47,7 +48,7 @@ COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceC
             RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
             CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListAllPlayersCommand, CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ListRaidEvent,
             ListPlayerActivityCommand, ListSelectedPlayersCommand, RaidEvaluate, RaidConsumableEvaluate, RemoveCharacter, RaidListUnsigned,
-            OpenRaidEvent}
+            OpenRaidEvent, ShowRaidEvent}
 
 
 class CommandRunner:
@@ -112,7 +113,7 @@ class CommandRunner:
             if discord_guild is None:  # This happens when a message is sent in PM.
                 player = self.players_resource.get_player_by_id(user_id)
                 if not player:
-                    author.send("Please register first.")
+                    await author.send("Please register first.")
                     return None
                 discord_guild = await self.client.fetch_guild(player.guild_id)
             guild_member = await get_member_by_id(discord_guild, user_id)

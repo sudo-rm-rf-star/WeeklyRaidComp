@@ -17,7 +17,7 @@ class DynamoDBTable(Generic[T]):
             return None
         return self._to_object(response['Item'])
 
-    def remove_item(self, **kwargs) -> bool:
+    def delete_item(self, **kwargs) -> bool:
         try:
             self.table.delete_item(Key=self._to_key(**kwargs))
             return True

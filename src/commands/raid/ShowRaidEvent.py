@@ -1,10 +1,10 @@
 from commands.raid.RaidCommand import RaidCommand
 
 
-class ShowRaidCommand(RaidCommand):
+class ShowRaidEvent(RaidCommand):
     @classmethod
     def argformat(cls) -> str:
-        return "raid_name [raid_date][raid_time][channel]"
+        return "raid_name [raid_date][raid_time]"
 
     @classmethod
     def description(cls) -> str:
@@ -14,6 +14,6 @@ class ShowRaidCommand(RaidCommand):
     def subname(cls) -> str:
         return "show"
 
-    async def execute(self, raid_name, raid_datetime, channel, **kwargs):
+    async def execute(self, raid_name, raid_datetime, **kwargs):
         raid_event = self.get_raid_event(raid_name, raid_datetime)
-        await self.send_raid_message(channel, raid_event)
+        await self.send_raid_message(self.channel, raid_event)

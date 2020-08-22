@@ -47,7 +47,7 @@ class PlayersTable(DynamoDBTable[Player]):
             })
 
     def remove_character(self, character: Character):
-        self.table.remove_item(name=character.name)
+        self.delete_item(name=character.name, discord_id=character.discord_id)
 
     def _to_object(self, item: Dict[str, Any]) -> Player:
         raise InternalBotException("Should not be called")
@@ -57,7 +57,7 @@ class PlayersTable(DynamoDBTable[Player]):
 
     def _to_key(self, name: str, discord_id: int):
         return {
-            'discord_id': discord_id,
+            'discord_id': str(discord_id),
             'name': name
         }
 

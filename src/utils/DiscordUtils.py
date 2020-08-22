@@ -69,12 +69,12 @@ async def get_members_for_role(guild: discord.Guild, role_name: str) -> List[Gui
     return [GuildMember(member, guild.id) for member in role.members]
 
 
-async def get_message(guild: discord.Guild, message_ref: MessageRef) -> discord.Message:
+async def get_message(guild: discord.Guild, message_ref: MessageRef) -> Optional[discord.Message]:
     if message_ref.channel_id:
         text_channel = await get_channel_by_id(guild, message_ref.channel_id)
         try:
             return await text_channel.fetch_message(message_ref.message_id)
         except discord.NotFound:
-            raise InternalBotException("Could not find message")
+            return None
     else:
         raise MissingImplementationException()

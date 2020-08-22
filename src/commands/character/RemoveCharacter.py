@@ -8,6 +8,7 @@ class RemoveCharacter(CharacterCommand):
     @classmethod
     def description(cls) -> str: return "Remove your selected character"
 
-    async def execute(self, character: str, **kwargs) -> None:
-        self.players_resource.remove_character(self.player.get_selected_char())
+    async def execute(self, **kwargs) -> None:
+        character = self.player.get_selected_char()
+        self.players_resource.remove_character(character)
         self.respond(f'Successfully removed {character}.')
