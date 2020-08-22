@@ -13,4 +13,5 @@ class OpenRaidEvent(RaidCommand):
 
     async def execute(self, raid_name, raid_datetime, **kwargs):
         raid_event = self.get_raid_event(raid_name, raid_datetime)
-        await self.events_resource.open_raid(self.discord_guild, raid_event)
+        raid_event.is_open = True
+        self.events_resource.update_raid(self.discord_guild, raid_event)

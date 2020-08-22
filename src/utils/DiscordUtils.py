@@ -1,5 +1,6 @@
 from typing import List
 from exceptions.MissingImplementationException import MissingImplementationException
+from exceptions.InternalBotException import InternalBotException
 
 import discord
 
@@ -15,29 +16,26 @@ async def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextCh
 
 
 async def get_channels(guild: discord.Guild) -> List[discord.TextChannel]:
-    if len(guild.channels) > 0:
-        return guild.channels
+    if len(guild.text_channels) > 0:
+        return guild.text_channels
     return await guild.fetch_channels()
 
 
-def get_channels_non_async(guild: discord.Guild) -> List[discord.TextChannel]:
-    return guild.channels
-
-
 async def get_channel_by_id(guild: discord.Guild, channel_id: int) -> discord.TextChannel:
-    channels = await guild.fetch_channels() if not get_channels_non_async(guild) else get_channels_non_async(guild)
+    channels = await get_channels(guild)
     return discord.utils.get(channels, id=channel_id)
 
 
 def get_emoji(guild: discord.Guild, emoji_name: str) -> discord.Emoji:
-    return discord.utils.get(guild.emojis, name=emoji_name)
+    emoji = discord.utils.get(guild.emojis, name=emoji_name)
+    if emoji is None:
+        raise InternalBotException(f'{emoji_name} does not exist.')
+    return emoji
 
 
 def get_member(guild: discord.Guild, user_name: str) -> Optional[GuildMember]:
     member = guild.get_member_named(user_name)
-    if member is None:
-        return None
-    return GuildMember(member, guild.id)
+    return GuildMember(member, guild.id) if member else None
 
 
 async def get_member_by_id(guild: discord.Guild, user_id: int) -> GuildMember:
@@ -55,11 +53,15 @@ async def get_role(guild: discord.Guild, role_name: str) -> discord.Role:
 
 
 async def get_roles(guild: discord.Guild) -> List[discord.Role]:
-    return await guild.fetch_roles()
+    return await guild.fetch_roles() if len(guild.roles) == 0 else guild.roles
 
 
 def get_roles_non_async(guild: discord.Guild) -> List[discord.Role]:
     return guild.roles
+
+
+def get_channels_non_async(guild: discord.Guild) -> List[discord.TextChannel]:
+    return guild.text_channels
 
 
 async def get_members_for_role(guild: discord.Guild, role_name: str) -> List[GuildMember]:

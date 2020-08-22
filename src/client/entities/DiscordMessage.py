@@ -84,6 +84,7 @@ class DiscordMessage:
             await message.edit(embed=self.embed)
         if self.content:
             await message.edit(content=self.content)
+        return message
 
 
 def split_large_embed(embed: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:

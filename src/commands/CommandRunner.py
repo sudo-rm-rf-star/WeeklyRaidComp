@@ -162,6 +162,9 @@ def generate_help_page_command(name: str, subcommands: List[Type[BotCommand]]):
         def subname(cls) -> str: return "help"
 
         @classmethod
+        def req_manager_rank(cls) -> bool: return False
+
+        @classmethod
         def description(cls) -> str: return f"Shows all commands for {name} and how to use them. Note that all arguments surround by [ ] are optional."
 
         async def execute(self, **kwargs) -> None:

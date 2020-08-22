@@ -14,7 +14,7 @@ from logic.MessageRef import MessageRef
 
 class RaidEvent:
     def __init__(self, name: str, raid_datetime: DateOptionalTime, guild_id: int, group_id: int, rosters=None, created_at: datetime = None,
-                 updated_at: datetime = None, message_refs: List[MessageRef] = None):
+                 updated_at: datetime = None, message_refs: List[MessageRef] = None, is_open: bool = False):
         self.name = name
         self.guild_id = guild_id
         self.group_id = group_id
@@ -23,6 +23,7 @@ class RaidEvent:
         self.updated_at = datetime.now() if not updated_at else updated_at
         self.roster = Roster(name) if not rosters else rosters
         self.message_refs = [] if not message_refs else message_refs
+        self.is_open = is_open
 
     def compose_roster(self) -> List[Character]:
         self.updated_at = datetime.now()
@@ -78,7 +79,8 @@ class RaidEvent:
                          created_at=datetime.fromtimestamp(float(item['created_at'])),
                          updated_at=datetime.fromtimestamp(float(item['updated_at'])),
                          rosters=Roster.from_dict(raid_name, item['roster']),
-                         message_refs=[MessageRef.from_dict(msg) for msg in item['message_refs']])
+                         message_refs=[MessageRef.from_dict(msg) for msg in item['message_refs']],
+                         is_open=item.get('is_open', False))
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -90,6 +92,7 @@ class RaidEvent:
             'updated_at': str(self.updated_at.timestamp()),
             'roster': self.roster.to_dict(),
             'message_refs': [msg.to_dict() for msg in self.message_refs],
+            'is_open': self.is_open,
         }
 
     def __str__(self):

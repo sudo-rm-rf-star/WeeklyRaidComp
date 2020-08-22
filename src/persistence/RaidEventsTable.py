@@ -13,7 +13,8 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
         super().__init__(ddb, RaidEventsTable.TABLE_NAME)
 
     def get_raid_event(self, guild_id: int, group_id: int, raid_name: str, raid_datetime: DateOptionalTime) -> Optional[RaidEvent]:
-        return super(RaidEventsTable, self).get_item(guild_id=guild_id, group_id=group_id, raid_name=raid_name, raid_datetime=raid_datetime)
+        return super(RaidEventsTable, self).get_item(guild_id=guild_id, group_id=group_id,
+                                                     raid_name=raid_name, raid_datetime=raid_datetime)
 
     def list_raid_events(self, guild_id: int, group_id: Optional[int]) -> List[RaidEvent]:
         items = self.table.query(IndexName=RaidEventsTable.INDEX_NAME, KeyConditionExpression=Key('guild_id#group_id').eq(f'{guild_id}#{group_id}'))['Items']
@@ -23,8 +24,8 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
         return super(RaidEventsTable, self).put_item(raid_event)
 
     def remove_raid_event(self, raid_event: RaidEvent) -> bool:
-        return super(RaidEventsTable, self).remove_item(guild_id=raid_event.guild_id, group_id=raid_event.group_id, raid_name=raid_event.name,
-                                                        raid_datetime=raid_event.datetime)
+        return super(RaidEventsTable, self).remove_item(guild_id=raid_event.guild_id, group_id=raid_event.group_id,
+                                                        raid_name=raid_event.name, raid_datetime=raid_event.datetime)
 
     def _to_object(self, item: Dict[str, Any]) -> RaidEvent:
         item['name'], item['timestamp'] = tuple(item['name#timestamp'].split('#'))

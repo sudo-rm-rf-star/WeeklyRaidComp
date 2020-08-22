@@ -11,6 +11,8 @@ from typing import List, Optional, Dict, Union
 import asyncio
 import discord
 from logic.Character import Character
+from utils.DiscordUtils import get_emoji
+from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 
 
 class RaidMessage(DiscordMessage):
@@ -26,12 +28,30 @@ class RaidMessage(DiscordMessage):
         msgs = await super(RaidMessage, self).send_to(recipient)
         if len(msgs) > 1:
             raise InternalBotException("Unhandled case")
+        await self.add_reactions(msgs[0])
         return msgs[0]
 
     def sync(self):
+        asyncio.create_task(self._sync())
+
+    async def _sync(self):
         """Updates the existing RaidMessages"""
         for message_ref in self.raid_event.message_refs:
-            asyncio.create_task(self._update_message(message_ref))
+            message = await self._update_message(message_ref)
+            await self.add_reactions(message)
+
+    async def add_reactions(self, message: discord.Message) -> None:
+        for reaction in message.reactions:
+            print(reaction.emoji)
+        if not self.raid_event.is_open:
+            await message.clear_reactions()
+        else:
+            emojis = [get_emoji(self.discord_guild, emoji_name) for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if
+                      status != SignupStatus.UNDECIDED]
+            if set(emojis) != set(reaction.emoji for reaction in message.reactions):
+                await message.clear_reactions()
+                for emoji in emojis:
+                    await message.add_reaction(emoji=emoji)
 
     def _raid_to_embed(self) -> Embed:
         embed = {'title': self._get_title(),

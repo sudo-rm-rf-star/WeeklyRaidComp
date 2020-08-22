@@ -1,5 +1,6 @@
 # DiscordBot.py
 from exceptions.BotException import BotException
+from exceptions.InternalBotException import InternalBotException
 from websockets.exceptions import InvalidStatusCode
 from commands.CommandRunner import CommandRunner
 from commands.character.SignupCharacterCommand import SignupCharacterCommand
@@ -68,7 +69,7 @@ def run() -> None:
 
     async def handle_exception(ex: Exception, author: discord.User, content: str) -> None:
         Log.error(f"{author}, {content}, {ex}\n{traceback.format_exc()}")
-        if isinstance(ex, BotException):
+        if isinstance(ex, BotException) and not isinstance(ex, InternalBotException):
             await author.send(ex.message)
         else:
             global maintainer

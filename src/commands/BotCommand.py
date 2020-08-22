@@ -101,9 +101,13 @@ class BotCommand:
         return f'**{cls.description()}**{command_with_arg_names}{command_with_arg_examples}'
 
     def get_raidgroup(self) -> RaidGroup:
-        if not self._raidgroup:
+        group_ids = [group_id for group_id in self.guild.raid_groups]
+        if len(group_ids) != 1 and not self._raidgroup:
             raise NoRaidGroupSpecifiedException(self.guild)
-        return self._raidgroup
+        return self._raidgroup if len(group_ids) != 1 else group_ids[0]
+
+    def get_group_id(self) -> int:
+        return self.get_raidgroup().group_id
 
     def get_raider_rank(self) -> str:
         return self.get_raidgroup().raider_rank
@@ -127,9 +131,17 @@ class BotCommand:
         return await get_channel(self.discord_guild, self.get_raidgroup().events_channel)
 
     def get_raid_event(self, raid_name: str, raid_datetime: DateOptionalTime):
-        raid_event = self.events_resource.get_raid(discord_guild=self.discord_guild, group_id=self._raidgroup.group_id, raid_name=raid_name,
-                                                   raid_datetime=raid_datetime)
+        raid_event = self.events_resource.get_raid(discord_guild=self.discord_guild, group_id=self.get_group_id(),
+                                                   raid_name=raid_name, raid_datetime=raid_datetime)
         if not raid_event:
             raise InvalidArgumentException(f'Raid event not found for {raid_name}')
         return raid_event
+
+    def send_message_to_raiders(self, content: str):
+        asyncio.create_task(self._send_message_to_raiders(content))
+
+    async def _send_message_to_raiders(self, content: str):
+        for raider in await self.get_raiders():
+            await raider.send(content)
+
 

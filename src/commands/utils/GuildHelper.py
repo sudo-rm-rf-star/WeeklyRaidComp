@@ -17,7 +17,7 @@ async def create_guild(guilds_resource: GuildsResource, client: discord.Client, 
 
     await member.send(
         f"Thanks for giving {BOT_NAME} a chance! I hope I'll prove useful for your guild. Let me give a brief introduction of my purpose. "
-        f"(Insert Rick and Morty 'What is my purpose...' reference). My main purpose is to make raid organization for your guild as easy to "
+        f"My main purpose is to make raid organization for your guild as easy to "
         f"manage as possible. A lot of the time-consuming tasks with organizing raids should be either automatic or very quick to do trough "
         f"me. Next to just helping the raid leaders life, it also tries to help the raider by serving as a medium between the raider and "
         f"raid leader. You can use me as to create raids, I will send a personal message to every raider on Discord trough which they can "
@@ -34,13 +34,10 @@ async def create_guild(guilds_resource: GuildsResource, client: discord.Client, 
     msg = "Please select a Discord TextChannel to post all of the bot logs for this guild."
     logs_channel = await interact(member, DiscordChannelInteraction(client, discord_guild, msg))
     wl_guild_id = await interact(member, InteractionMessage(client, discord_guild,
-                                                            "Please fill in your warcraft logs ID for your guild. For now I'm to lazy "
-                                                            "to explain where to find this. You can leave this empty if you can't find "
-                                                            "it, it's not super important."
-                                                            ))
+                                                            "Please fill in your warcraft logs ID for your guild. Type `skip` to skip this step."))
     await member.send(
         "Thanks for your cooperation so far! We just created your guild on Discord. But every guild can have one or more raid groups. You can see "
-        "a raid group as a team who periodically comes together to tackle certain raids. You could have an A-team and a B-team for example, let's start"
+        "a raid group as a team who periodically comes together to tackle certain raids. You could have an A-team and a B-team for example, let's start "
         "with your first team. You can create more teams later with: !raidgroup create. Let's continue."
     )
     raidgroup = await create_raidgroup(client, discord_guild, member)

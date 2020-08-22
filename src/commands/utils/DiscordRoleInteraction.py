@@ -1,5 +1,5 @@
 from commands.utils.PlayerInteraction import InteractionMessage
-from utils.DiscordUtils import get_roles, get_roles_non_async
+from utils.DiscordUtils import get_role, get_roles_non_async
 from exceptions.InvalidArgumentException import InvalidArgumentException
 import discord
 
@@ -13,7 +13,7 @@ class DiscordRoleInteraction(InteractionMessage):
 
     async def get_response(self) -> str:
         response = await super(DiscordRoleInteraction, self).get_response()
-        role = get_role(self.guild, response)
+        role = await get_role(self.guild, response)
         if role:
             return response
         else:

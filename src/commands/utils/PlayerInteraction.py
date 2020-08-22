@@ -5,6 +5,7 @@ from typing import Generic, TypeVar, Union, Any
 import discord
 from client.entities.GuildMember import GuildMember
 from exceptions.CancelInteractionException import CancelInteractionException
+from typing import Optional
 
 TRIES = 3
 
@@ -17,11 +18,13 @@ class InteractionMessage(DiscordMessage):
         self.channel_id = None
         self.recipient_id = None
 
-    async def get_response(self) -> str:
+    async def get_response(self) -> Optional[str]:
         msg = await self.client.wait_for('message', check=lambda response: _check_if_response(self, response))
         content = msg.content
+        if content.strip() == 'skip':
+            return None
         if content.strip() == '!done':
-            raise CancelInteractionException
+            raise CancelInteractionException()
         return content
 
     async def send_to(self, recipient: Union[GuildMember, discord.TextChannel]) -> discord.Message:
@@ -61,10 +64,12 @@ class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
 async def interact(member: GuildMember, message: InteractionMessage) -> Any:
     await message.send_to(member)
     response = None
+    finished = False
     trie = 0
-    while not response:
+    while not finished:
         try:
             response = await message.get_response()
+            finished = True
         except InvalidArgumentException as ex:
             if trie >= TRIES:
                 raise InvalidArgumentException("Exceeded retries, aborting signup.")
