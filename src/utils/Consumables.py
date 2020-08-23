@@ -1,16 +1,44 @@
 from logic.enums.Class import Class
 from logic.enums.Role import Role
+from dataclasses import dataclass, field
+from typing import List, Tuple
+
+
+@dataclass
+class ConsumableRequirement:
+    # Names for the consumables
+    consumable_names: List[str]
+    # Indicates whether everyone needs the consumable
+    everyone: bool = False
+    # All roles which need the consumable
+    roles: List[Role] = field(default_factory=list)
+    # All classes which need the consumable
+    classes: List[Class] = field(default_factory=list)
+    # All role, class combination which need the consumable
+    role_classes: List[Tuple[Role, Class]] = field(default_factory=list)
+
+
+def casters() -> List[Tuple[Role, Class]]:
+    return [
+        (Role.RANGED, Class.MAGE),
+        (Role.RANGED, Class.WARLOCK),
+        (Role.RANGED, Class.DRUID),
+        (Role.RANGED, Class.PRIEST)
+    ]
+
 
 #  https://docs.google.com/spreadsheets/d/1JiwdusZfL_37YFjgHB3wPr0pdDgySBEyY6zRKoXEfgA/edit#gid=0
-EXPECTED_CONSUMABLES = {
+CONSUMABLE_REQUIREMENTS = {
     'aq': [
-        ([Role.MELEE, Role.TANK, Role.HEALER, Role.RANGED], ["Nature Protection"]),
-        ([Role.TANK, Role.MELEE, Class.HUNTER], ["Elixir of the Mongoose", "Greater Agility"]),
-        ([Role.MELEE, Class.HUNTER], ["Winterfall Firewater"]),
-        ([Role.TANK, Role.MELEE], ["Elixir of the Giants"]),
-        ([Role.TANK], ["Health II"]),
-        ([Role.RANGED], ["Greater Arcane Elixir", "Arcane Elixir"]),
-        ([Class.MAGE], ["Greater Firepower", "Fire Power", "Frost Power"]),
+        ConsumableRequirement(["Nature Protection"], everyone=True),
+        ConsumableRequirement(["Elixir of the Mongoose", "Greater Agility"], roles=[Role.TANK, Role.MELEE], classes=[Class.HUNTER]),
+        ConsumableRequirement(["Health II"], roles=[Role.TANK]),
+        ConsumableRequirement(["Greater Arcane Elixir", "Arcane Elixir"], role_classes=casters()),
+        ConsumableRequirement(["Brilliant Wizard Oil"], role_classes=casters()),
+        ConsumableRequirement(["Greater Firepower", "Fire Power", "Frost Power, Shadow Power"], classes=[Class.MAGE, Class.WARLOCK]),
+        ConsumableRequirement(["Brilliant Mana Oil"], roles=[Role.HEALER]),
+        ConsumableRequirement(["Mageblood Potion"], roles=[Role.HEALER]),
+        ConsumableRequirement(["Healing Potion"], roles=[Role.MELEE, Role.TANK, Role.RANGED]),
+        ConsumableRequirement(["Restore Mana"], roles=[Role.HEALER]),
     ]
 }
-

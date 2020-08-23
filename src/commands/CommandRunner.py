@@ -42,6 +42,7 @@ from logic.RaidGroup import RaidGroup
 from utils.DiscordUtils import get_channel, get_member_by_id
 from collections import defaultdict
 from exceptions.InternalBotException import InternalBotException
+from exceptions.InvalidArgumentException import InvalidArgumentException
 from utils.Constants import BOT_NAME
 
 COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand,

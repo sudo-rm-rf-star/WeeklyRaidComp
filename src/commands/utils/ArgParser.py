@@ -16,7 +16,7 @@ class ArgParser:
 
     def parse(self, args: str) -> Dict[str, Any]:
         """argformat specifies name and order of arguments. e.g. "raid_name player [raid_datetime]" """
-        if not args:
+        if len(self.mandatory_argnames) == 0 and len(args) == 0:
             return {}
 
         mandatory_args = parse_mandatory_args(args)

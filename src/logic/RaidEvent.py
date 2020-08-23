@@ -31,12 +31,11 @@ class RaidEvent:
 
     def add_to_signees(self, player: Player, signee_choice: SignupStatus) -> Character:
         self.updated_at = datetime.now()
-        character = self.roster.get_signed_character(player)
-        if character and character != player.get_selected_char():
+        signed_character = self.roster.get_signed_character(player)
+        selected_character = player.get_selected_char()
+        if signed_character and signed_character != selected_character:
             self.roster.remove_player(player)
-        else:
-            character = player.get_selected_char()
-        return self.roster.put_character(character=character, signee_choice=signee_choice)
+        return self.roster.put_character(character=selected_character, signee_choice=signee_choice)
 
     def add_to_roster(self, player: Player, roster_choice: RosterStatus) -> Character:
         self.updated_at = datetime.now()

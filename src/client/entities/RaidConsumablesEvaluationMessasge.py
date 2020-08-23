@@ -4,7 +4,7 @@ from typing import List, Dict
 from logic.Report import Report
 from logic.RaidEvent import RaidEvent
 from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI
-from utils.Consumables import EXPECTED_CONSUMABLES
+from utils.Consumables import CONSUMABLE_REQUIREMENTS
 
 
 class RaidConsumablesEvaluationMessage(DiscordMessage):
@@ -38,8 +38,8 @@ class RaidConsumablesEvaluationMessage(DiscordMessage):
         fields = []
 
         buff_counts = self.report.buff_counts
-        for player_categories, consumables in EXPECTED_CONSUMABLES[self.raid_event.name]:
-            print(consumables)
+        for consumable_requirements in CONSUMABLE_REQUIREMENTS[self.raid_event.name]:
+            consumables = consumable_requirements.consumable_names
             player_counts = buff_counts.get(tuple(consumables), {})
             buff_count = list(
                 sorted({char_name: player_counts.get(char_name, 0) for char_name in characters_in_raid}.items(),
@@ -47,8 +47,12 @@ class RaidConsumablesEvaluationMessage(DiscordMessage):
             values = [f'**{", ".join(consumables)}**']
             for char_name, count in buff_count:
                 character = characters_by_name.get(char_name)
-                if character and (character.role in player_categories or character.klass in player_categories):
-                    role_class_emoji = self._role_class_emoji(character) if character is not None else ''
-                    values.append(f'{role_class_emoji} {char_name}: {count}')
+                if character:
+                    has_role = character.role in consumable_requirements.roles
+                    has_class = character.klass in consumable_requirements.classes
+                    has_role_class = (character.role, character.klass) in consumable_requirements.role_classes
+                    if has_class or has_role or has_role_class:
+                        role_class_emoji = self._role_class_emoji(character) if character is not None else ''
+                        values.append(f'{role_class_emoji} {char_name}: {count}')
             fields.extend(self.split_column_evenly(values))
         return fields

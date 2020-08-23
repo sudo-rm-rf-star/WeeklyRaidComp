@@ -12,7 +12,9 @@ from typing import Optional
 from utils.Constants import abbrev_raid_name
 from logic.Report import Fight, Report
 from exceptions.InvalidArgumentException import InvalidArgumentException
-from utils.Consumables import EXPECTED_CONSUMABLES
+from utils.Consumables import CONSUMABLE_REQUIREMENTS
+import utils.Logger as Log
+
 
 ### TODO: pagination
 
@@ -71,12 +73,13 @@ def report_fights_query(report_id: str) -> str:
     """
 
 
-def report_buffs_query(report_id: str, start_time: int, end_time: int, abilityId: int) -> str:
+def report_casts_or_buffs_query(report_id: str, start_time: int, end_time: int, abilityId: int,
+                                casts_or_buffs: str) -> str:
     return """
     query { 
       reportData { 
         report(code: """ + f'"{report_id}"' + """) {
-            events(""" + f'startTime: {start_time}, endTime: {end_time}, dataType: Buffs, abilityID: {abilityId}' + """) {
+            events(""" + f'startTime: {start_time}, endTime: {end_time}, dataType: {casts_or_buffs}, abilityID: {abilityId}' + """) {
                 nextPageTimestamp
                 data
             }
@@ -130,29 +133,42 @@ class WarcraftLogs:
         actors = {actor['id']: actor['name'] for actor in report['masterData']['actors']}
         fights = []
         for fight in report['fights']:
-            if fight['bossPercentage'] is not None:
+            boss_percentage = fight.get('bossPercentage')
+            if fight.get('friendlyPlayers'):
                 fights.append(Fight(fight['name'], fight['startTime'] // 1000, fight['endTime'] // 1000,
                                     present_players={actors[actor] for actor in fight['friendlyPlayers']},
-                                    boss_percentage=fight['bossPercentage']))
+                                    boss_percentage=boss_percentage))
 
         buff_counts = defaultdict(lambda: defaultdict(int))
-        for _, consumables in EXPECTED_CONSUMABLES[raid_name]:
+        for consumable_requirement in CONSUMABLE_REQUIREMENTS[raid_name]:
+            consumables = consumable_requirement.consumable_names
             abilities = [(ability['name'].strip(), ability['gameID']) for ability in report['masterData']['abilities']]
 
             consumable_ids = [ability_id for ability_name, ability_id in abilities if
                               ability_name in consumables]  # One consumable name can map onto multiple ids...
+            if len(consumable_ids) == 0:
+                Log.warn(f'Could not find {consumables}')
             for consumable_id in consumable_ids:
                 events = self.get_events(report_code, 0, fights[-1].end_time * 1000, consumable_id)
                 for event in events:
-                    if event['sourceID'] in actors:
-                        player = actors[event['sourceID']]
+                    source_id = event['sourceID']
+                    target_id = event['targetID']
+                    player = actors.get(source_id, actors.get(target_id))
+                    if player:
                         buff_counts[tuple(consumables)][player] += 1
         return Report(code=report_code, fights=fights, buff_counts=dict(buff_counts))
 
     def get_events(self, report_code: str, start_time: int, end_time: int, consumable_id: int):
+        buffs = self._get_events(report_code, start_time, end_time, consumable_id, "Buffs")
+        casts = self._get_events(report_code, start_time, end_time, consumable_id, "Casts")
+        return buffs + casts
+
+    def _get_events(self, report_code: str, start_time: int, end_time: int, consumable_id: int, casts_or_buffs: str):
         events = []
         while start_time is not None:
-            response = self.make_request(report_buffs_query(report_code, start_time, end_time, consumable_id))['data']['reportData']['report']['events']
+            response = self.make_request(
+                report_casts_or_buffs_query(report_code, start_time, end_time, consumable_id,
+                                            casts_or_buffs=casts_or_buffs))['data']['reportData']['report']['events']
             start_time = response.get('nextPageTimestamp', None)
             events.extend(response['data'])
         return events

@@ -59,8 +59,10 @@ class RaidEvaluationMessage(DiscordMessage):
             fields.append(self._field("\n".join(values), inline=False))
 
         values = ["**Boss fight time**:"]
+        print(len(self.report.fights))
         for fight in self.report.fights:
-            values.append(f'{fight.name} ({fight.boss_percentage}%): {fight.end_time - fight.start_time} seconds')
+            if fight.boss_percentage is not None:
+                values.append(f'{fight.name} ({fight.boss_percentage}%): {fight.end_time - fight.start_time} seconds')
         fields.append(self._field('\n'.join(values), inline=False))
 
         values = ["**Time passed after each boss fight**:"]
