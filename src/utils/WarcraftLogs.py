@@ -6,13 +6,11 @@ from requests_oauthlib import OAuth2Session
 from typing import Dict, List
 from datetime import datetime, timedelta
 from collections import defaultdict
-import utils.Logger as Log
 from utils.Date import Date
 from typing import Optional
 from utils.Constants import abbrev_raid_name
 from logic.Report import Fight, Report
-from exceptions.InvalidArgumentException import InvalidArgumentException
-from utils.Consumables import CONSUMABLE_REQUIREMENTS
+from utils.Consumables import get_consumable_requirements
 import utils.Logger as Log
 
 
@@ -140,7 +138,7 @@ class WarcraftLogs:
                                     boss_percentage=boss_percentage))
 
         buff_counts = defaultdict(lambda: defaultdict(int))
-        for consumable_requirement in CONSUMABLE_REQUIREMENTS[raid_name]:
+        for consumable_requirement in get_consumable_requirements(raid_name):
             consumables = consumable_requirement.consumable_names
             abilities = [(ability['name'].strip(), ability['gameID']) for ability in report['masterData']['abilities']]
 

@@ -4,7 +4,7 @@ from typing import List, Dict
 from logic.Report import Report
 from logic.RaidEvent import RaidEvent
 from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI
-from utils.Consumables import CONSUMABLE_REQUIREMENTS
+from utils.Consumables import get_consumable_requirements
 
 
 class RaidConsumablesEvaluationMessage(DiscordMessage):
@@ -38,7 +38,7 @@ class RaidConsumablesEvaluationMessage(DiscordMessage):
         fields = []
 
         buff_counts = self.report.buff_counts
-        for consumable_requirements in CONSUMABLE_REQUIREMENTS[self.raid_event.name]:
+        for consumable_requirements in get_consumable_requirements(self.raid_event.name):
             consumables = consumable_requirements.consumable_names
             player_counts = buff_counts.get(tuple(consumables), {})
             buff_count = list(

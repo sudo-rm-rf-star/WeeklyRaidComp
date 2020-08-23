@@ -27,15 +27,23 @@ def casters() -> List[Tuple[Role, Class]]:
     ]
 
 
+def get_consumable_requirements(raid_name: str) -> List[ConsumableRequirement]:
+    return get_consumable_requirements(raid_name) + get_consumable_requirements('all')
+
+
 #  https://docs.google.com/spreadsheets/d/1JiwdusZfL_37YFjgHB3wPr0pdDgySBEyY6zRKoXEfgA/edit#gid=0
 CONSUMABLE_REQUIREMENTS = {
     'aq': [
         ConsumableRequirement(["Nature Protection"], everyone=True),
-        ConsumableRequirement(["Elixir of the Mongoose", "Greater Agility"], roles=[Role.TANK, Role.MELEE], classes=[Class.HUNTER]),
+    ],
+    'all': [
+        ConsumableRequirement(["Elixir of the Mongoose", "Greater Agility"], roles=[Role.TANK, Role.MELEE],
+                              classes=[Class.HUNTER]),
         ConsumableRequirement(["Health II"], roles=[Role.TANK]),
         ConsumableRequirement(["Greater Arcane Elixir", "Arcane Elixir"], role_classes=casters()),
         ConsumableRequirement(["Brilliant Wizard Oil"], role_classes=casters()),
-        ConsumableRequirement(["Greater Firepower", "Fire Power", "Frost Power, Shadow Power"], classes=[Class.MAGE, Class.WARLOCK]),
+        ConsumableRequirement(["Greater Firepower", "Fire Power", "Frost Power, Shadow Power"],
+                              classes=[Class.MAGE, Class.WARLOCK]),
         ConsumableRequirement(["Brilliant Mana Oil"], roles=[Role.HEALER]),
         ConsumableRequirement(["Mana Regeneration"], roles=[Role.HEALER]),
         ConsumableRequirement(["Healing Potion"], roles=[Role.MELEE, Role.TANK, Role.RANGED]),
