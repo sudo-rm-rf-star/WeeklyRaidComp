@@ -28,7 +28,7 @@ def casters() -> List[Tuple[Role, Class]]:
 
 
 def get_consumable_requirements(raid_name: str) -> List[ConsumableRequirement]:
-    return get_consumable_requirements(raid_name) + get_consumable_requirements('all')
+    return CONSUMABLE_REQUIREMENTS.get(raid_name, []) + CONSUMABLE_REQUIREMENTS['all']
 
 
 #  https://docs.google.com/spreadsheets/d/1JiwdusZfL_37YFjgHB3wPr0pdDgySBEyY6zRKoXEfgA/edit#gid=0
