@@ -37,7 +37,7 @@ CONSUMABLE_REQUIREMENTS = {
         ConsumableRequirement(["Brilliant Wizard Oil"], role_classes=casters()),
         ConsumableRequirement(["Greater Firepower", "Fire Power", "Frost Power, Shadow Power"], classes=[Class.MAGE, Class.WARLOCK]),
         ConsumableRequirement(["Brilliant Mana Oil"], roles=[Role.HEALER]),
-        ConsumableRequirement(["Mageblood Potion"], roles=[Role.HEALER]),
+        ConsumableRequirement(["Mana Regeneration"], roles=[Role.HEALER]),
         ConsumableRequirement(["Healing Potion"], roles=[Role.MELEE, Role.TANK, Role.RANGED]),
         ConsumableRequirement(["Restore Mana"], roles=[Role.HEALER]),
     ]
