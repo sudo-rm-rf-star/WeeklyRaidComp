@@ -24,7 +24,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
         return super(RaidEventsTable, self).put_item(raid_event)
 
     def remove_raid_event(self, raid_event: RaidEvent) -> bool:
-        return super(RaidEventsTable, self).remove_item(guild_id=raid_event.guild_id, group_id=raid_event.group_id,
+        return super(RaidEventsTable, self).delete_item(guild_id=raid_event.guild_id, group_id=raid_event.group_id,
                                                         raid_name=raid_event.name, raid_datetime=raid_event.datetime)
 
     def _to_object(self, item: Dict[str, Any]) -> RaidEvent:

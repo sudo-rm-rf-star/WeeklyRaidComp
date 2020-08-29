@@ -13,7 +13,8 @@ class UpdateRosterCommand(RosterCommand):
     def argformat(cls) -> str: return "raid_name character [raid_date][raid_time]"
 
     async def execute(self, raid_name: str, character: str, raid_datetime: DateOptionalTime, **kwargs):
-        raid_event = self.events_resource.get_raid(self.discord_guild, self.get_raidgroup().group_id, raid_name, raid_datetime)
+        raid_event = self.get_raid_event(raid_name, raid_datetime)
+        # Bugged: we cannot use guild_id...
         player = self.players_resource.get_player_by_name(character, self.guild.guild_id)
         if not player:
             raise InvalidArgumentException(f"Could not find character {character}")

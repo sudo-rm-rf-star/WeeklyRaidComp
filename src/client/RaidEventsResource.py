@@ -86,7 +86,7 @@ class RaidEventsCache:
             raid_datetime: Optional[DateOptionalTime]) -> Optional[RaidEvent]:
         try:
             upcoming_raids = self.upcoming_cache[guild_id][group_id][raid_name]
-            upcoming_datetime = raid_datetime if raid_datetime else min(upcoming_raids.keys())
+            upcoming_datetime = raid_datetime if raid_datetime else min([dt for dt in upcoming_raids.keys() if dt > DateOptionalTime.now()])
             return upcoming_raids.get(upcoming_datetime, None)
         except (KeyError, ValueError):
             time_indication = f' on {raid_datetime}' if raid_datetime else ''
