@@ -6,7 +6,7 @@ from utils.Constants import DATETIMESEC_FORMAT
 from utils.DiscordUtils import get_members_for_role, get_channel
 from discord import Message, TextChannel, RawReactionActionEvent
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Type
 from client.PlayersResource import PlayersResource
 from client.RaidEventsResource import RaidEventsResource
 from client.GuildsResource import GuildsResource
@@ -20,6 +20,8 @@ import discord
 from commands.utils.ArgParser import ArgParser
 from utils.DateOptionalTime import DateOptionalTime
 from exceptions.InvalidArgumentException import InvalidArgumentException
+from commands.utils.PlayerInteraction import interact
+from commands.utils.PlayerInteraction import InteractionMessage
 
 # Safety measure to avoid infinite loops
 MAX_ITERS = 1000000
@@ -144,4 +146,6 @@ class BotCommand:
         for raider in await self.get_raiders():
             await raider.send(content)
 
+    async def interact(self, message_type: Type[InteractionMessage], *args, **kwargs) -> Any:
+        return await interact(self.member, message_type(self.client, self.discord_guild, *args, **kwargs))
 

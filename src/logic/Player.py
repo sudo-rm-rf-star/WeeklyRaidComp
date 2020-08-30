@@ -39,6 +39,9 @@ class Player:
                 return character
         raise InternalBotException("No character was selected")
 
+    def set_selected_char(self, character_name: str):
+        self.selected_char = character_name
+
     def __eq__(self, other) -> bool:
         return self.discord_id == other.discord_id
 

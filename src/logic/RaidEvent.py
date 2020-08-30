@@ -7,7 +7,7 @@ from utils.DateOptionalTime import DateOptionalTime
 from utils.Date import Date
 from utils.Time import Time
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from logic.Character import Character
 from logic.MessageRef import MessageRef
 
@@ -52,6 +52,12 @@ class RaidEvent:
 
     def get_signed_characters(self) -> List[Character]:
         return self.roster.characters
+
+    def get_signup_choice(self, player: Player) -> Optional[SignupStatus]:
+        for char in self.get_signed_characters():
+            if player.discord_id == char.discord_id:
+                return char.signup_status
+        return None
 
     def get_name(self, abbrev: bool = False) -> str:
         return self.name if abbrev else abbrev_to_full[self.name]

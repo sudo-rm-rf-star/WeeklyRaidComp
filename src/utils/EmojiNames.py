@@ -44,13 +44,27 @@ ROLE_CLASS_EMOJI = {
     }
 }
 
+# These can be removed...
 SIGNUP_STATUS_EMOJI = {
     SignupStatus.ACCEPT: 'Accept',
     SignupStatus.BENCH: 'Bench',
     SignupStatus.DECLINE: 'Decline',
     SignupStatus.LATE: 'Late',
     SignupStatus.TENTATIVE: 'Tentative',
+    SignupStatus.SWITCH_CHAR: 'SwitchChar',
     SignupStatus.UNDECIDED: 'Unknown',
+}
+
+SIGNUP_STATUS_HELP = {
+    SignupStatus.ACCEPT: 'Accept the raid invitation. You can attend the raid.',
+    SignupStatus.BENCH: 'Accept the raid invitation, but other players can have priority on your spot.',
+    SignupStatus.DECLINE: 'Decline the raid invitation. You cannot attend.',
+    SignupStatus.LATE: 'Accept the raid invitation, but you will be late.',
+    SignupStatus.TENTATIVE: 'Accept the raid invitation, but you are unsure if you can attend the raid. '
+                            'Once you are sure, you can choose a new status.',
+    SignupStatus.SWITCH_CHAR: 'Sign with another character. '
+                              'If you already signed with another character, you will keep the signup status.',
+    SignupStatus.UNDECIDED: f'Shows this help page. More questions? Contact an officer of your guild.',
 }
 
 EMOJI_SIGNUP_STATUS = {v: k for k, v in SIGNUP_STATUS_EMOJI.items()}

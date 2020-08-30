@@ -10,7 +10,5 @@ class CreateGuild(GuildCommand):
     def description(cls) -> str: return "Make a new guild"
 
     async def execute(self, **kwargs) -> None:
-        create_guild(guilds_resource=self.guilds_resource, client=self.client, discord_guild=self.discord_guild, member=self.member)
-
-
-
+        await create_guild(guilds_resource=self.guilds_resource, client=self.client, discord_guild=self.discord_guild,
+                           member=self.member)

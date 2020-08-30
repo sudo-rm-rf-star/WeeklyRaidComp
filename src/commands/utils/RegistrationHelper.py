@@ -11,16 +11,17 @@ import discord
 from datetime import datetime
 import re
 from exceptions.InvalidArgumentException import InvalidArgumentException
+from typing import Tuple, Optional
 
 TRIES = 3
 
 
 async def register(client: discord.Client, guild: discord.Guild, players_resource: PlayersResource, member: GuildMember,
-                   allow_multiple_chars: bool = False) -> Player:
+                   allow_multiple_chars: bool = False) -> Tuple[Player, Optional[Character]]:
     player = players_resource.get_player_by_id(member.id)
     if player and len(player.characters) >= 1 and not allow_multiple_chars:
         member.send(f'You have already signed up: {player}')
-        return player
+        return player, None
 
     char_name = await interact(member, GetNameMesage(client, guild))
     role = await interact(member, GetRoleMessage(client, guild))
@@ -33,7 +34,7 @@ async def register(client: discord.Client, guild: discord.Guild, players_resourc
     player.characters.append(character)
     players_resource.update_player(player)
     asyncio.create_task(member.send(content=f'You have successfully registered: {character}'))
-    return player
+    return player, character
 
 
 class GetNameMesage(InteractionMessage):

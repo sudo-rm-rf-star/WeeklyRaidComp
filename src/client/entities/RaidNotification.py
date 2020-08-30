@@ -20,7 +20,7 @@ class RaidNotification(DiscordMessage):
         msgs = await super(RaidNotification, self).send_to(recipient)
         if len(msgs) == 1:
             message = msgs[0]
-            for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if status != SignupStatus.UNDECIDED]:
+            for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items()]:
                 await message.add_reaction(emoji=get_emoji(self.discord_guild, emoji))
             return message
         else:

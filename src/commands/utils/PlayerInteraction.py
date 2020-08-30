@@ -52,8 +52,10 @@ class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
         content += f': [{self.options}]'
         super().__init__(client, guild, content, *args, **kwargs)
 
-    async def get_response(self) -> T:
+    async def get_response(self) -> Optional[T]:
         response = await super(EnumResponseInteractionMessage, self).get_response()
+        if not response:
+            return None
         option = response.replace(' ', '').upper()
         try:
             return self.enum[option]

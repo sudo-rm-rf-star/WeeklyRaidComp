@@ -10,6 +10,8 @@ class SignupStatus(Enum):
     BENCH = 4
     TENTATIVE = 5
     DECLINE = 6
+    SWITCH_CHAR = 100  # A signup option for players to switch characters
+    #  HELP = 100  # A signup option to show a help page
 
     def __lt__(self, other):
         return self.value < other.value
