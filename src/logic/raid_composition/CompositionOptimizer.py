@@ -23,7 +23,8 @@ class CompositionOptimizer:
         self.evaluator = EVALUATORS.get(raid_name, lambda characters: RaidCompositionEvaluator(raid_name, characters))
         self.fitness_cache = {}  # This function is hard to compute
 
-        # By sorting by role and then class we effectively make all neighbors in the next array by switching a neighboring zero and one
+        # By sorting by role and then class we effectively make all neighbors in the next array by switching a
+        # neighboring zero and one
         self.population = sorted([character for character in characters if character.signup_status != SignupStatus.DECLINE],
                                  key=lambda char: (char.role.name, char.klass.name))
         self.population_size = len(self.population)

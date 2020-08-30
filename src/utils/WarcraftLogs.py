@@ -14,9 +14,6 @@ from utils.Consumables import get_consumable_requirements
 import utils.Logger as Log
 
 
-### TODO: pagination
-
-
 def attendance_query(guild_id: int, page: int) -> str:
     return """
     query { 
@@ -111,10 +108,12 @@ class WarcraftLogs:
                                 "Authorization": f"{token['token_type']} {token['access_token']}"}
         return self.auth_header
 
-    def get_attendance(self) -> Dict[str, Dict[str, List[datetime]]]:
+    def get_attendance(self, do_not_scan_before: datetime) -> Dict[str, Dict[str, List[datetime]]]:
         """Gets the present dates per player per raid"""
         attendance = defaultdict(lambda: defaultdict(set))
-        for (raid_name, raid_date, present_players, _) in self.get_raids():
+        raids = self.get_raids(do_not_scan_before)
+        print(len(list(raids)))
+        for (raid_name, raid_date, present_players, _) in raids:
             for player in present_players:
                 attendance[player][raid_name].add(raid_date)
         return {k: dict(v) for k, v in attendance.items()}
@@ -171,24 +170,34 @@ class WarcraftLogs:
             events.extend(response['data'])
         return events
 
-    def get_raids(self):
+    def get_raids(self, do_not_scan_before: Optional[datetime] = None):
         """ Possible bottleneck """
-        raids = []
         current_page = 1
         last_page = None
-        while last_page is None or current_page < last_page:
+        scanned_until = datetime.now()
+        '''
+        We stop scanning if
+        1) We have reached the last page
+        2) We have reached a page we have already scanned
+        3) We have scanned for more than 20 seconds
+        '''
+        scan_start = datetime.now().second
+        scan_time = 0
+        while (last_page is None or current_page < last_page) and (
+                do_not_scan_before is None or do_not_scan_before < scanned_until)\
+                and scan_time <= 20:
             result = self.make_attendance_request(current_page)
             last_page = result['last_page']
             for raid in result['data']:
+                scanned_until = datetime.fromtimestamp(raid['startTime'] / 1000)
                 yield (  # raid_name, raid_datetime, present_players, report_code
                     abbrev_raid_name[raid['zone']['name']],
-                    Date(datetime.fromtimestamp(raid['startTime'] / 1000).date()),
+                    Date(scanned_until.date()),
                     [player['name'] for player in raid['players'] if player['presence'] == 1],
                     raid['code']
                 )
-            raids.extend(result['data'])
+            scan_time = datetime.now().second - scan_start
             current_page += 1
-        return raids
 
     def make_attendance_request(self, page):
         query = attendance_query(self.guild_id, page)

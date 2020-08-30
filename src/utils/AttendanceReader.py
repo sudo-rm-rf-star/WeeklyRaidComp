@@ -1,13 +1,19 @@
 from client.PlayersResource import PlayersResource
 from client.RaidEventsResource import RaidEventsResource
+from client.GuildsResource import GuildsResource
 from utils.WarcraftLogs import WarcraftLogs
 from utils.DateOptionalTime import DateOptionalTime
+from logic.Guild import Guild
+from datetime import datetime
 
 
-def update_raid_presence(guild_id: int, group_id: int, wl_guild_id: int, events_resource: RaidEventsResource, players_resource: PlayersResource) -> None:
-    players = players_resource.list_players(guild_id)
-    raid_events = events_resource.get_raids(guild_id, group_id)
-    attendance = WarcraftLogs(wl_guild_id).get_attendance()
+def update_raid_presence(guild: Guild, group_id: int, guilds_resource: GuildsResource,
+                         events_resource: RaidEventsResource, players_resource: PlayersResource) -> None:
+    """ TODO: Ideally we move this function out of the bot into a sweeper. This needs a rehaul. The code is unstable """
+    players = players_resource.list_players(guild.guild_id)
+    raid_events = events_resource.get_raids(guild.guild_id, group_id)
+    attendance = WarcraftLogs(guild.wl_guild_id).get_attendance(guild.do_not_scan_before)
+
     for raid_event in raid_events:
         if raid_event.get_datetime() < DateOptionalTime.now():
             raid_name = raid_event.get_name(abbrev=True)
@@ -27,3 +33,6 @@ def update_raid_presence(guild_id: int, group_id: int, wl_guild_id: int, events_
 
     for player in players:
         players_resource.update_player(player)
+
+    guild.do_not_scan_before = datetime.now()
+    guilds_resource.update_guild(guild)
