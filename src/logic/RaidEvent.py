@@ -13,8 +13,10 @@ from logic.MessageRef import MessageRef
 
 
 class RaidEvent:
-    def __init__(self, name: str, raid_datetime: DateOptionalTime, guild_id: int, group_id: int, rosters=None, created_at: datetime = None,
-                 updated_at: datetime = None, message_refs: List[MessageRef] = None, is_open: bool = False):
+    def __init__(self, name: str, raid_datetime: DateOptionalTime, guild_id: int, group_id: int, rosters=None,
+                 created_at: datetime = None, updated_at: datetime = None, message_refs: List[MessageRef] = None,
+                 is_open: bool = False, has_been_scanned: bool = False, report_code: Optional[str] = None,
+                 presence: Optional[List[str]] = None):
         self.name = name
         self.guild_id = guild_id
         self.group_id = group_id
@@ -24,6 +26,11 @@ class RaidEvent:
         self.roster = Roster(name) if not rosters else rosters
         self.message_refs = [] if not message_refs else message_refs
         self.is_open = is_open
+
+        # Data scanned for WL logs.
+        self.has_been_scanned = has_been_scanned
+        self.presence = presence if presence else []
+        self.report_code = report_code if report_code else None
 
     def compose_roster(self) -> List[Character]:
         self.updated_at = datetime.now()
@@ -85,7 +92,10 @@ class RaidEvent:
                          updated_at=datetime.fromtimestamp(float(item['updated_at'])),
                          rosters=Roster.from_dict(raid_name, item['roster']),
                          message_refs=[MessageRef.from_dict(msg) for msg in item['message_refs']],
-                         is_open=item.get('is_open', False))
+                         is_open=item.get('is_open', False),
+                         presence=item.get('presence', None),
+                         report_code=item.get('report_code', None),
+                         has_been_scanned=item.get('has_been_scanned', False))
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -98,6 +108,9 @@ class RaidEvent:
             'roster': self.roster.to_dict(),
             'message_refs': [msg.to_dict() for msg in self.message_refs],
             'is_open': self.is_open,
+            'presence': self.presence,
+            'report_code': self.report_code,
+            'has_been_scanned': self.has_been_scanned
         }
 
     def __str__(self):

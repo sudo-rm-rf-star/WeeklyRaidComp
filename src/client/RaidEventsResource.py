@@ -42,6 +42,11 @@ class RaidEventsResource:
         self.events_table.create_raid_event(raid_event)
         RaidMessage(self.discord_client, discord_guild, raid_event).sync()
 
+    def update_raid_raw(self, raid_event: RaidEvent):
+        """ Quick raid update without updating cache/raid message. Only use this if we're not updating explicit
+        message parameters. """
+        self.events_table.create_raid_event(raid_event)
+
     def get_raid(self, discord_guild: discord.Guild, group_id: int, raid_name: str,
                  raid_datetime: Optional[DateOptionalTime]) -> Optional[RaidEvent]:
         raid_event = self.raid_cache.get(discord_guild.id, group_id, raid_name, raid_datetime)

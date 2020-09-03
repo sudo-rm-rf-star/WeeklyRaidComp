@@ -17,7 +17,8 @@ class RaidEvaluate(RaidCommand):
     async def execute(self, raid_name: str, raid_datetime: DateOptionalTime, **kwargs):
         self.respond(f"Evaluating the raid, this can take several seconds...")
         destination = self.message.channel
-        report = WarcraftLogs(self.guild.wl_guild_id).get_report(raid_name, raid_datetime.date)
+        raid_event = self.get_raid_event(raid_name, raid_datetime)
+        report = WarcraftLogs(self.events_resource, self.guild.wl_guild_id).get_report(raid_event)
         raid_event = self.events_resource.get_raid(self.discord_guild, self.get_raidgroup().group_id, raid_name, raid_datetime)
         if raid_event.get_datetime() > DateOptionalTime.now():
             self.respond(f'{raid_event} is not in the past.')

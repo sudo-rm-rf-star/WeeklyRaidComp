@@ -34,6 +34,10 @@ class DateOptionalTime:
         return DateOptionalTime(Date(datetime_obj.date()), Time(datetime_obj.time()))
 
     @staticmethod
+    def from_date(datetime_obj):
+        return DateOptionalTime(Date(datetime_obj.date()))
+
+    @staticmethod
     def from_timestamp(timestamp: int):
         return DateOptionalTime.from_datetime(datetime.fromtimestamp(timestamp))
 

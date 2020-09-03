@@ -6,11 +6,14 @@ from requests_oauthlib import OAuth2Session
 from typing import Dict, List
 from datetime import datetime, timedelta
 from collections import defaultdict
+from utils.DateOptionalTime import DateOptionalTime
 from utils.Date import Date
 from typing import Optional
 from utils.Constants import abbrev_raid_name
 from logic.Report import Fight, Report
+from logic.RaidEvent import RaidEvent
 from utils.Consumables import get_consumable_requirements
+from client.RaidEventsResource import RaidEventsResource
 import utils.Logger as Log
 
 
@@ -90,10 +93,11 @@ BEARER_TOKEN = None
 
 
 class WarcraftLogs:
-    def __init__(self, guild_id):
+    def __init__(self, events_resource: RaidEventsResource, guild_id: int):
         self.auth_header = {}
         self.expiry_datetime = datetime.now()
         self.guild_id = guild_id
+        self.events_resource = events_resource
 
     def get_auth_header(self) -> Dict[str, str]:
         if datetime.now() >= self.expiry_datetime:
@@ -108,24 +112,18 @@ class WarcraftLogs:
                                 "Authorization": f"{token['token_type']} {token['access_token']}"}
         return self.auth_header
 
-    def get_attendance(self, do_not_scan_before: datetime) -> Dict[str, Dict[str, List[datetime]]]:
-        """Gets the present dates per player per raid"""
+    def get_attendance(self, raid_events: List[RaidEvent]) -> Dict[str, Dict[str, List[datetime]]]:
+        """ Gets the present dates per player per raid in the given list """
         attendance = defaultdict(lambda: defaultdict(set))
-        raids = self.get_raids(do_not_scan_before)
-        print(len(list(raids)))
-        for (raid_name, raid_date, present_players, _) in raids:
-            for player in present_players:
-                attendance[player][raid_name].add(raid_date)
+        self.sync_raids(raid_events)
+        for raid_event in raid_events:
+            for player in raid_event.presence:
+                attendance[player][raid_event.name].add(raid_event.get_datetime())
         return {k: dict(v) for k, v in attendance.items()}
 
-    def get_report_code(self, raid_name, raid_date) -> Optional[str]:
-        """Gets the report codes for every raid"""
-        for (raid_name2, raid_date2, _, report_code) in self.get_raids():
-            if raid_name == raid_name2 and raid_date == raid_date2:  # Naming is difficult okay...
-                return report_code
-
-    def get_report(self, raid_name, raid_date):
-        report_code = self.get_report_code(raid_name, raid_date)
+    def get_report(self, raid_event: RaidEvent):
+        self.sync_raids([raid_event])
+        report_code = raid_event.report_code
         report = self.make_request(report_fights_query(report_code))['data']['reportData']['report']
         actors = {actor['id']: actor['name'] for actor in report['masterData']['actors']}
         fights = []
@@ -137,7 +135,7 @@ class WarcraftLogs:
                                     boss_percentage=boss_percentage))
 
         buff_counts = defaultdict(lambda: defaultdict(int))
-        for consumable_requirement in get_consumable_requirements(raid_name):
+        for consumable_requirement in get_consumable_requirements(raid_event.name):
             consumables = consumable_requirement.consumable_names
             abilities = [(ability['name'].strip(), ability['gameID']) for ability in report['masterData']['abilities']]
 
@@ -170,34 +168,36 @@ class WarcraftLogs:
             events.extend(response['data'])
         return events
 
-    def get_raids(self, do_not_scan_before: Optional[datetime] = None):
-        """ Possible bottleneck """
+    def sync_raids(self, raid_events: Optional[List[RaidEvent]] = None):
+        """ Scans all the raids from warcraft logs for the given events. Scans everything if raid_events is None """
         current_page = 1
         last_page = None
-        scanned_until = datetime.now()
-        '''
-        We stop scanning if
-        1) We have reached the last page
-        2) We have reached a page we have already scanned
-        3) We have scanned for more than 20 seconds
-        '''
-        scan_start = datetime.now().second
-        scan_time = 0
-        while (last_page is None or current_page < last_page) and (
-                do_not_scan_before is None or do_not_scan_before < scanned_until)\
-                and scan_time <= 20:
+        updated_raids = []
+
+        while (last_page is None or current_page < last_page) and any(
+                not raid_event.has_been_scanned for raid_event in raid_events):
             result = self.make_attendance_request(current_page)
             last_page = result['last_page']
             for raid in result['data']:
-                scanned_until = datetime.fromtimestamp(raid['startTime'] / 1000)
-                yield (  # raid_name, raid_datetime, present_players, report_code
-                    abbrev_raid_name[raid['zone']['name']],
-                    Date(scanned_until.date()),
-                    [player['name'] for player in raid['players'] if player['presence'] == 1],
-                    raid['code']
-                )
-            scan_time = datetime.now().second - scan_start
+                raid_name = abbrev_raid_name[raid['zone']['name']]
+                raid_date = DateOptionalTime.from_date(datetime.fromtimestamp(raid['startTime'] / 1000))
+                raid_event = _find_raid(raid_name, raid_date, raid_events)
+                if raid_event:
+                    raid_event.report_code = raid['code']
+                    raid_event.presence = [player['name'] for player in raid['players'] if player['presence'] == 1]
+                    raid_event.has_been_scanned = True
+                    updated_raids.append(raid_event)
             current_page += 1
+
+        # If any event was not found, we do not have to try anymore in the future.
+        for raid_event in raid_events:
+            if not raid_event.has_been_scanned:
+                raid_event.has_been_scanned = True
+                raid_event.presence = []
+                updated_raids.append(raid_event)
+
+        for raid_event in updated_raids:
+            self.events_resource.update_raid_raw(raid_event)
 
     def make_attendance_request(self, page):
         query = attendance_query(self.guild_id, page)
@@ -215,3 +215,10 @@ class WarcraftLogs:
         except KeyError as ex:
             Log.error(f"Response to query is malformed: {response.json()}")
             raise ex
+
+
+def _find_raid(raid_name: str, raid_date: Date, raid_events: List[RaidEvent]) -> Optional[RaidEvent]:
+    for raid_event in raid_events:
+        if raid_event.name == raid_name and raid_event.datetime == raid_date:
+            return raid_event
+    return None
