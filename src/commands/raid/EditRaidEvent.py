@@ -1,4 +1,6 @@
 from commands.raid.RaidCommand import RaidCommand
+from utils.DateOptionalTime import DateOptionalTime
+
 
 class EditRaidEvent(RaidCommand):
     @classmethod
@@ -24,13 +26,13 @@ class EditRaidEvent(RaidCommand):
             self.respond(f'The new raid equals the old raid, aborting...')
             return
 
-        old_event_str = str(raid_event)
         is_open = raid_event.is_open
         roster = raid_event.roster
+        new_raid_event = await self.create_raid(new_raid_name, new_raid_datetime, is_open)
+        new_raid_event.roster = roster
+        new_raid_event.is_open = is_open
+        self.events_resource.update_raid(self.discord_guild, new_raid_event)
         self.events_resource.delete_raid(raid_event)
-        raid_event = await self.create_raid(new_raid_name, new_raid_datetime, is_open)
-        raid_event.roster = roster
-        raid_event.is_open = is_open
-        self.events_resource.update_raid(self.discord_guild, raid_event)
-        self.send_message_to_raiders(f'An event has been updated from {old_event_str} to {str(raid_event)}. '
-                                     f'If you already signed, you are still signed for the new raid.')
+        if new_raid_event.get_datetime() < DateOptionalTime.now():
+            self.send_message_to_raiders(f'An event has been updated from {str(raid_event)} to {str(new_raid_event)}. '
+                                         f'If you already signed, you are still signed for the new raid.')

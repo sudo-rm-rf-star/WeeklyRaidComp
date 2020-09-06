@@ -52,6 +52,8 @@ class RaidEventsResource:
         raid_event = self.raid_cache.get(discord_guild.id, group_id, raid_name, raid_datetime)
         if raid_event is None:
             raid_event = self.events_table.get_raid_event(discord_guild.id, group_id, raid_name, raid_datetime)
+            if raid_event is None:
+                raise InvalidArgumentException(f"There's no raid for {raid_name} on {raid_datetime}.")
             self.raid_cache.update(raid_event)
         return raid_event
 

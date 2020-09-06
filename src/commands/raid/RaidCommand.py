@@ -23,8 +23,6 @@ class RaidCommand(BotCommand):
         group_id = self.get_raidgroup().group_id
         if self.events_resource.raid_exists(guild_id, group_id, raid_name, raid_datetime):
             raise InvalidArgumentException(f'Raid event for {raid_name} on {raid_datetime} already exists.')
-        if raid_datetime < DateOptionalTime.now():
-            raise InvalidArgumentException('Raid event must be in future')
         raid_event = RaidEvent(name=raid_name, raid_datetime=raid_datetime, guild_id=guild_id, group_id=group_id,
                                is_open=is_open)
         await self.send_raid_message(await self.get_events_channel(), raid_event)
