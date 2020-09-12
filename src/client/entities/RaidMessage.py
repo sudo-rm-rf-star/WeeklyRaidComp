@@ -42,15 +42,18 @@ class RaidMessage(DiscordMessage):
                 await self.add_reactions(message)
 
     async def add_reactions(self, message: discord.Message) -> None:
-        if not self.raid_event.is_open:
-            await message.clear_reactions()
-        else:
-            emojis = [get_emoji(self.discord_guild, emoji_name) for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if
-                      status != SignupStatus.UNDECIDED]
-            if set(emojis) != set(reaction.emoji for reaction in message.reactions):
+        try:
+            if not self.raid_event.is_open:
                 await message.clear_reactions()
-                for emoji in emojis:
-                    await message.add_reaction(emoji=emoji)
+            else:
+                emojis = [get_emoji(self.discord_guild, emoji_name) for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if
+                          status != SignupStatus.UNDECIDED]
+                if set(emojis) != set(reaction.emoji for reaction in message.reactions):
+                    await message.clear_reactions()
+                    for emoji in emojis:
+                        await message.add_reaction(emoji=emoji)
+        except discord.Forbidden:  # This is not possible in DM
+            pass
 
     def _raid_to_embed(self) -> Embed:
         embed = {'title': self._get_title(),

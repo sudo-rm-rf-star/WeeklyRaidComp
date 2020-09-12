@@ -34,8 +34,11 @@ class Player:
         return {raid_name: len(self.standby_dates[raid_name]) for raid_name in SUPPORTED_RAIDS}
 
     def get_selected_char(self) -> Character:
+        return self.get_char(self.selected_char)
+
+    def get_char(self, name):
         for character in self.characters:
-            if character.name == self.selected_char:
+            if character.name == name:
                 return character
         raise InternalBotException("No character was selected")
 

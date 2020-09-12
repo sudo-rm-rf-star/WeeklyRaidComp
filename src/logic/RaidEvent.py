@@ -42,14 +42,15 @@ class RaidEvent:
         selected_character = player.get_selected_char()
         if signed_character and signed_character != selected_character:
             self.roster.remove_player(player)
-        return self.roster.put_character(character=selected_character, signee_choice=signee_choice)
+        return self.roster.put_character(character=selected_character, signup_status=signee_choice)
 
     def add_to_roster(self, player: Player, roster_choice: RosterStatus) -> Character:
         self.updated_at = datetime.now()
         character = self.roster.get_signed_character(player)
         if character is None:
             character = player.get_selected_char()
-        return self.roster.put_character(character=character, roster_choice=roster_choice)
+        character = player.get_char(character.name)
+        return self.roster.put_character(character=character, roster_status=roster_choice)
 
     def has_char_signed(self, character: Character) -> bool:
         return any(char for char in self.roster.characters if char == character)

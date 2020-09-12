@@ -25,29 +25,31 @@ class Roster:
         optimizer = CompositionOptimizer(self.raid_name, self.characters)
         return optimizer.make_raid_composition()
 
-    def put_character(self, character: Character, roster_choice: RosterStatus = None, signee_choice: SignupStatus = None):
+    def put_character(self, character: Character, roster_status: RosterStatus = None, signup_status: SignupStatus = None):
         self.updated_since_last_check = True
 
         try:
             i = self.characters.index(character)
-            character = self.characters[i]
+            prev_character = self.characters[i]
+            character.roster_status = prev_character.roster_status
+            character.signup_status = prev_character.signup_status
         except ValueError:
             i = len(self.characters)
             self.characters.append(character)
 
-        if roster_choice:
-            character.roster_status = roster_choice
-
-        if signee_choice:
-            character.signup_status = signee_choice
-
         # Automatically decline anyone who is not accepted to the roster, and declined the raid.
-        if character.roster_status != RosterStatus.ACCEPT and character.signup_status == SignupStatus.DECLINE:
-            character.roster_status = RosterStatus.DECLINE
+        if character.roster_status != RosterStatus.ACCEPT and signup_status == SignupStatus.DECLINE:
+            roster_status = RosterStatus.DECLINE
 
         # Automatically put anyone back to undecided if they accepted the raid after being declined to the roster
-        if character.roster_status == RosterStatus.DECLINE and character.signup_status != SignupStatus.DECLINE:
-            character.roster_status = RosterStatus.UNDECIDED
+        if character.roster_status == RosterStatus.DECLINE and signup_status != SignupStatus.DECLINE:
+            roster_status = RosterStatus.UNDECIDED
+
+        if roster_status:
+            character.roster_status = roster_status
+
+        if signup_status:
+            character.signup_status = signup_status
 
         self.characters[i] = character
         return character
