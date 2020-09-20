@@ -18,8 +18,8 @@ class RaidEventInvite(RaidCommand):
         raid_event = self.events_resource.get_raid(discord_guild=self.discord_guild, group_id=self._raidgroup.group_id,
                                                    raid_name=raid_name, raid_datetime=raid_datetime)
         player = self.players_resource.get_player_by_name(discord_name, self.discord_guild.id)
-        member = get_member(self.discord_guild, discord_name) if not player else await get_member_by_id(self.guild,
-                                                                                                        self.player.discord_id)
+        member = get_member(self.discord_guild, discord_name) if not player else await get_member_by_id(self.discord_guild,
+                                                                                                        player.discord_id)
         if member is None:
             self.respond(f"{discord_name} is not a valid player name. Please use the correct name of the user on discord")
             return
