@@ -35,7 +35,7 @@ class CompositionOptimizer:
         for character in self.characters:
             if character in accepted_characters:
                 roster_status = RosterStatus.ACCEPT
-            elif character.signup_status != SignupStatus.DECLINE:
+            elif character.signup_status != SignupStatus.DECLINE and character.signup_status != RosterStatus.DECLINE:
                 roster_status = RosterStatus.EXTRA
             else:
                 roster_status = RosterStatus.DECLINE
