@@ -25,7 +25,7 @@ class CompositionOptimizer:
 
         # By sorting by role and then class we effectively make all neighbors in the next array by switching a
         # neighboring zero and one
-        self.population = sorted([character for character in characters if (character.signup_status != SignupStatus.DECLINE or character.roster_status != RosterStatus.DECLINE)],
+        self.population = sorted([character for character in characters if (character.signup_status != SignupStatus.DECLINE and character.roster_status != RosterStatus.DECLINE)],
                                  key=lambda char: (char.role.name, char.klass.name))
         self.population_size = len(self.population)
 
