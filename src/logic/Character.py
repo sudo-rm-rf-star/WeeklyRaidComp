@@ -10,7 +10,7 @@ from utils.DateOptionalTime import DateOptionalTime
 
 
 class Character:
-    def __init__(self, *, char_name: str, klass: Class, role: Role, race: Race, discord_id: int, guild_id: int, created_at: float,
+    def __init__(self, *, char_name: str, klass: Class, role: Role, race: Race, discord_id: int, created_at: float,
                  standby_dates: Dict[str, List[DateOptionalTime]],
                  roster_status: Optional[RosterStatus] = None,
                  signup_status: Optional[SignupStatus] = None):
@@ -19,7 +19,6 @@ class Character:
         self.role = role
         self.race = race
         self.discord_id = discord_id
-        self.guild_id = guild_id
         self.standby_dates = standby_dates
         self.roster_status = roster_status if roster_status else RosterStatus.UNDECIDED
         self.signup_status = signup_status if signup_status else SignupStatus.UNDECIDED
@@ -34,7 +33,6 @@ class Character:
                          klass=Class[item['class']],
                          role=Role[item['role']],
                          race=Race[item['race']],
-                         guild_id=item['guild_id'],
                          discord_id=item.get('discord_id', None),
                          roster_status=RosterStatus[item['roster_status']] if 'roster_status' in item else None,
                          signup_status=SignupStatus[item['signup_status']] if 'signup_status' in item else None,
@@ -50,7 +48,6 @@ class Character:
             'class': self.klass.name,
             'role': self.role.name,
             'race': self.race.name,
-            'guild_id': self.guild_id,
             'roster_status': self.roster_status.name,
             'signup_status': self.signup_status.name,
             'standby_dates': {raid_name: [date.to_timestamp() for date in dates] for raid_name, dates in self.standby_dates.items()},

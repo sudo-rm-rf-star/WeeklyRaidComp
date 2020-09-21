@@ -21,7 +21,7 @@ class ShowPlayerActivityMessage(DiscordMessage):
         self.raider_ids = [raider.id for raider in raiders]
         self.players = [player for player in players if player.discord_id in self.raider_ids]
         self.days_since_last_raid = self._get_days_since_last_raid_per_character()
-        self.characters = sorted([char for player in self.players for char in player.characters],
+        self.characters = sorted([player.get_selected_char() for player in self.players],
                                  key=lambda char: -self.days_since_last_raid[char])
         self.embed = self._players_to_embed()
         super().__init__(discord_client, discord_guild, embed=self.embed)

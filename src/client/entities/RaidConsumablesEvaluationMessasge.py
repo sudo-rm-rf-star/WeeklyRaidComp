@@ -51,7 +51,8 @@ class RaidConsumablesEvaluationMessage(DiscordMessage):
                     has_role = character.role in consumable_requirements.roles
                     has_class = character.klass in consumable_requirements.classes
                     has_role_class = (character.role, character.klass) in consumable_requirements.role_classes
-                    if has_class or has_role or has_role_class:
+                    everyone = consumable_requirements.everyone
+                    if everyone or has_class or has_role or has_role_class:
                         role_class_emoji = self._role_class_emoji(character) if character is not None else ''
                         values.append(f'{role_class_emoji} {char_name}: {count}')
             fields.extend(self.split_column_evenly(values))

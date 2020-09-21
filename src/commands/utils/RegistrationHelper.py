@@ -12,11 +12,12 @@ from datetime import datetime
 import re
 from exceptions.InvalidArgumentException import InvalidArgumentException
 from typing import Tuple, Optional
+from logic.Guild import Guild
 
 TRIES = 3
 
 
-async def register(client: discord.Client, guild: discord.Guild, players_resource: PlayersResource, member: GuildMember,
+async def register(client: discord.Client, guild: Guild, players_resource: PlayersResource, member: GuildMember,
                    allow_multiple_chars: bool = False) -> Tuple[Player, Optional[Character]]:
     player = players_resource.get_player_by_id(member.id)
     if player and len(player.characters) >= 1 and not allow_multiple_chars:
@@ -28,8 +29,9 @@ async def register(client: discord.Client, guild: discord.Guild, players_resourc
     klass = await interact(member, GetClassMessage(client, guild))
     race = await interact(member, GetRaceMessage(client, guild))
     if player is None:
-        player = Player(discord_id=member.id, guild_id=member.guild_id, characters=[], selected_char=char_name, created_at=datetime.now().timestamp())
-    character = Character(discord_id=member.id, guild_id=guild.id, char_name=char_name, role=role, klass=klass, race=race,
+        player = Player(discord_id=member.id, realm=guild.realm, region=guild.region, characters=[],
+                        selected_char=char_name, created_at=datetime.now().timestamp())
+    character = Character(discord_id=member.id, char_name=char_name, role=role, klass=klass, race=race,
                           created_at=datetime.now().timestamp(), standby_dates={})
     player.characters.append(character)
     players_resource.update_player(player)

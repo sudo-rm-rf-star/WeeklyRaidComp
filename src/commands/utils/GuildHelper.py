@@ -4,6 +4,7 @@ from client.GuildsResource import GuildsResource
 from client.entities.GuildMember import GuildMember
 from commands.utils.RaidGroupHelper import create_raidgroup
 from commands.utils.PlayerInteraction import InteractionMessage, interact
+from commands.utils.OptionInteraction import OptionInteraction
 from commands.utils.DiscordRoleInteraction import DiscordRoleInteraction
 from commands.utils.DiscordChannelInteraction import DiscordChannelInteraction
 import discord
@@ -30,6 +31,7 @@ async def create_guild(guilds_resource: GuildsResource, client: discord.Client, 
     )
     guild_name = await interact(member, InteractionMessage(client, discord_guild, "Please fill in the name of your guild."))
     realm = await interact(member, InteractionMessage(client, discord_guild, "Please fill in the realm of your guild."))
+    region = await interact(member, OptionInteraction(client, discord_guild, "Please fill in the region of your guild.", ["Europe"]))
     manager_rank = await interact(member, DiscordRoleInteraction(client, discord_guild, "Please select a Discord role to manage this guild"))
     msg = "Please select a Discord TextChannel to post all of the bot logs for this guild."
     logs_channel = await interact(member, DiscordChannelInteraction(client, discord_guild, msg))
@@ -41,7 +43,7 @@ async def create_guild(guilds_resource: GuildsResource, client: discord.Client, 
         "with your first team. You can create more teams later with: !raidgroup create. Let's continue."
     )
     raidgroup = await create_raidgroup(client, discord_guild, member)
-    guild = Guild(name=guild_name, realm=realm, manager_rank=manager_rank, guild_id=discord_guild.id, logs_channel=logs_channel,
+    guild = Guild(name=guild_name, realm=realm, region=region, manager_rank=manager_rank, guild_id=discord_guild.id, logs_channel=logs_channel,
                   wl_guild_id=int(wl_guild_id) if wl_guild_id else None, groups=[raidgroup])
     guilds_resource.create_guild(guild)
     await member.send(f"Your guild {guild_name} has succesfully been created!")

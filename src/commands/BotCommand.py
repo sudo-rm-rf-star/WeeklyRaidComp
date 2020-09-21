@@ -137,7 +137,6 @@ class BotCommand:
                                                    raid_name=raid_name, raid_datetime=raid_datetime)
         if not raid_event:
             raise InvalidArgumentException(f'Raid event not found for {raid_name}')
-        print(raid_event)
         return raid_event
 
     def send_message_to_raiders(self, content: str):

@@ -7,7 +7,7 @@ from utils.DateOptionalTime import DateOptionalTime
 from utils.Date import Date
 from utils.Time import Time
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Set
 from logic.Character import Character
 from logic.MessageRef import MessageRef
 
@@ -16,7 +16,7 @@ class RaidEvent:
     def __init__(self, name: str, raid_datetime: DateOptionalTime, guild_id: int, group_id: int, rosters=None,
                  created_at: datetime = None, updated_at: datetime = None, message_refs: List[MessageRef] = None,
                  is_open: bool = False, has_been_scanned: bool = False, report_code: Optional[str] = None,
-                 presence: Optional[List[str]] = None):
+                 presence: Optional[Set[str]] = None):
         self.name = name
         self.guild_id = guild_id
         self.group_id = group_id
@@ -29,7 +29,7 @@ class RaidEvent:
 
         # Data scanned for WL logs.
         self.has_been_scanned = has_been_scanned
-        self.presence = presence if presence else []
+        self.presence = set(presence) if presence else set()
         self.report_code = report_code if report_code else None
 
     def compose_roster(self) -> List[Character]:
@@ -65,7 +65,7 @@ class RaidEvent:
         for char in self.get_signed_characters():
             if player.discord_id == char.discord_id:
                 return char.signup_status
-        return None
+        return SignupStatus.UNDECIDED
 
     def get_name(self, abbrev: bool = False) -> str:
         return self.name if abbrev else abbrev_to_full[self.name]

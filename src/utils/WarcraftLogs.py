@@ -135,10 +135,9 @@ class WarcraftLogs:
                                     boss_percentage=boss_percentage))
 
         buff_counts = defaultdict(lambda: defaultdict(int))
+        abilities = [(ability['name'].strip(), ability['gameID']) for ability in report['masterData']['abilities']]
         for consumable_requirement in get_consumable_requirements(raid_event.name):
             consumables = consumable_requirement.consumable_names
-            abilities = [(ability['name'].strip(), ability['gameID']) for ability in report['masterData']['abilities']]
-
             consumable_ids = [ability_id for ability_name, ability_id in abilities if
                               ability_name in consumables]  # One consumable name can map onto multiple ids...
             if len(consumable_ids) == 0:
@@ -154,8 +153,10 @@ class WarcraftLogs:
         return Report(code=report_code, fights=fights, buff_counts=dict(buff_counts))
 
     def get_events(self, report_code: str, start_time: int, end_time: int, consumable_id: int):
-        buffs = self._get_events(report_code, start_time, end_time, consumable_id, "Buffs")
-        casts = self._get_events(report_code, start_time, end_time, consumable_id, "Casts")
+        buffs = [buff for buff in self._get_events(report_code, start_time, end_time, consumable_id, "Buffs") if
+                 buff['type'] == 'applybuff']
+        # casts = self._get_events(report_code, start_time, end_time, consumable_id, "Casts")
+        casts = []
         return buffs + casts
 
     def _get_events(self, report_code: str, start_time: int, end_time: int, consumable_id: int, casts_or_buffs: str):

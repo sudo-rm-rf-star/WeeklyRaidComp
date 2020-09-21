@@ -26,7 +26,7 @@ class CharacterSelectionInteraction(OptionInteraction):
     async def get_response(self) -> Tuple[Player, Character]:
         response = await super(CharacterSelectionInteraction, self).get_response()
         if response == ADD_CHAR:
-            return await register(self.client, self.discord_guild, self.players_resource, self.member,
+            return await register(self.client, self.guild, self.players_resource, self.member,
                                   allow_multiple_chars=True)
         for character in self.player.characters:
             if response == character.name:

@@ -6,17 +6,18 @@ from typing import List, Optional
 from client.entities.GuildMember import GuildMember
 from exceptions.InvalidArgumentException import InvalidArgumentException
 from logic.Character import Character
+from logic.Guild import Guild
 
 
 class PlayersResource:
     def __init__(self):
         self.players_table: PlayersTable = TableFactory().get_players_table()
 
-    def list_players(self, guild_id: int) -> List[Player]:
-        return self.players_table.list_players(guild_id)
+    def list_players(self, guild: Guild) -> List[Player]:
+        return self.players_table.list_players(guild)
 
-    def get_player_by_name(self, name: str, guild_id: int) -> Optional[Player]:
-        return self.players_table.get_player_by_name(name, guild_id)
+    def get_player_by_name(self, name: str, guild: Guild) -> Optional[Player]:
+        return self.players_table.get_player_by_name(name, guild)
 
     def get_player_by_id(self, discord_id: int) -> Optional[Player]:
         return self.players_table.get_player_by_id(discord_id)

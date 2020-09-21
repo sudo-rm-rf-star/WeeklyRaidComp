@@ -15,4 +15,4 @@ class RegisterPlayerCommand(PlayerCommand):
 
     async def execute(self, player: str, **kwargs) -> None:
         member = get_member(self.discord_guild, player)
-        await register(self.client, self.discord_guild, self.players_resource, member, allow_multiple_chars=False)
+        await register(self.client, self.guild, self.players_resource, member, allow_multiple_chars=False)

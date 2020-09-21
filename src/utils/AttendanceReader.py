@@ -9,9 +9,9 @@ from datetime import datetime
 
 def update_raid_presence(guild: Guild, group_id: int, guilds_resource: GuildsResource,
                          events_resource: RaidEventsResource, players_resource: PlayersResource) -> None:
-    players = players_resource.list_players(guild.guild_id)
+    players = players_resource.list_players(guild)
     raid_events = [raid_event for raid_event in events_resource.get_raids(guild.guild_id, group_id) if
-                   raid_event.get_datetime() < DateOptionalTime.now() and len(raid_event.presence) is not None]
+                   raid_event.get_datetime() < DateOptionalTime.now() and raid_event.has_been_scanned]
     attendance = WarcraftLogs(events_resource, guild.wl_guild_id).get_attendance(raid_events)
 
     for raid_event in raid_events:
@@ -21,9 +21,9 @@ def update_raid_presence(guild: Guild, group_id: int, guilds_resource: GuildsRes
             was_present = False
             was_standby = False
             for character in player.characters:
-                if raid_datetime.date in attendance.get(character.name, {}).get(raid_name, {}):
+                if raid_datetime in attendance.get(character.name, {}).get(raid_name, {}):
                     was_present = True
-                    raid_event.presence.append(character.name)
+                    raid_event.presence.add(character.name)
                 elif raid_event.has_char_signed(character):
                     was_standby = True
             if was_present:

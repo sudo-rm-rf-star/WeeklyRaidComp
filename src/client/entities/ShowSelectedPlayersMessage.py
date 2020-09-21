@@ -20,6 +20,8 @@ class ShowSelectedPlayersMessage(DiscordMessage):
         self.raider_ids = [raider.id for raider in raiders]
         self.players = [player for player in players if player.discord_id in self.raider_ids]
         self.characters = [player.get_selected_char() for player in self.players]
+        signed_ids = [player.discord_id for player in self.players]
+        self.unsigned_members = [member.display_name for member in self.raiders if member.id not in signed_ids]
         self.embed = self._players_to_embed()
         super().__init__(discord_client, discord_guild, embed=self.embed)
 
@@ -37,7 +39,8 @@ class ShowSelectedPlayersMessage(DiscordMessage):
         fields = []
         for role in [Role.TANK, Role.HEALER, Role.MELEE, Role.RANGED]:
             fields.extend(self._get_field_for_role(role))
-        fields.append(self._get_missing_field())
+        if len(self.unsigned_members) > 0:
+            fields.append(self._get_missing_field())
         return fields
 
     def _get_field_for_role(self, role: Role) -> List[Dict[str, str]]:
@@ -62,7 +65,6 @@ class ShowSelectedPlayersMessage(DiscordMessage):
         return f'{self._role_class_emoji(character)} {character.name}'
 
     def _get_missing_field(self) -> Dict[str, str]:
-        value = '**Nog niet ingeschreven:** '
-        signed_ids = [player.discord_id for player in self.players]
-        value += ', '.join([member.display_name for member in self.raiders if member.id not in signed_ids])
+        value = '**Not yet registered:** '
+        value += ', '.join(self.unsigned_members)
         return self._field(value, inline=False)

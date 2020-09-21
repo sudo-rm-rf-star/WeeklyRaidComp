@@ -15,5 +15,5 @@ class ListPlayerActivityCommand(PlayerCommand):
                              self.players_resource)
         destination = self.message.channel
         raiders = await self.get_raiders()
-        players = self.players_resource.list_players(self.discord_guild.id)
+        players = self.players_resource.list_players(self.guild)
         await ShowPlayerActivityMessage(self.client, self.discord_guild, players, raiders).send_to(destination)

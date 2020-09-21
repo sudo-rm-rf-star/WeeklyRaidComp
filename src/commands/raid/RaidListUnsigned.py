@@ -17,6 +17,6 @@ class RaidListUnsigned(RaidCommand):
         raid_event = self.get_raid_event(raid_name, raid_datetime)
         unsigned_discord_ids = {guild_member.id for guild_member in await self.get_unsigned_players(raid_event)}
         unsigned_raiders = [player.get_selected_char().name for player in
-                            self.players_resource.list_players(self.discord_guild.id)
+                            self.players_resource.list_players(self.guild)
                             if player.discord_id in unsigned_discord_ids]
         self.respond(f'These players have not signed for {raid_event}: {", ".join(map(str, unsigned_raiders))}')

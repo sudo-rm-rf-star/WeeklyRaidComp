@@ -6,11 +6,12 @@ from utils.Constants import SUPPORTED_RAIDS
 
 
 class Player:
-    def __init__(self, *, discord_id: int, guild_id: int, characters: List[Character], selected_char: str, created_at: float,
+    def __init__(self, *, discord_id: int, realm: str, region: str, characters: List[Character], selected_char: str, created_at: float,
                  present_dates: Optional[Dict[str, List[DateOptionalTime]]] = None, standby_dates: Optional[Dict[str, List[DateOptionalTime]]] = None,
                  selected_raidgroup_id: Optional[int] = None):
         self.discord_id = discord_id
-        self.guild_id = guild_id
+        self.realm = realm
+        self.region= region
         self.characters = characters
         self.selected_char = selected_char
         self.present_dates = {} if not present_dates else present_dates
