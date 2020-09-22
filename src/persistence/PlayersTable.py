@@ -48,7 +48,7 @@ class PlayersTable(DynamoDBTable[Player]):
                 'class': character.klass.name,
                 'role': character.role.name,
                 'race': character.race.name,
-                'guild_ids': player.guild_ids
+                'guild_ids': list(player.guild_ids)
             })
 
     def remove_character(self, character: Character):

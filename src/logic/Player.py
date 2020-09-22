@@ -18,7 +18,7 @@ class Player:
         self.created_at = created_at
         self.selected_raidgroup_id = None if not selected_raidgroup_id else selected_raidgroup_id
         self.standby_dates = {} if not standby_dates else standby_dates
-        self.guild_ids = guild_ids if guild_ids else set()
+        self.guild_ids = set(guild_ids) if guild_ids else set()
 
     def add_standby_date(self, raid_name: str, raid_datetime: DateOptionalTime):
         if raid_name not in self.standby_dates:
