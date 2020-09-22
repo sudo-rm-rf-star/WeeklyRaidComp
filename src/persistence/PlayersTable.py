@@ -165,4 +165,4 @@ def _synthesize_player(items: Dict[str, Any]) -> Optional[Player]:
 
 
 def index_expression(guild: Guild):
-    return Key('realm#region').eq(f'{guild.realm}-{guild.region}')
+    return Key('realm#region').eq(f'{guild.realm}#{guild.region}')

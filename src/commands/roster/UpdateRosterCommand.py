@@ -15,7 +15,7 @@ class UpdateRosterCommand(RosterCommand):
     async def execute(self, raid_name: str, character: str, raid_datetime: DateOptionalTime, **kwargs):
         raid_event = self.get_raid_event(raid_name, raid_datetime)
         # Bugged: we cannot use guild_id...
-        player = self.players_resource.get_player_by_name(character, self.guild.guild_id)
+        player = self.players_resource.get_player_by_name(character, self.guild)
         if not player:
             raise InvalidArgumentException(f"Could not find character {character}")
         updated_character = raid_event.add_to_roster(player, self.roster_choice())
