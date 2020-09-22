@@ -56,7 +56,7 @@ class Character:
         }
 
     def __eq__(self, other) -> bool:
-        return self.name == other.name
+        return self.name == other.name and self.discord_id == other.discord_id
 
     def __str__(self) -> str:
         return f'{self.role.name.capitalize()} {self.klass.name.capitalize()} {self.name}'
