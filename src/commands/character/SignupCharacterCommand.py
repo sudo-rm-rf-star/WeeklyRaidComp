@@ -49,8 +49,13 @@ class SignupCharacterCommand(CharacterCommand):
             return
 
         # Add player to raid_event
-        raid_event.add_to_signees(self.player, signup_choice)
+        character = raid_event.add_to_signees(self.player, signup_choice)
         self.events_resource.update_raid(self.discord_guild, raid_event)
         self.respond(
-            f'Thanks for signing up with {self.player.get_selected_char()} as {signup_choice.name.capitalize()} '
+            f'Thanks for signing up with {character} as {character.signup_status} '
             f'for {raid_event}')
+
+        # The player now has signed for a raid of that guild
+        if self.guild.guild_id not in self.player.guild_ids:
+            self.player.guild_ids.add(self.guild.guild_id)
+            self.players_resource.update_player(self.player)

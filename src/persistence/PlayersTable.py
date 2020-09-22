@@ -22,24 +22,23 @@ class PlayersTable(DynamoDBTable[Player]):
 
     def get_player_by_name(self, player_name: str, guild: Guild) -> Optional[Player]:
         return _synthesize_player(self.table.query(IndexName=PlayersTable.INDEX_NAME,
-                                                   KeyConditionExpression=Key('realm#region').eq(
-                                                       f'{guild.realm}-{guild.region}') & Key('name').eq(player_name)))
+                                                   KeyConditionExpression=index_expression(guild) & Key('name').eq(
+                                                       player_name)))
 
     def get_player_by_id(self, discord_id: int) -> Optional[Player]:
         return _synthesize_player(self.table.query(KeyConditionExpression=Key('discord_id').eq(str(discord_id))))
 
     def list_players(self, guild: Guild) -> List[Player]:
-        return _synthesize_players(self.table.query(IndexName=PlayersTable.INDEX_NAME,
-                                                    KeyConditionExpression=Key('realm#region').eq(
-                                                        f'{guild.realm}#{guild.region}')))
+        return [player for player in _synthesize_players(
+            self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=index_expression(guild))) if
+                guild.guild_id in player.guild_ids]
 
     def put_player(self, player: Player) -> None:
         # TODO: optimization possible here, we don't always need to update all of the characters
         for character in player.characters:
             self.table.put_item(Item={
                 'discord_id': str(player.discord_id),
-                'realm': player.realm,
-                'region': player.region,
+                'realm#region': f'{player.realm}#{player.region}',
                 'created_at': str(player.created_at),
                 'present_dates': {k: [x.to_timestamp() for x in v] for k, v in player.present_dates.items()},
                 'standby_dates': {k: [x.to_timestamp() for x in v] for k, v in player.standby_dates.items()},
@@ -49,6 +48,7 @@ class PlayersTable(DynamoDBTable[Player]):
                 'class': character.klass.name,
                 'role': character.role.name,
                 'race': character.race.name,
+                'guild_ids': player.guild_ids
             })
 
     def remove_character(self, character: Character):
@@ -162,3 +162,7 @@ def _synthesize_player(items: Dict[str, Any]) -> Optional[Player]:
     if len(players) != 1:
         raise InternalBotException("Invalid player count")
     return players[0]
+
+
+def index_expression(guild: Guild):
+    return Key('realm#region').eq(f'{guild.realm}-{guild.region}')
