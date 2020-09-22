@@ -109,7 +109,7 @@ class RaidEvent:
             'roster': self.roster.to_dict(),
             'message_refs': [msg.to_dict() for msg in self.message_refs],
             'is_open': self.is_open,
-            'presence': self.presence,
+            'presence': list(self.presence),
             'report_code': self.report_code,
             'has_been_scanned': self.has_been_scanned
         }
