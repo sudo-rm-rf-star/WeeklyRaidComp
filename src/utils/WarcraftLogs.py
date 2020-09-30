@@ -107,6 +107,8 @@ class WarcraftLogs:
             client = BackendApplicationClient(client_id=client_id)
             oauth = OAuth2Session(client=client)
             token = dict(oauth.fetch_token(token_url=TOKEN_URL, client_id=client_id, client_secret=client_secret))
+            print(token['access_token'])
+            exit(1)
             self.expiry_datetime = datetime.now() + timedelta(seconds=int(token['expires_in']))
             self.auth_header = {"Content-Type": "application/json",
                                 "Authorization": f"{token['token_type']} {token['access_token']}"}

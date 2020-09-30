@@ -21,7 +21,10 @@ class RaidNotification(DiscordMessage):
         if len(msgs) == 1:
             message = msgs[0]
             for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items()]:
-                await message.add_reaction(emoji=get_emoji(self.discord_guild, emoji))
+                try:
+                    await message.add_reaction(emoji=get_emoji(self.discord_guild, emoji))
+                except discord.NotFound:
+                    Log.error(f'Could not find {emoji} when sending to {recipient}')
             return message
         else:
             Log.error(f'Could not send message to {recipient}')
