@@ -140,14 +140,18 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         race = Race[item['race']]
         # TODO: UPDATE ME FOR REGION/REALM expansion
         realm, region = tuple(item.get('realm#region', 'Earthshaker#Europe').split('#'))
+        guild_ids = set(item.get('guild_ids', set()))
+        last_guild_id = item.get('last_guild_id', None)
         if discord_id not in players:
             players[discord_id] = Player(discord_id=discord_id, realm=realm, region=region, selected_char=selected_char,
                                          characters=[], created_at=created_at, present_dates=present_dates,
-                                         standby_dates=standby_dates, selected_raidgroup_id=selected_raidgroup_id)
+                                         standby_dates=standby_dates, selected_raidgroup_id=selected_raidgroup_id,
+                                         guild_ids=guild_ids, last_guild_id=last_guild_id)
         player = players[discord_id]
         if realm != player.realm or region != player.region or selected_char != player.selected_char or \
                 selected_raidgroup_id != player.selected_raidgroup_id or present_dates != player.present_dates or \
-                standby_dates != player.standby_dates or created_at != player.created_at:
+                standby_dates != player.standby_dates or created_at != player.created_at or guild_ids != player.guild_ids:
+            print(guild_ids, player.guild_ids)
             raise InternalBotException("Player rows are not consistent.")
         player.characters.append(
             Character(char_name=char_name, discord_id=discord_id, klass=klass, role=role, race=race,

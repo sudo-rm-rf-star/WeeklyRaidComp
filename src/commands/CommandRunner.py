@@ -18,7 +18,6 @@ from commands.raid.EditRaidEvent import EditRaidEvent
 from commands.raid.RemoveRaidEvent import RemoveRaidCommand
 from commands.raid.RaidEventInvite import RaidEventInvite
 from commands.raid.RaidEventRemind import RaidEventRemind
-from commands.raid.RaidListUnsigned import RaidListUnsigned
 from commands.raid.ListRaidEvent import ListRaidEvent
 from commands.raid.RaidEvaluate import RaidEvaluate
 from commands.raid.OpenRaidEvent import OpenRaidEvent
@@ -45,11 +44,12 @@ from exceptions.InternalBotException import InternalBotException
 from exceptions.InvalidArgumentException import InvalidArgumentException
 from utils.Constants import BOT_NAME
 
-COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand, SignupCharacterCommand,
-            RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup, AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand,
-            CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListAllPlayersCommand, CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ListRaidEvent,
-            ListPlayerActivityCommand, ListSelectedPlayersCommand, RaidEvaluate, RaidConsumableEvaluate, RemoveCharacter, RaidListUnsigned,
-            OpenRaidEvent, ShowRaidEvent}
+COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand,
+            SignupCharacterCommand, RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup,
+            AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand, CreateRosterCommand, RaidEventInvite,
+            RaidEventRemind, ListAllPlayersCommand, CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ListRaidEvent,
+            ListPlayerActivityCommand, ListSelectedPlayersCommand, RaidEvaluate, RaidConsumableEvaluate,
+            RemoveCharacter, OpenRaidEvent, ShowRaidEvent}
 
 
 class CommandRunner:
@@ -90,7 +90,8 @@ class CommandRunner:
                 kwargs = ArgParser(command.argformat()).parse(argv)
                 await command.call(**kwargs)
 
-    async def run_command_for_reaction_event(self, raw_reaction: discord.RawReactionActionEvent, command_type: Type[BotCommand]):
+    async def run_command_for_reaction_event(self, raw_reaction: discord.RawReactionActionEvent,
+                                             command_type: Type[BotCommand]):
         command = await self._create_command(command_type, raw_reaction=raw_reaction)
         if command:
             await command.call()
@@ -116,7 +117,11 @@ class CommandRunner:
                 if not player:
                     await author.send("Please register first.")
                     return None
-                discord_guild = await self.client.fetch_guild(player.guild_id)
+                if player.last_guild_id:
+                    discord_guild = await self.client.fetch_guild(player.last_guild_id)
+                else:
+                    raise InvalidArgumentException("Please execute this command on your discord server.")
+            guild_id = discord_guild.id
             guild_member = await get_member_by_id(discord_guild, user_id)
             channel = message.channel
             message_ref = None
@@ -131,11 +136,26 @@ class CommandRunner:
         if not player:
             await guild_member.send("You need to register a character prior to using DokBot.")
             player, _ = await register(self.client, guild, self.players_resource, guild_member)
+
+        # Store that a player was active in this guild
+        needs_update = False
+        if guild_id not in player.guild_ids:
+            player.guild_ids.add(guild_id)
+            needs_update = True
+        if guild_id != player.last_guild_id:
+            player.last_guild_id = guild_id
+            needs_update = True
+        if needs_update:
+            self.players_resource.update_player(player)
+
         raidgroup: RaidGroup = GuildsResource.get_group(guild, player)
         logs_channel: discord.TextChannel = await get_channel(discord_guild, guild.logs_channel)
-        return command_type(client=self.client, players_resource=self.players_resource, events_resource=self.events_resource,
-                            guilds_resource=self.guilds_resource, message=message, message_ref=message_ref, raw_reaction=raw_reaction, member=guild_member,
-                            player=player, discord_guild=discord_guild, guild=guild, raidgroup=raidgroup, channel=channel, logs_channel=logs_channel,
+        return command_type(client=self.client, players_resource=self.players_resource,
+                            events_resource=self.events_resource,
+                            guilds_resource=self.guilds_resource, message=message, message_ref=message_ref,
+                            raw_reaction=raw_reaction, member=guild_member,
+                            player=player, discord_guild=discord_guild, guild=guild, raidgroup=raidgroup,
+                            channel=channel, logs_channel=logs_channel,
                             messages_resource=self.messages_resource)
 
 
@@ -167,7 +187,8 @@ def generate_help_page_command(name: str, subcommands: List[Type[BotCommand]]):
         def req_manager_rank(cls) -> bool: return False
 
         @classmethod
-        def description(cls) -> str: return f"Shows all commands for {name} and how to use them. Note that all arguments surround by [ ] are optional."
+        def description(
+                cls) -> str: return f"Shows all commands for {name} and how to use them. Note that all arguments surround by [ ] are optional."
 
         async def execute(self, **kwargs) -> None:
             for command in subcommands:

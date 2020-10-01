@@ -17,7 +17,7 @@ class OptionInteraction(InteractionMessage):
         try:
             i = int(response) - 1
             return self.options[i]
-        except ValueError:
+        except (ValueError, TypeError):
             if response in self.options:
                 return response
             raise InvalidArgumentException(f'Please choose on of:\n{self.options_str}')
