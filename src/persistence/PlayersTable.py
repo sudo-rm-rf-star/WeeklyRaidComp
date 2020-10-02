@@ -8,7 +8,6 @@ from logic.enums.Class import Class
 from logic.enums.Race import Race
 from logic.Character import Character
 from exceptions.InternalBotException import InternalBotException
-from datetime import datetime
 from utils.DateOptionalTime import DateOptionalTime
 from logic.Guild import Guild
 
@@ -48,7 +47,8 @@ class PlayersTable(DynamoDBTable[Player]):
                 'class': character.klass.name,
                 'role': character.role.name,
                 'race': character.race.name,
-                'guild_ids': list(player.guild_ids)
+                'guild_ids': list(player.guild_ids),
+                'last_guild_id': player.last_guild_id
             })
 
     def remove_character(self, character: Character):
@@ -138,8 +138,7 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         klass = Class[item['class']]
         role = Role[item['role']]
         race = Race[item['race']]
-        # TODO: UPDATE ME FOR REGION/REALM expansion
-        realm, region = tuple(item.get('realm#region', 'Earthshaker#Europe').split('#'))
+        realm, region = tuple(item['realm#region'].split('#'))
         guild_ids = set(item.get('guild_ids', set()))
         last_guild_id = item.get('last_guild_id', None)
         if discord_id not in players:

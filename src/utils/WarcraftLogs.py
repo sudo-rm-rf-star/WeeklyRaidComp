@@ -1,4 +1,5 @@
 import requests
+import re
 import os
 from dotenv import load_dotenv
 from oauthlib.oauth2 import BackendApplicationClient
@@ -15,6 +16,7 @@ from logic.RaidEvent import RaidEvent
 from utils.Consumables import get_consumable_requirements
 from client.RaidEventsResource import RaidEventsResource
 import utils.Logger as Log
+from exceptions.InvalidArgumentException import InvalidArgumentException
 
 
 def attendance_query(guild_id: int, page: int) -> str:
@@ -94,6 +96,11 @@ BEARER_TOKEN = None
 
 class WarcraftLogs:
     def __init__(self, events_resource: RaidEventsResource, guild_id: int):
+        if guild_id is None:
+            raise InvalidArgumentException(f'This function is not usable without Warcraft Logs. '
+                                           f'Make sure your guild name, realm and region matches your guild in '
+                                           f'Warcraft Logs. You can update this info by using `!guild edit`')
+
         self.auth_header = {}
         self.expiry_datetime = datetime.now()
         self.guild_id = guild_id
@@ -225,3 +232,27 @@ def _find_raid(raid_name: str, raid_date: Date, raid_events: List[RaidEvent]) ->
         if raid_event.name == raid_name and raid_event.datetime == raid_date:
             return raid_event
     return None
+
+
+def get_wl_guild_id(guild: str, region: str, realm: str) -> Optional[str]:
+    url = f'https://classic.warcraftlogs.com/guild/{region}/{realm}/{guild}'
+    response = requests.get(url)
+    wl_guild_ids = re.findall(r'/guild/id/([0-9]*)', response.text)
+    wl_guild_id = wl_guild_ids[0] if len(wl_guild_ids) >= 1 else None
+    return wl_guild_id
+
+
+def get_raidgroups(wl_guild_id: int) -> Optional[Dict[str, int]]:
+    if wl_guild_id is None:
+        return None
+    url = f'https://classic.warcraftlogs.com/guild/id/{wl_guild_id}'
+    response = requests.get(url)
+    raid_groups = re.findall(r'/guild/team-calendar/([0-9]*)">([^<]*)', response.text)
+    if len(raid_groups) == 0:
+        return None
+    return {v: int(k) for k, v in raid_groups}
+
+
+if __name__ == '__main__':
+    wl_guild_id = 510080
+    print(get_raidgroups(wl_guild_id))

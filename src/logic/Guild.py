@@ -4,7 +4,7 @@ from logic.RaidGroup import RaidGroup
 
 class Guild:
     def __init__(self, name: str, realm: str, region: str, manager_rank: str, guild_id: Optional[int],
-                 wl_guild_id: Optional[int], groups: Optional[List[RaidGroup]] = None,
+                 wl_guild_id: Optional[int] = None, groups: Optional[List[RaidGroup]] = None,
                  logs_channel: Optional[str] = None):
         self.name = name
         self.manager_rank = manager_rank
@@ -14,6 +14,11 @@ class Guild:
         self.wl_guild_id = wl_guild_id
         self.raid_groups = groups if groups else []
         self.logs_channel = logs_channel
+        if wl_guild_id is None:
+            from utils.WarcraftLogs import get_wl_guild_id
+            self.wl_guild_id = get_wl_guild_id(guild=name, region=region, realm=realm)
+        else:
+            self.wl_guild_id = wl_guild_id
 
     def to_dict(self) -> Dict[str, Any]:
         return {
