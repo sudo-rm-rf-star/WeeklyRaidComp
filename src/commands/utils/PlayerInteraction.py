@@ -49,7 +49,7 @@ class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
     def __init__(self, client: discord.Client, guild: discord.Guild, content: str, enum: T, *args, **kwargs):
         self.enum = enum
         self.options = '/'.join([' '.join(map(lambda x: x.capitalize(), value.split('_'))) for value in enum.__members__.keys()])
-        content += f': [{self.options}]'
+        content += f': {self.options}'
         super().__init__(client, guild, content, *args, **kwargs)
 
     async def get_response(self) -> Optional[T]:

@@ -5,6 +5,7 @@ from logic.enums.SignupStatus import SignupStatus
 from commands.utils.CharacterSelectionInteraction import CharacterSelectionInteraction
 from utils.DiscordUtils import get_emoji
 from utils.EmojiNames import SIGNUP_STATUS_HELP, SIGNUP_STATUS_EMOJI
+from exceptions.InternalBotException import InternalBotException
 
 
 class SignupCharacterCommand(CharacterCommand):
@@ -50,6 +51,18 @@ class SignupCharacterCommand(CharacterCommand):
         # Add player to raid_event
         character = raid_event.add_to_signees(self.player, signup_choice)
         self.events_resource.update_raid(self.discord_guild, raid_event)
-        self.respond(
-            f'Thanks for signing up with {character} as {character.signup_status} '
-            f'for {raid_event}')
+
+        if character.signup_status == SignupStatus.ACCEPT:
+            response = f'Thanks for accepting {raid_event}. See you then {character.name}!'
+        elif character.signup_status == SignupStatus.DECLINE:
+            response = f'You have declined {raid_event}.'
+        elif character.signup_status == SignupStatus.TENTATIVE:
+            response = f'Not 100% certain that you can join for {raid_event}? No worries {character.name}, ' \
+                       f'please let me know whether you can join before the raid!'
+        elif character.signup_status == SignupStatus.LATE:
+            response = f'Thanks for accepting {raid_event}. Please let the raid leader know from when you are available {character.name}'
+        elif character.signup_status == SignupStatus.BENCH:
+            response = f'So you prefer to sit {raid_event} out, contact the raid leader to see if this is possible {character.name}'
+        else:
+            raise InternalBotException(f'No response for {character.signup_status}')
+        self.respond(response)
