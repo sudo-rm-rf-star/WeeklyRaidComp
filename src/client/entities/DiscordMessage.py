@@ -56,7 +56,7 @@ class DiscordMessage:
         return self._get_emoji(SIGNUP_STATUS_EMOJI[signup_choice])
 
     def _get_emoji(self, name: str) -> discord.Emoji:
-        return get_emoji(self.discord_guild, name)
+        return get_emoji(self.discord_client, name)
 
     def split_column_evenly(self, lines: List[str], column_count: int = 3, column_width=3):
         assert column_width <= 3

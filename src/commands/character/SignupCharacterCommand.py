@@ -1,5 +1,4 @@
 from commands.character.CharacterCommand import CharacterCommand
-from client.entities.RaidMessage import RaidMessage
 from utils.EmojiNames import EMOJI_SIGNUP_STATUS
 from datetime import datetime
 from logic.enums.SignupStatus import SignupStatus
@@ -43,7 +42,7 @@ class SignupCharacterCommand(CharacterCommand):
 
         if signup_choice == SignupStatus.UNDECIDED:
             help_response = "\n".join(
-                [f"{get_emoji(self.discord_guild, SIGNUP_STATUS_EMOJI[signup_state])} {help_str}" for
+                [f"{get_emoji(self.client, SIGNUP_STATUS_EMOJI[signup_state])} {help_str}" for
                  signup_state, help_str in SIGNUP_STATUS_HELP.items()])
             self.respond(help_response)
             return

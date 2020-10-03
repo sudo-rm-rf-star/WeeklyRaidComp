@@ -2,14 +2,13 @@ from commands.utils.PlayerInteraction import InteractionMessage
 from utils.DiscordUtils import get_role, get_roles_non_async
 from exceptions.InvalidArgumentException import InvalidArgumentException
 import discord
+from commands.utils.OptionInteraction import OptionInteraction
 
 
-class DiscordRoleInteraction(InteractionMessage):
+class DiscordRoleInteraction(OptionInteraction):
     def __init__(self, client: discord.Client, guild: discord.Guild, content: str, *args, **kwargs):
-        self.options = '/'.join([', '.join([role.name for role in get_roles_non_async(guild)])])
-        content += f':\n [{self.options}]'
-        self.guild = guild
-        super().__init__(client, guild, content, *args, **kwargs)
+        options = [role.name for role in get_roles_non_async(guild)]
+        super().__init__(client, guild, content, options, *args, **kwargs)
 
     async def get_response(self) -> str:
         response = await super(DiscordRoleInteraction, self).get_response()

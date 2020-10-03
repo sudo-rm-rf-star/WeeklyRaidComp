@@ -1,10 +1,8 @@
 from utils.EmojiNames import SIGNUP_STATUS_EMOJI
-from logic.enums.SignupStatus import SignupStatus
 from logic.RaidEvent import RaidEvent
 from client.entities.DiscordMessage import DiscordMessage
 from client.entities.GuildMember import GuildMember
 import discord
-from utils.DiscordUtils import get_emoji
 import utils.Logger as Log
 from typing import Optional
 
@@ -22,7 +20,7 @@ class RaidNotification(DiscordMessage):
             message = msgs[0]
             for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items()]:
                 try:
-                    await message.add_reaction(emoji=get_emoji(self.discord_guild, emoji))
+                    await message.add_reaction(emoji=self._get_emoji(emoji))
                 except discord.NotFound:
                     Log.error(f'Could not find {emoji} when sending to {recipient}')
             return message

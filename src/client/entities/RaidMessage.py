@@ -11,7 +11,6 @@ from typing import List, Optional, Dict, Union
 import asyncio
 import discord
 from logic.Character import Character
-from utils.DiscordUtils import get_emoji
 from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 
 
@@ -46,7 +45,7 @@ class RaidMessage(DiscordMessage):
             if not self.raid_event.is_open:
                 await message.clear_reactions()
             else:
-                emojis = [get_emoji(self.discord_guild, emoji_name) for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if
+                emojis = [self._get_emoji(emoji_name) for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if
                           status != SignupStatus.UNDECIDED]
                 if set(emojis) != set(reaction.emoji for reaction in message.reactions):
                     await message.clear_reactions()

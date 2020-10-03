@@ -45,4 +45,5 @@ class Guild:
             logs_channel=item.get('logs_channel'),
         )
 
-
+    def __eq__(self, other):
+        return other and isinstance(other, Guild) and other.name == self.name and other.realm == self.realm and other.region == self.region

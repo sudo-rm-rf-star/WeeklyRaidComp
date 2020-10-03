@@ -26,8 +26,8 @@ async def get_channel_by_id(guild: discord.Guild, channel_id: int) -> discord.Te
     return discord.utils.get(channels, id=channel_id)
 
 
-def get_emoji(guild: discord.Guild, emoji_name: str) -> discord.Emoji:
-    emoji = discord.utils.get(guild.emojis, name=emoji_name)
+def get_emoji(client: discord.Client, emoji_name: str) -> discord.Emoji:
+    emoji = discord.utils.get(client.emojis, name=emoji_name)
     if emoji is None:
         raise InternalBotException(f'{emoji_name} does not exist.')
     return emoji
