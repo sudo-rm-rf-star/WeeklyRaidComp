@@ -192,6 +192,7 @@ def generate_help_page_command(name: str, subcommands: List[Type[BotCommand]]):
 
         async def execute(self, **kwargs) -> None:
             for command in subcommands:
-                self.post(command.get_help())
+                if command.visible():
+                    self.post(command.get_help())
 
     return HelpCommand

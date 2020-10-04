@@ -20,6 +20,9 @@ class RaidConsumableEvaluate(RaidCommand):
     def argformat(cls) -> str:
         return "raid_name raid_date raid_time"
 
+    @classmethod
+    def visible(cls) -> bool: return False
+
     async def execute(self, raid_name: str, raid_datetime: DateOptionalTime, **kwargs):
         self.respond(f"Evaluating the raid, this can take several seconds...")
         destination = self.message.channel

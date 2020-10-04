@@ -52,6 +52,10 @@ class BotCommand:
     def req_manager_rank(cls) -> bool:
         return True
 
+    @classmethod
+    def visible(cls) -> bool:
+        return True
+
     def __init__(self, client: discord.Client, players_resource: PlayersResource, events_resource: RaidEventsResource, guilds_resource: GuildsResource,
                  messages_resource: MessagesResource, message: Optional[Message], message_ref: Optional[MessageRef],
                  raw_reaction: discord.RawReactionActionEvent,
@@ -90,9 +94,6 @@ class BotCommand:
 
     def post(self, content: str):
         asyncio.create_task(self.channel.send(content=content))
-
-    async def show_help(self, channel: TextChannel) -> None:
-        await channel.send(content=self.get_help())
 
     @classmethod
     def get_help(cls) -> str:
