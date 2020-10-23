@@ -116,13 +116,24 @@ class BotCommand:
         return self.get_raidgroup().raider_rank
 
     async def get_raiders(self) -> List[GuildMember]:
+        try:
+            if self.discord_guild.member_count > 0:
+                return [GuildMember(member, self.discord_guild.id) for member in self.discord_guild.members if
+                        any(role.name == self.get_raider_rank() for role in member.roles)]
+        except AttributeError:
+            pass
+
         member_iterator = self.discord_guild.fetch_members(limit=None)
         raiders = []
         i = 0
         more_items = True
         while i < MAX_ITERS and more_items:
             try:
-                member = await member_iterator.next()
+                try:
+                    member = await member_iterator.next()
+                except discord.Forbidden as e:
+                    self.respond(f'There are non-transient problems with Discord permissions...')
+                    raise e
                 if member and any(role.name == self.get_raider_rank() for role in member.roles):
                     raiders.append(GuildMember(member, self.discord_guild.id))
             except discord.NoMoreItems:

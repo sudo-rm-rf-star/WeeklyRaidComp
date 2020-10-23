@@ -15,6 +15,7 @@ class RaidNotification(DiscordMessage):
         super(RaidNotification, self).__init__(client, guild, content=content)
 
     async def send_to(self, recipient: GuildMember) -> Optional[discord.Message]:
+        Log.info(f'Inviting {recipient} to {self.raid_event}')
         msgs = await super(RaidNotification, self).send_to(recipient)
         if len(msgs) == 1:
             message = msgs[0]

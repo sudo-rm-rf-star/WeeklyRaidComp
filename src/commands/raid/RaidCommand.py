@@ -5,12 +5,10 @@ from client.entities.GuildMember import GuildMember
 from client.entities.RaidMessage import RaidMessage
 from logic.MessageRef import MessageRef
 from logic.RaidEvent import RaidEvent
-from utils.DiscordUtils import get_message, get_emoji
-from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 from utils.DateOptionalTime import DateOptionalTime
-from logic.enums.SignupStatus import SignupStatus
 from exceptions.InvalidArgumentException import InvalidArgumentException
 import discord
+import utils.Logger as Log
 
 
 class RaidCommand(BotCommand):
@@ -33,6 +31,7 @@ class RaidCommand(BotCommand):
         return raid_event
 
     async def send_raid_notification(self, raid_event: RaidEvent, raiders: List[GuildMember]) -> None:
+        Log.info(f'Sending {len(raiders)} invitations for {raid_event}')
         for raider in raiders:
             if not raid_event.has_user_signed(raider.id) or len(raiders) == 1:
                 msg = await RaidNotification(self.client, self.discord_guild, raid_event).send_to(raider)

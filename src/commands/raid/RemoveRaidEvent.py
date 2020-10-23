@@ -1,6 +1,5 @@
 from commands.raid.RaidCommand import RaidCommand
 from utils.DateOptionalTime import DateOptionalTime
-from utils.DiscordUtils import get_member_by_id
 
 
 class RemoveRaidCommand(RaidCommand):

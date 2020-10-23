@@ -17,7 +17,7 @@ class RaidEventInvite(RaidCommand):
     async def execute(self, raid_name: str, discord_name: str, raid_datetime: DateOptionalTime, **kwargs):
         raid_event = self.events_resource.get_raid(discord_guild=self.discord_guild, group_id=self._raidgroup.group_id,
                                                    raid_name=raid_name, raid_datetime=raid_datetime)
-        player = self.players_resource.get_player_by_name(discord_name, self.guild)
+        player = self.players_resource.get_player_by_name(discord_name.capitalize(), self.guild)
         member = get_member(self.discord_guild, discord_name) if not player else await get_member_by_id(self.discord_guild,
                                                                                                         player.discord_id)
         if member is None:
