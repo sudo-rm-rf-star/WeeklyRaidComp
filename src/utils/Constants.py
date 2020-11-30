@@ -12,16 +12,7 @@ DATETIMESEC_FORMAT = '%d-%m-%Y %H:%M:%S'
 FILE_DATETIME_FORMAT = DATETIME_FORMAT.replace(' ', '_').replace(':', '')
 USE_SIGNUP_HISTORY = False
 VERBOSE = False
-SUPPORTED_RAIDS = ['mc', 'bwl', 'zg', 'aq20', 'aq']
-ZONE_ID = {
-    'zg': 1003,
-    'bwl': 1002,
-    'mc': 1000
-}
-
-WARCRAFT_LOGS_GUILD_ID = 510080
-WARCRAFT_LOGS_TEAM_ID = 29777
-
+SUPPORTED_RAIDS = ['mc', 'bwl', 'zg', 'aq20', 'aq', 'naxx']
 
 WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
@@ -31,7 +22,8 @@ abbrev_raid_name = {
     "Zul'Gurub": 'zg',
     'Onyxia': 'ony',
     "Temple of Ahn'Qiraj": 'aq',
-    "Ruins of Ahn'Qiraj": 'aq20'
+    "Ruins of Ahn'Qiraj": 'aq20',
+    'Naxxramas': 'naxx'
 }
 
 abbrev_to_full = {v: k for k, v in abbrev_raid_name.items()}
