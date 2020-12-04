@@ -102,6 +102,19 @@ class RaidCompositionEvaluator:
 
         return buff_count / total_buffs
 
+    def standby_score(self) -> float:
+        """ Higher score for recent standby so these people are now in the raid comp """
+        # st_score = 1
+        # now = DateOptionalTime.now()
+        # print(self.characters)
+        # for character in self.characters:
+        #     for standby_datetime in character.standby_dates.get(self.raid_name, {}):
+        #         if standby_datetime < now:
+        #             weeks_since_standby = (now.to_datetime() - standby_datetime.to_datetime()).days // 7
+        #             st_score -= 1 / (40 * (weeks_since_standby + 1))
+        # return max(0, st_score)
+        return 0
+
     def role_score(self) -> float:
         """ Ensure minimal role counts """
         tank_score = min(self.count_character(role=Role.TANK) / 4, 1)
