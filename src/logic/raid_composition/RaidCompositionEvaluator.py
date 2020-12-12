@@ -34,11 +34,14 @@ class RaidCompositionEvaluator:
             self.characters_per_class[character.klass] += 1
 
     def score(self) -> float:
-        score_eval_functions = [self.buff_score, self.role_score, self.class_balance_score, self.raid_specific_score,
-                                self.standby_score,
-                                self.signup_status_score]
+        score_eval_functions_and_weights = [(self.buff_score, 1), (self.role_score, 2), (self.class_balance_score, 1),
+                                            (self.raid_specific_score, 1), (self.standby_score, 1),
+                                            (self.signup_status_score, 1)]
 
-        return sum(eval_score() for eval_score in score_eval_functions) / len(score_eval_functions)
+        for eval_score, weight in score_eval_functions_and_weights:
+            print(eval_score, eval_score(), weight)
+        return sum(eval_score() for eval_score, _ in score_eval_functions_and_weights) / sum(
+            [weight for _, weight in score_eval_functions_and_weights])
 
     def buff_score(self) -> float:
         """ Maximize (de)buffs. """
@@ -155,28 +158,24 @@ class RaidCompositionEvaluator:
             SignupStatus.BENCH: 0.25,
             SignupStatus.DECLINE: 0
         }
-        return sum(score_per_status[character.signup_status] for character in self.characters) / len(self.characters)
+        total_score = 0
+        for status, score in score_per_status.items():
+            total_score += score ** sum([1 for char in self.characters if char.signup_status == status])
 
-    def roster_status_scoer(self) -> float:
+        return total_score / len(score_per_status.keys())
+
+    def roster_status_score(self) -> float:
+        total_score = 0
         score_per_status = {
             RosterStatus.ACCEPT: 1,
             RosterStatus.EXTRA: 0.75,
             RosterStatus.DECLINE: 0,
             RosterStatus.UNDECIDED: 0.5
         }
-        return sum(score_per_status[character.roster_status] for character in self.characters) / len(self.characters)
+        for status, score in score_per_status.items():
+            total_score += score ** sum([1 for char in self.characters if char.roster_status == status])
 
-    # def standby_score(self) -> float:
-    #     """ Higher score for recent standby so these people are now in the raid comp """
-    #     st_score = 1
-    #     now = DateOptionalTime.now()
-    #     for character in self.characters:
-    #         for standby_datetime in character.standby_dates.get(self.raid_name, {}):
-    #             if standby_datetime < now:
-    #                 weeks_since_standby = (now.to_datetime() - standby_datetime.to_datetime()).days // 7
-    #                 st_score -= 1 / (40 * (weeks_since_standby + 1))
-    #     return max(0, st_score)
-    #
+        return total_score / len(score_per_status.keys())
 
     def raid_specific_score(self) -> float:
         """ Score specific to a given raid """

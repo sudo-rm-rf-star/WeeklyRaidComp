@@ -27,3 +27,5 @@ if __name__ == '__main__':
     for char in sorted(declined_characters, key=lambda char: (char.role.name, char.klass.name)):
         print(char)
 
+
+

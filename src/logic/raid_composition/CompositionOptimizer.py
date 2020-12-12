@@ -32,6 +32,7 @@ class CompositionOptimizer:
     def make_raid_composition(self) -> List[Character]:
         accepted_characters = self.candidate_to_characters(self.random_restart_hill_climbing())
         updated_characters = []
+        print(len(accepted_characters))
         for character in self.characters:
             if character in accepted_characters:
                 roster_status = RosterStatus.ACCEPT
