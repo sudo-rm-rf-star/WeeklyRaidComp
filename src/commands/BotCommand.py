@@ -3,10 +3,10 @@ from exceptions.NoRaidGroupSpecifiedException import NoRaidGroupSpecifiedExcepti
 from commands.utils.CommandUtils import check_authority
 from client.entities.GuildMember import GuildMember
 from utils.Constants import DATETIMESEC_FORMAT
-from utils.DiscordUtils import get_members_for_role, get_channel
-from discord import Message, TextChannel, RawReactionActionEvent
+from utils.DiscordUtils import get_channel
+from discord import Message, TextChannel
 from datetime import datetime
-from typing import Optional, List, Dict, Any, Type
+from typing import Optional, List, Any, Type, Set
 from client.PlayersResource import PlayersResource
 from client.RaidEventsResource import RaidEventsResource
 from client.GuildsResource import GuildsResource
@@ -116,13 +116,6 @@ class BotCommand:
         return self.get_raidgroup().raider_rank
 
     async def get_raiders(self) -> List[GuildMember]:
-        # try:
-        #     if self.discord_guild.member_count > 0:
-        #         return [GuildMember(member, self.discord_guild.id) for member in self.discord_guild.members if
-        #                 any(role.name == self.get_raider_rank() for role in member.roles)]
-        # except AttributeError:
-        #     pass
-        #
         raiders = []
         try:
             async for member in self.discord_guild.fetch_members(limit=None):
@@ -132,6 +125,14 @@ class BotCommand:
             self.respond(f'There are non-transient problems with Discord permissions...')
             raise e
         return raiders
+
+    async def get_autoinvited_raiders(self) -> Set[GuildMember]:
+        raiders = await self.get_raiders()
+        for player in self.players_resource.list_players(self.guild):
+            if player.autoinvited:
+                member = self.discord_guild.get_member(player.discord_id)
+                raiders.append(GuildMember(member, self.guild.guild_id))
+        return set(raiders)
 
     async def get_events_channel(self):
         return await get_channel(self.discord_guild, self.get_raidgroup().events_channel)

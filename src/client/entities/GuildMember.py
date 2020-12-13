@@ -25,3 +25,9 @@ class GuildMember:
 
     def __repr__(self):
         return str(self)
+
+    def __eq__(self, other):
+        return other.member.id == self.member.id and other.guild_id == self.guild_id
+
+    def __hash__(self):
+        return hash((self.member, self.guild_id))

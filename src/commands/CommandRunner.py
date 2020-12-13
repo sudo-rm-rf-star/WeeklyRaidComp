@@ -11,6 +11,7 @@ from commands.player.RegisterPlayerCommand import RegisterPlayerCommand
 from commands.player.ListAllPlayersCommand import ListAllPlayersCommand
 from commands.player.ListSelectedPlayersCommand import ListSelectedPlayersCommand
 from commands.player.ListPlayerActivityCommand import ListPlayerActivityCommand
+from commands.player.AutoInvitePlayer import AutoInvitePlayer
 from commands.character.SignupCharacterCommand import SignupCharacterCommand
 from commands.raid.CreateOpenRaid import CreateOpenRaid
 from commands.raid.CreateClosedRaid import CreateClosedRaid
@@ -49,7 +50,7 @@ COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceC
             AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand, CreateRosterCommand, RaidEventInvite,
             RaidEventRemind, ListAllPlayersCommand, CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ListRaidEvent,
             ListPlayerActivityCommand, ListSelectedPlayersCommand, RaidEvaluate, RaidConsumableEvaluate,
-            RemoveCharacter, OpenRaidEvent, ShowRaidEvent}
+            RemoveCharacter, OpenRaidEvent, ShowRaidEvent, AutoInvitePlayer}
 
 
 class CommandRunner:
