@@ -25,8 +25,8 @@ class RaidCommand(BotCommand):
                                is_open=is_open)
         await self.send_raid_message(await self.get_events_channel(), raid_event)
         self.events_resource.create_raid(raid_event)
-        raiders = await self.get_raiders()
-        await self.send_raid_notification(raid_event=raid_event, raiders=raiders)
+        raiders = await self.get_autoinvited_raiders()
+        await self.send_raid_notification(raid_event=raid_event, raiders=list(raiders))
         self.respond(f'Raid {raid_event} has been successfully created.')
         return raid_event
 
