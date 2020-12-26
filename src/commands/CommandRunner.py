@@ -88,8 +88,11 @@ class CommandRunner:
                     pass
             command = await self._create_command(self.commands[name][subname], message=message)
             if command:
-                kwargs = ArgParser(command.argformat()).parse(argv)
-                await command.call(**kwargs)
+                if argv == 'help':
+                    await message.channel.send(command.get_help())
+                else:
+                    kwargs = ArgParser(command.argformat()).parse(argv)
+                    await command.call(**kwargs)
 
     async def run_command_for_reaction_event(self, raw_reaction: discord.RawReactionActionEvent,
                                              command_type: Type[BotCommand]):
