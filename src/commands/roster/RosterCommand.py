@@ -2,7 +2,7 @@ from commands.BotCommand import BotCommand
 from logic.Character import Character
 from logic.RaidEvent import RaidEvent
 from logic.enums.RosterStatus import RosterStatus
-from typing import List, Optional
+from typing import List
 from utils.DiscordUtils import get_member_by_id, set_roster_status
 import asyncio
 import discord
@@ -31,4 +31,4 @@ async def _handle_roster_choice(discord_guild: discord.Guild, raid_event: RaidEv
     formatted_msg = f'{character.name}, you were {verb} for {raid_event.get_name()} on {raid_event.get_date()} ({raid_event.get_weekday()})'
     member = await get_member_by_id(discord_guild, character.discord_id)
     await member.send(content=formatted_msg)
-    await set_roster_status(discord_guild, member, character.roster_status)
+    await set_roster_status(discord_guild, member, character)

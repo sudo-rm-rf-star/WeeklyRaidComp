@@ -9,6 +9,8 @@ from client.entities.GuildMember import GuildMember
 from exceptions.InternalBotException import InternalBotException
 from typing import Optional
 from logic.enums.RosterStatus import RosterStatus
+from logic.Character import Character
+from logic.enums.SignupStatus import SignupStatus
 
 
 async def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
@@ -81,12 +83,14 @@ async def get_message(guild: discord.Guild, message_ref: MessageRef) -> Optional
         raise MissingImplementationException()
 
 
-async def set_roster_status(guild: discord.Guild, member: GuildMember, roster_status: RosterStatus):
+async def set_roster_status(guild: discord.Guild, member: GuildMember, character: Character):
+    roster_status = character.roster_status
+    signup_status = character.signup_status
     roster_role = await get_role(guild, "Roster")
     roster_roles = {status: await _roster_status_to_role(guild, status) for status in list(RosterStatus)}
     remove_roles = list(roster_roles.values())
     add_roles = [roster_roles[roster_status]]
-    if roster_status in [RosterStatus.ACCEPT, RosterStatus.EXTRA]:
+    if roster_status in [RosterStatus.ACCEPT, RosterStatus.EXTRA] and signup_status != SignupStatus.DECLINE:
         add_roles.append(roster_role)
     else:
         remove_roles.append(roster_role)
