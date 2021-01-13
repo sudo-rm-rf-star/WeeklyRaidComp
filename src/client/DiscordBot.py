@@ -36,8 +36,6 @@ def run() -> None:
     token = os.getenv('DISCORD_TOKEN')
     assert token, "Could not find any discord token"
 
-    intents = discord.Intents.default()
-    intents.members = True
     discord_client = discord.Client(chunk_guilds_at_startup=True, intents=intents)
     players_resource = PlayersResource()
     guilds_resource = GuildsResource(discord_client)
