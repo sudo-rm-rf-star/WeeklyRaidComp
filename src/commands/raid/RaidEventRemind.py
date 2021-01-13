@@ -1,5 +1,5 @@
 from commands.raid.RaidCommand import RaidCommand
-from utils.DateOptionalTime import DateOptionalTime
+from logic.enums.SignupStatus import SignupStatus
 import discord
 
 
@@ -11,18 +11,14 @@ class RaidEventRemind(RaidCommand):
     def argformat(cls) -> str: return "raid_name [raid_date][raid_time]"
 
     @classmethod
-    def description(cls) -> str: return "Sends a reminder to all of the unsigned players to sign for the given raid."
+    def description(cls) -> str: return "Sends a reminder to all of the unsigned and tentative players to sign for " \
+                                        "the given raid. "
 
     async def execute(self, raid_name, raid_datetime, **kwargs):
         raid_event = self.get_raid_event(raid_name, raid_datetime)
-        raiders = await self.get_unsigned_players(raid_event)
-        unsigned_raider_ids = {guild_member.id for guild_member in raiders}
-        unsigned_raiders = [player.get_selected_char().name for player in
-                            self.players_resource.list_players(self.guild)
-                            if player.discord_id in unsigned_raider_ids]
+        unsigned_raiders = await self.get_unsigned_players(raid_event)
         self.respond(f'These players have not signed for {raid_event}: {", ".join(map(str, unsigned_raiders))}')
-
-        for raider in raiders:
+        for raider in unsigned_raiders:
             try:
                 await raider.send(
                     f'{raider.display_name}, this is a friendly reminder to sign for the upcoming raid for {raid_event}. '
@@ -31,3 +27,10 @@ class RaidEventRemind(RaidCommand):
             except discord.Forbidden:
                 self.respond(f'Could not send a reminder to {raider}')
 
+        tentative_raiders = await self.get_tentative_players(raid_event)
+        self.respond(f'These players are tentative for {raid_event}: {", ".join(map(str, tentative_raiders))}')
+        for raider in tentative_raiders:
+            try:
+                await raider.send(f'Once you know whether or not you can join please change your signup status, thanks!')
+            except discord.Forbidden:
+                self.respond(f'Could not send a reminder to {raider}')

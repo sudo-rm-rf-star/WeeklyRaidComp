@@ -11,6 +11,7 @@ from client.PlayersResource import PlayersResource
 from client.RaidEventsResource import RaidEventsResource
 from client.GuildsResource import GuildsResource
 from client.MessagesResource import MessagesResource
+from logic.RaidEvent import RaidEvent
 from logic.Player import Player
 from logic.Guild import Guild
 from logic.RaidGroup import RaidGroup
@@ -137,7 +138,7 @@ class BotCommand:
     async def get_events_channel(self):
         return await get_channel(self.discord_guild, self.get_raidgroup().events_channel)
 
-    def get_raid_event(self, raid_name: str, raid_datetime: DateOptionalTime):
+    def get_raid_event(self, raid_name: str, raid_datetime: DateOptionalTime) -> RaidEvent:
         raid_event = self.events_resource.get_raid(discord_guild=self.discord_guild, group_id=self.get_group_id(),
                                                    raid_name=raid_name, raid_datetime=raid_datetime)
         if not raid_event:

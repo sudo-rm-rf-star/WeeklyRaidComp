@@ -9,6 +9,7 @@ from utils.DateOptionalTime import DateOptionalTime
 from exceptions.InvalidArgumentException import InvalidArgumentException
 import discord
 import utils.Logger as Log
+from logic.enums.SignupStatus import SignupStatus
 
 
 class RaidCommand(BotCommand):
@@ -43,6 +44,9 @@ class RaidCommand(BotCommand):
 
     async def get_unsigned_players(self, raid_event: RaidEvent):
         return [raider for raider in await self.get_raiders() if not raid_event.has_user_signed(raider.id)]
+
+    async def get_tentative_players(self, raid_event: RaidEvent):
+        return [raider for raider in await self.get_raiders() if raid_event.has_user_signed_as(raider.id, SignupStatus.TENTATIVE)]
 
     async def send_raid_message(self, channel: discord.TextChannel, raid_event: RaidEvent):
         msg = await RaidMessage(self.client, self.discord_guild, raid_event).send_to(channel)
