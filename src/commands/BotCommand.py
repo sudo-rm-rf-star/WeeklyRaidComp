@@ -132,7 +132,8 @@ class BotCommand:
         for player in self.players_resource.list_players(self.guild):
             if player.autoinvited:
                 member = self.discord_guild.get_member(player.discord_id)
-                raiders.append(GuildMember(member, self.guild.guild_id))
+                if member:
+                    raiders.append(GuildMember(member, self.guild.guild_id))
         return set(raiders)
 
     async def get_events_channel(self):
