@@ -101,7 +101,8 @@ def parse_argvalue(argname: str, argval: str) -> Optional[str]:
         'player': lambda x: x.capitalize(),
         'week_count_cutoff': parse_int,
         'character': lambda x: x.capitalize(),
-        'on_or_off': lambda x: bool(x.capitalize())
+        'on_or_off': lambda x: bool(x.capitalize()),
+        'silent': lambda x: x == 'yes' or x == 'y'
     }.get(argname, lambda _: argval)
     return argparser(argval)
 
@@ -150,5 +151,6 @@ def get_example(argname: str) -> str:
         'new_raid_date': '21-04-2020',
         'new_raid_time': '21:30',
         'discord_name': '"Soep/Voidptr"',
-        'on_or_off': 'true'
+        'on_or_off': 'true',
+        'silent': 'yes'
     }[argname]
