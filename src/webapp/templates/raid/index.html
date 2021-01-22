@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section>
+    <h1>Actions</h1>
+    <ul>
+        <li><a href="{{url_for(create_raid)}}"></a></li>
+    </ul>
+</section>
+<section>
+    <h1>Raids</h1>
+    <ul>
+        {% for raid in raids %}
+        <li><a href="{{url_for(raid, name=raid.name, timestamp=timestamp.name)}}">{{raid}}</a></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>{{raid.get_name()}}</h1>
+<h2>{{raid.get_datetime()}}</h2>
+<section>
+    <h1>Actions</h1>
+    <ul>
+        <li><form action="{{url_for('signup_remind', name=raid.name, timestamp=raid.timestamp)}}" method="post">
+            <button type="submit">Send signup reminder</button>
+        </form></li>
+        <li><form action="{{url_for('create_roster', name=raid.name, timestamp=raid.timestamp)}}" method="post">
+            <button type="submit">Create the roster</button>
+        </form></li>
+    </ul>
+</section>
+<section>
+    <h1>Signed players</h1>
+    <ul>
+        {% for character in raid.get_signed_characters() %}
+        <li><a href="/players/{{character.discord_id}}">{{character}}</a></li>
+        {% endfor %}
+    </ul>
+</section>
+
+{% endblock %}
