@@ -38,7 +38,7 @@ class DiscordMessage:
                         await recipient.send(embed=discord.Embed.from_dict({'fields': fields[i:i + MAX_FIELDS]})))
             if self.content:
                 messages.append(await recipient.send(content=self.content))
-        except discord.Forbidden as e:
+        except discord.Forbidden:
             Log.error(f'Could not send message to {recipient}')
         except discord.HTTPException as e:
             if e.code == 50035:  # Invalid Form Body

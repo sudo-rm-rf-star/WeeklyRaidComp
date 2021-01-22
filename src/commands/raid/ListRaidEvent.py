@@ -3,7 +3,7 @@ from commands.raid.RaidCommand import RaidCommand
 
 class ListRaidEvent(RaidCommand):
     @classmethod
-    def subname(cls) -> str: return "list"
+    def sub_name(cls) -> str: return "list"
 
     @classmethod
     def argformat(cls) -> str: return ""

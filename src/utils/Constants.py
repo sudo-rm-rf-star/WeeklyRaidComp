@@ -2,7 +2,7 @@ import os
 BOT_NAME = 'DokBot'
 MAINTAINER_ID = 229262793331703810
 TESTER_ID = 582301840260071465
-RAID_INFO_EMBEDS = os.path.join('data', 'embeds', 'raid-info.json')
+RAID_INFO_EMBEDS = os.path.join('resources', 'embeds', 'raid-info.json')
 RAID_HELPER_BOT = 'Raid-Helper'
 DATE_FORMAT = '%d-%m-%Y'
 INFO_CHANNEL = 'raid-info'  # TODO: This does not belong here...

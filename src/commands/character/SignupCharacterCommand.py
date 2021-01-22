@@ -10,7 +10,7 @@ from exceptions.InternalBotException import InternalBotException
 
 class SignupCharacterCommand(CharacterCommand):
     @classmethod
-    def subname(cls) -> str:
+    def sub_name(cls) -> str:
         return "signup"
 
     @classmethod

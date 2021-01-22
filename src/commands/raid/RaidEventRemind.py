@@ -1,11 +1,11 @@
-from commands.raid.RaidCommand import RaidCommand
-from logic.enums.SignupStatus import SignupStatus
 import discord
+
+from commands.raid.RaidCommand import RaidCommand
 
 
 class RaidEventRemind(RaidCommand):
     @classmethod
-    def subname(cls) -> str: return "remind"
+    def sub_name(cls) -> str: return "remind"
 
     @classmethod
     def argformat(cls) -> str: return "raid_name [raid_date][raid_time]"

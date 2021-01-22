@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "layout.html" %}
+
+{% block content %}
+<form action="{{url_for('raids')}}" method="post">
+   <p>Name <input type="text" name="name"/></p>
+   <p>Date <input type="date" name="date"/></p>
+   <p>Starttime <input type="time" name="time"/></p>
+   <p><button type="submit">Confirm</button></p>
+</form>
+{% endblock %}

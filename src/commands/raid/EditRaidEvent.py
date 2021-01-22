@@ -12,7 +12,7 @@ class EditRaidEvent(RaidCommand):
         return "Edits an existing raid event"
 
     @classmethod
-    def subname(cls) -> str:
+    def sub_name(cls) -> str:
         return "edit"
 
     async def execute(self, raid_name, raid_datetime, new_raid_name, new_raid_datetime, **kwargs):

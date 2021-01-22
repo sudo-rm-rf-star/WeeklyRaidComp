@@ -5,7 +5,7 @@ import discord
 
 class AnnounceCommand(PlayerCommand):
     @classmethod
-    def subname(cls) -> str: return "announce"
+    def sub_name(cls) -> str: return "announce"
 
     @classmethod
     def argformat(cls) -> str: return "[announcement]"

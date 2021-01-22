@@ -4,7 +4,7 @@ from client.entities.ShowCharactersMessage import ShowCharactersMessage
 
 class ListCharacter(CharacterCommand):
     @classmethod
-    def subname(cls) -> str: return "list"
+    def sub_name(cls) -> str: return "list"
 
     @classmethod
     def description(cls) -> str: return "List all your characters"

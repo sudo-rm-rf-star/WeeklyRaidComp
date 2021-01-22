@@ -5,6 +5,5 @@ venv*/
 *~lock*
 logs/
 *.xlsx
-data/logs/
-data/raids
-data/players
+resources/raids
+resources/players

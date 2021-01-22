@@ -4,7 +4,7 @@ from utils.DateOptionalTime import DateOptionalTime
 
 class RemoveRaidCommand(RaidCommand):
     @classmethod
-    def subname(cls) -> str:
+    def sub_name(cls) -> str:
         return "remove"
 
     @classmethod

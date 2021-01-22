@@ -82,7 +82,7 @@ def parse_mandatory_args(args: str) -> List[str]:
 def parse_optional_args(args: str) -> List[str]:
     if args is None:
         return []
-    return [arg.strip('[] ') for arg in re.findall(r'\[[^\]]*]', args)]
+    return [arg.strip('[] ') for arg in re.findall(r'\[[^]]*]', args)]
 
 
 def parse_argvalue(argname: str, argval: str) -> Optional[str]:

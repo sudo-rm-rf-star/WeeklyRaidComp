@@ -1,11 +1,11 @@
-from typing import Dict, Optional, Any, Set, List
+from datetime import datetime
+from typing import Dict, Optional, Any, List
 
 from logic.enums.Class import Class
 from logic.enums.Race import Race
 from logic.enums.Role import Role
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
-from datetime import datetime
 from utils.DateOptionalTime import DateOptionalTime
 
 

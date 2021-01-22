@@ -5,7 +5,7 @@ from exceptions.InvalidArgumentException import InvalidArgumentException
 
 class SelectRaidGroup(RaidGroupCommand):
     @classmethod
-    def subname(cls) -> str: return "select"
+    def sub_name(cls) -> str: return "select"
 
     @classmethod
     def argformat(cls) -> str: return "raidgroup"

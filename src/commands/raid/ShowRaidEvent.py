@@ -11,7 +11,7 @@ class ShowRaidEvent(RaidCommand):
         return "Posts another message for the given event"
 
     @classmethod
-    def subname(cls) -> str:
+    def sub_name(cls) -> str:
         return "show"
 
     async def execute(self, raid_name, raid_datetime, **kwargs):

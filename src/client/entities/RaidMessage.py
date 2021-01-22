@@ -1,16 +1,18 @@
-from exceptions.InternalBotException import InternalBotException
+import asyncio
+from typing import List, Optional, Dict, Union
+
+import discord
+from discord import Embed
+
 from client.entities.DiscordMessage import DiscordMessage
-from utils.Constants import DATETIMESEC_FORMAT
-from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI, TEAM_EMOJI, SIGNUPS_EMOJI
+from exceptions.InternalBotException import InternalBotException
+from logic.Character import Character
 from logic.RaidEvent import RaidEvent
 from logic.enums.Role import Role
-from logic.enums.SignupStatus import SignupStatus
 from logic.enums.RosterStatus import RosterStatus
-from discord import Embed
-from typing import List, Optional, Dict, Union
-import asyncio
-import discord
-from logic.Character import Character
+from logic.enums.SignupStatus import SignupStatus
+from utils.Constants import DATETIMESEC_FORMAT
+from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI
 from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 
 

@@ -30,7 +30,7 @@ class PlayersTable(DynamoDBTable[Player]):
     def list_players(self, guild: Guild) -> List[Player]:
         return [player for player in _synthesize_players(
             self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=index_expression(guild))) if
-                guild.guild_id in player.guild_ids]
+                guild.id in player.guild_ids]
 
     def put_player(self, player: Player) -> None:
         # TODO: optimization possible here, we don't always need to update all of the characters
@@ -48,7 +48,7 @@ class PlayersTable(DynamoDBTable[Player]):
                 'role': character.role.name,
                 'race': character.race.name,
                 'guild_ids': list(player.guild_ids),
-                'last_guild_id': player.last_guild_id,
+                'selected_guild_id': player.selected_guild_id,
                 'autoinvited': player.autoinvited
             })
 
@@ -141,13 +141,13 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         race = Race[item['race']]
         realm, region = tuple(item['realm#region'].split('#'))
         guild_ids = set(item.get('guild_ids', set()))
-        last_guild_id = item.get('last_guild_id', None)
+        selected_guild_id = item.get('selected_guild_id', item.get('last_guild_id', None))
         autoinvited = item.get('autoinvited', False)
         if discord_id not in players:
             players[discord_id] = Player(discord_id=discord_id, realm=realm, region=region, selected_char=selected_char,
                                          characters=[], created_at=created_at, present_dates=present_dates,
                                          standby_dates=standby_dates, selected_raidgroup_id=selected_raidgroup_id,
-                                         guild_ids=guild_ids, last_guild_id=last_guild_id, autoinvited=autoinvited)
+                                         guild_ids=guild_ids, selected_guild_id=selected_guild_id, autoinvited=autoinvited)
         player = players[discord_id]
         if realm != player.realm or region != player.region or selected_char != player.selected_char or \
                 selected_raidgroup_id != player.selected_raidgroup_id or present_dates != player.present_dates or \

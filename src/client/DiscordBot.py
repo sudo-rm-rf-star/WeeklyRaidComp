@@ -33,8 +33,8 @@ def run() -> None:
     load_dotenv()
     Log.setup()
 
-    token = os.getenv('DISCORD_TOKEN')
-    assert token, "Could not find any discord token"
+    token = os.getenv('DISCORD_BOT_TOKEN')
+    assert token, "Could not find any discord bot token"
 
     discord_client = discord.Client(chunk_guilds_at_startup=True)
     players_resource = PlayersResource()

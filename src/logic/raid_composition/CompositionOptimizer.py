@@ -20,7 +20,7 @@ class CompositionOptimizer:
     def __init__(self, raid_name: str, characters: List[Character]):
         self.raid_name = raid_name
         self.characters = characters
-        self.evaluator = EVALUATORS.get(raid_name, lambda characters: RaidCompositionEvaluator(raid_name, characters))
+        self.evaluator = EVALUATORS.get(raid_name, lambda chars: RaidCompositionEvaluator(raid_name, chars))
         self.fitness_cache = {}  # This function is hard to compute
 
         # By sorting by role and then class we effectively make all neighbors in the next array by switching a
@@ -48,31 +48,31 @@ class CompositionOptimizer:
     def hill_climbing(self) -> int:
         """ https://en.wikipedia.org/wiki/Hill_climbing """
         start_time = datetime.now()
-        stoppingCondition = lambda: (datetime.now() - start_time).seconds > MAX_EVALUATION_TIME_SECS
+        stopping_condition = lambda: (datetime.now() - start_time).seconds > MAX_EVALUATION_TIME_SECS
 
-        currentNode = self.choose_initial_candidate()
-        while not stoppingCondition():
-            neighbourhood = self.get_neighbors(currentNode)
-            nextNode = None
+        current_node = self.choose_initial_candidate()
+        while not stopping_condition():
+            neighbourhood = self.get_neighbors(current_node)
+            next_node = None
             for x in neighbourhood:
-                if self.fitness(x) > self.fitness(nextNode):
-                    nextNode = x
-            if self.fitness(nextNode) <= self.fitness(currentNode):
+                if self.fitness(x) > self.fitness(next_node):
+                    next_node = x
+            if self.fitness(next_node) <= self.fitness(current_node):
                 break
-            currentNode = nextNode
-        return currentNode
+            current_node = next_node
+        return current_node
 
     def random_restart_hill_climbing(self) -> int:
-        currentNode = None
+        current_node = None
         iteration = 0
 
         while iteration < HILL_CLIMB_ITERATIONS:
-            nextNode = self.hill_climbing()
-            if self.fitness(nextNode) > self.fitness(currentNode):
-                currentNode = nextNode
+            next_node = self.hill_climbing()
+            if self.fitness(next_node) > self.fitness(current_node):
+                current_node = next_node
             iteration += 1
-        print(f"Achieved a fitness of {self.fitness(currentNode)}")
-        return currentNode
+        print(f"Achieved a fitness of {self.fitness(current_node)}")
+        return current_node
 
     def fitness(self, candidate: Optional[int]) -> float:
         if candidate is None:

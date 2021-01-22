@@ -1,13 +1,12 @@
+import math
+from typing import List
+
 from logic.Character import Character
 from logic.enums.Class import Class
-from logic.enums.Role import Role
 from logic.enums.Race import Race
-from logic.enums.SignupStatus import SignupStatus
+from logic.enums.Role import Role
 from logic.enums.RosterStatus import RosterStatus
-from typing import List
-import math
-from datetime import datetime
-from utils.DateOptionalTime import DateOptionalTime
+from logic.enums.SignupStatus import SignupStatus
 
 """
 # Goal
@@ -99,7 +98,8 @@ class RaidCompositionEvaluator:
         buff_count += min(moonkin_count, spell_power_group_count)
         total_buffs += spell_power_group_count  # Moonkin Aura
 
-        # Paladin: Blessing of Might, Salavation, Wisdom, Kings, Light, Sanctuary & Devotion, Concentration, Retribution, Resistance Aura
+        # Paladin: Blessing of Might, Salavation, Wisdom, Kings, Light, Sanctuary & Devotion, Concentration,
+        # Retribution, Resistance Aura
         buff_count += min(self.count_character(klass=Class.PALADIN) * 2, 10)
         total_buffs += 10
 

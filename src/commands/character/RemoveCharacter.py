@@ -3,7 +3,7 @@ from commands.character.CharacterCommand import CharacterCommand
 
 class RemoveCharacter(CharacterCommand):
     @classmethod
-    def subname(cls) -> str: return "remove"
+    def sub_name(cls) -> str: return "remove"
 
     @classmethod
     def description(cls) -> str: return "Remove your selected character"

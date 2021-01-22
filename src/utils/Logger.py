@@ -3,7 +3,7 @@ import logging.handlers
 from datetime import datetime
 from pathlib import Path
 
-LOG_PATH = Path(f'data/logs/{datetime.now().date()}.log')
+LOG_PATH = Path(f'logs/{datetime.now().date()}.log')
 
 
 def info(msg: str) -> None:

@@ -4,7 +4,7 @@ from client.entities.ShowRaidGroupsMessage import ShowRaidGroupsMessage
 
 class ListRaidGroups(RaidGroupCommand):
     @classmethod
-    def subname(cls) -> str: return "list"
+    def sub_name(cls) -> str: return "list"
 
     @classmethod
     def description(cls) -> str: return "Show all raid groups in this guild"

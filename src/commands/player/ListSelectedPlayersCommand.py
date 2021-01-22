@@ -4,7 +4,7 @@ from commands.player.PlayerCommand import PlayerCommand
 
 class ListSelectedPlayersCommand(PlayerCommand):
     @classmethod
-    def subname(cls) -> str: return "list-selected"
+    def sub_name(cls) -> str: return "list-selected"
 
     @classmethod
     def description(cls) -> str: return "Show an overview of all players and their selected character in your raiding group"

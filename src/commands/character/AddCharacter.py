@@ -4,7 +4,7 @@ from commands.utils.RegistrationHelper import register
 
 class AddCharacter(CharacterCommand):
     @classmethod
-    def subname(cls) -> str: return "add"
+    def sub_name(cls) -> str: return "add"
 
     @classmethod
     def description(cls) -> str: return "Add a new character"

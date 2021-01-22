@@ -4,7 +4,7 @@ from commands.utils.GuildHelper import create_guild
 
 class CreateGuild(GuildCommand):
     @classmethod
-    def subname(cls) -> str: return "create"
+    def sub_name(cls) -> str: return "create"
 
     @classmethod
     def description(cls) -> str: return "Make a new guild"

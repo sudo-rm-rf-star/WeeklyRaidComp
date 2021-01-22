@@ -10,7 +10,6 @@ from commands.player.AnnounceCommand import AnnounceCommand
 from commands.player.RegisterPlayerCommand import RegisterPlayerCommand
 from commands.player.ListAllPlayersCommand import ListAllPlayersCommand
 from commands.player.ListSelectedPlayersCommand import ListSelectedPlayersCommand
-from commands.player.ListPlayerActivityCommand import ListPlayerActivityCommand
 from commands.player.AutoInvitePlayer import AutoInvitePlayer
 from commands.character.SignupCharacterCommand import SignupCharacterCommand
 from commands.raid.CreateOpenRaid import CreateOpenRaid
@@ -20,10 +19,8 @@ from commands.raid.RemoveRaidEvent import RemoveRaidCommand
 from commands.raid.RaidEventInvite import RaidEventInvite
 from commands.raid.RaidEventRemind import RaidEventRemind
 from commands.raid.ListRaidEvent import ListRaidEvent
-from commands.raid.RaidEvaluate import RaidEvaluate
 from commands.raid.OpenRaidEvent import OpenRaidEvent
 from commands.raid.ShowRaidEvent import ShowRaidEvent
-from commands.raid.RaidConsumablesEvaluate import RaidConsumableEvaluate
 from commands.raidgroup.ListRaidGroups import ListRaidGroups
 from commands.raidgroup.SelectRaidGroup import SelectRaidGroup
 from commands.raidgroup.AddRaidGroup import AddRaidGroup
@@ -49,8 +46,7 @@ COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceC
             SignupCharacterCommand, RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup,
             AcceptPlayerCommand, BenchPlayerCommand, DeclinePlayerCommand, CreateRosterCommand, RaidEventInvite,
             RaidEventRemind, ListAllPlayersCommand, CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ListRaidEvent,
-            ListPlayerActivityCommand, ListSelectedPlayersCommand, RaidEvaluate, RaidConsumableEvaluate,
-            RemoveCharacter, OpenRaidEvent, ShowRaidEvent, AutoInvitePlayer}
+            ListSelectedPlayersCommand, RemoveCharacter, OpenRaidEvent, ShowRaidEvent, AutoInvitePlayer}
 
 
 class CommandRunner:
@@ -64,20 +60,20 @@ class CommandRunner:
         self.commands = _to_command_dict(COMMANDS)
 
     async def run_command_for_message(self, message: discord.Message):
-        name, subname, argv = None, None, None
+        name, sub_name, argv = None, None, None
         try:
             # Parsing here could be moved to ArgParser
             argv = message.content
             args = tuple(argv.split(' '))
-            name, subname = tuple(args[:2])
+            name, sub_name = tuple(args[:2])
             name = name.strip()[1:]
             argv = ' '.join(args[2:])
         except (IndexError, ValueError):
             pass  # This is not a command intended for our bot.
-        if name and subname:
+        if name and sub_name:
             if name not in self.commands:
                 return
-            if subname not in self.commands[name]:
+            if sub_name not in self.commands[name]:
                 return
             if message:  # At this point we can safely delete the message as it is intended for the bot
                 try:
@@ -86,7 +82,7 @@ class CommandRunner:
                     pass
                 except discord.Forbidden:  # This happens when users are performing actions in DM.
                     pass
-            command = await self._create_command(self.commands[name][subname], message=message)
+            command = await self._create_command(self.commands[name][sub_name], message=message)
             if command:
                 if argv == 'help':
                     await message.channel.send(command.get_help())
@@ -121,8 +117,8 @@ class CommandRunner:
                 if not player:
                     await author.send("Please register first.")
                     return None
-                if player.last_guild_id:
-                    discord_guild = await self.client.fetch_guild(player.last_guild_id)
+                if player.selected_guild_id:
+                    discord_guild = await self.client.fetch_guild(player.selected_guild_id)
                 else:
                     raise InvalidArgumentException("Please execute this command on your discord server.")
             guild_id = discord_guild.id
@@ -146,8 +142,8 @@ class CommandRunner:
         if guild_id not in player.guild_ids:
             player.guild_ids.add(guild_id)
             needs_update = True
-        if guild_id != player.last_guild_id:
-            player.last_guild_id = guild_id
+        if guild_id != player.selected_guild_id:
+            player.selected_guild_id = guild_id
             needs_update = True
         if needs_update:
             self.players_resource.update_player(player)
@@ -166,16 +162,16 @@ class CommandRunner:
 def _to_command_dict(commands: Set[Type[BotCommand]]) -> Dict[str, Dict[str, Type[BotCommand]]]:
     dct = defaultdict(dict)
     for command in commands:
-        assert dct.get(command.name(), {}).get(command.subname(), None) is None
-        dct[command.name()][command.subname()] = command
+        assert dct.get(command.name(), {}).get(command.sub_name(), None) is None
+        dct[command.name()][command.sub_name()] = command
     for name, subcommands in dct.items():
         help_command = generate_help_page_command(name, list(subcommands.values()))
-        dct[help_command.name()][help_command.subname()] = help_command
+        dct[help_command.name()][help_command.sub_name()] = help_command
 
     help_command = generate_help_page_command(BOT_NAME.lower(),
                                               [command for _, command_group in dct.items() for _, command in
                                                command_group.items()])
-    dct[help_command.name()][help_command.subname()] = help_command
+    dct[help_command.name()][help_command.sub_name()] = help_command
     return dict(dct)
 
 
@@ -185,7 +181,7 @@ def generate_help_page_command(name: str, subcommands: List[Type[BotCommand]]):
         def name(cls) -> str: return name
 
         @classmethod
-        def subname(cls) -> str: return "help"
+        def sub_name(cls) -> str: return "help"
 
         @classmethod
         def req_manager_rank(cls) -> bool: return False

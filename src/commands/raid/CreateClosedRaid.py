@@ -3,7 +3,7 @@ from commands.raid.CreateRaidCommand import CreateRaidCommand
 
 class CreateClosedRaid(CreateRaidCommand):
     @classmethod
-    def subname(cls) -> str: return "create"
+    def sub_name(cls) -> str: return "create"
 
     @classmethod
     def description(cls) -> str: return "Create a new event for a raid. This creates a closed event for which only people in the raid group can join."

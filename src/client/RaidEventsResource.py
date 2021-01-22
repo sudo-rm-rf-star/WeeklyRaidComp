@@ -1,19 +1,19 @@
 import asyncio
 from collections import defaultdict
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List
 
 import discord
 
-from client.entities.RaidMessage import RaidMessage
 from client.MessagesResource import MessagesResource
-from logic.RaidEvent import RaidEvent
+from client.entities.RaidMessage import RaidMessage
+from exceptions.InvalidArgumentException import InvalidArgumentException
 from logic.MessageRef import MessageRef
+from logic.RaidEvent import RaidEvent
 from persistence.RaidEventsTable import RaidEventsTable
 from persistence.TableFactory import TableFactory
+from utils.Constants import abbrev_to_full
 from utils.DateOptionalTime import DateOptionalTime
 from utils.DiscordUtils import get_message
-from utils.Constants import abbrev_to_full
-from exceptions.InvalidArgumentException import InvalidArgumentException
 
 
 class RaidEventsResource:

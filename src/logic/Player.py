@@ -8,7 +8,7 @@ from utils.Constants import SUPPORTED_RAIDS
 class Player:
     def __init__(self, *, discord_id: int, realm: str, region: str, characters: List[Character], selected_char: str, created_at: float,
                  present_dates: Optional[Dict[str, List[DateOptionalTime]]] = None, standby_dates: Optional[Dict[str, List[DateOptionalTime]]] = None,
-                 selected_raidgroup_id: Optional[int] = None, guild_ids: Set[int] = None, last_guild_id: int = None, autoinvited = False):
+                 selected_raidgroup_id: Optional[int] = None, guild_ids: Set[int] = None, selected_guild_id: int = None, autoinvited = False):
         self.discord_id = discord_id
         self.realm = realm
         self.region = region
@@ -19,8 +19,8 @@ class Player:
         self.selected_raidgroup_id = None if not selected_raidgroup_id else selected_raidgroup_id
         self.standby_dates = {} if not standby_dates else standby_dates
         self.guild_ids = set(guild_ids) if guild_ids else set()
-        self.last_guild_id = last_guild_id if last_guild_id is not None else list(guild_ids)[0] if guild_ids and len(
-            guild_ids) > 0 else None
+        self.selected_guild_id = selected_guild_id if selected_guild_id is not None else list(guild_ids)[0] \
+            if guild_ids and len(guild_ids) > 0 else None
         self.autoinvited = autoinvited
 
     def add_standby_date(self, raid_name: str, raid_datetime: DateOptionalTime):

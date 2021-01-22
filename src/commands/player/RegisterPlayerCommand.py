@@ -5,7 +5,7 @@ from utils.DiscordUtils import get_member
 
 class RegisterPlayerCommand(PlayerCommand):
     @classmethod
-    def subname(cls) -> str: return "register"
+    def sub_name(cls) -> str: return "register"
 
     @classmethod
     def argformat(cls) -> str: return "player"

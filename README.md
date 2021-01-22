@@ -1,7 +1,7 @@
 # WeeklyRaidComp
 
 This is a personal project of a long-time WoW player who was tired of the manual task of creating a raid composition on a weekly basis.
-There were a lot of useful features lacking for me in the existing tooling so I decided to create a bot for raid management.
+There were a lot of useful features lacking for me in the existing tooling, so I decided to create a bot for raid management.
 
 ## Features
 - Send automatic PMs to players when new raids are created

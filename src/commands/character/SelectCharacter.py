@@ -3,7 +3,7 @@ from commands.character.CharacterCommand import CharacterCommand
 
 class SelectCharacter(CharacterCommand):
     @classmethod
-    def subname(cls) -> str: return "select"
+    def sub_name(cls) -> str: return "select"
 
     @classmethod
     def argformat(cls) -> str: return "character"

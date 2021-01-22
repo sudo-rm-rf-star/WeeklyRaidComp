@@ -4,7 +4,7 @@ from commands.player.PlayerCommand import PlayerCommand
 
 class ListAllPlayersCommand(PlayerCommand):
     @classmethod
-    def subname(cls) -> str: return "list"
+    def sub_name(cls) -> str: return "list"
 
     @classmethod
     def description(cls) -> str: return "Show an overview of all players in your raiding group"

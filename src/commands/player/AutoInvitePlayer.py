@@ -1,11 +1,9 @@
 from commands.player.PlayerCommand import PlayerCommand
-from commands.utils.RegistrationHelper import register
-from utils.DiscordUtils import get_member
 
 
 class AutoInvitePlayer(PlayerCommand):
     @classmethod
-    def subname(cls) -> str: return "autoinvite"
+    def sub_name(cls) -> str: return "autoinvite"
 
     @classmethod
     def argformat(cls) -> str: return "player [on_or_off]"

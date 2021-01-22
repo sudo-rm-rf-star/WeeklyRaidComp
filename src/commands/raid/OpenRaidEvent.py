@@ -3,7 +3,7 @@ from commands.raid.RaidCommand import RaidCommand
 
 class OpenRaidEvent(RaidCommand):
     @classmethod
-    def subname(cls) -> str: return "open"
+    def sub_name(cls) -> str: return "open"
 
     @classmethod
     def argformat(cls) -> str: return "raid_name [raid_date][raid_time]"

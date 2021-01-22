@@ -1,8 +1,10 @@
-from logic.RaidEvent import RaidEvent
 from typing import Optional, Dict, Any, List
+
+from boto3.dynamodb.conditions import Key
+
+from logic.RaidEvent import RaidEvent
 from persistence.DynamoDBTable import DynamoDBTable
 from utils.DateOptionalTime import DateOptionalTime
-from boto3.dynamodb.conditions import Attr, Key
 
 
 class RaidEventsTable(DynamoDBTable[RaidEvent]):

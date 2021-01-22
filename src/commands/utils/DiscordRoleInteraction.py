@@ -1,8 +1,8 @@
-from commands.utils.PlayerInteraction import InteractionMessage
-from utils.DiscordUtils import get_role, get_roles_non_async
-from exceptions.InvalidArgumentException import InvalidArgumentException
 import discord
+
 from commands.utils.OptionInteraction import OptionInteraction
+from exceptions.InvalidArgumentException import InvalidArgumentException
+from utils.DiscordUtils import get_role, get_roles_non_async
 
 
 class DiscordRoleInteraction(OptionInteraction):

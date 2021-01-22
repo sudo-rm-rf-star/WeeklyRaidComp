@@ -11,8 +11,8 @@ from persistence.MessagesTable import MessagesTable
 class TableFactory(metaclass=Singleton):
     def __init__(self):
         load_dotenv()
-        access_key = os.getenv('ACCESS_KEY')
-        secret_key = os.getenv('SECRET_KEY')
+        access_key = os.getenv('AWS_ACCESS_KEY')
+        secret_key = os.getenv('AWS_SECRET_KEY')
         self.ddb = boto3.resource('dynamodb', region_name='eu-west-1', aws_access_key_id=access_key, aws_secret_access_key=secret_key)
 
     def get_players_table(self) -> PlayersTable:

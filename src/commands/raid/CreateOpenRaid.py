@@ -3,7 +3,7 @@ from commands.raid.CreateRaidCommand import CreateRaidCommand
 
 class CreateOpenRaid(CreateRaidCommand):
     @classmethod
-    def subname(cls) -> str: return "create-open"
+    def sub_name(cls) -> str: return "create-open"
 
     @classmethod
     def description(cls) -> str: return "Create a new event for a raid. This creates an open event for anyone can join."

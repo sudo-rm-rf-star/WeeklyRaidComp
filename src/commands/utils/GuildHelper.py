@@ -7,7 +7,6 @@ from commands.utils.PlayerInteraction import InteractionMessage, interact
 from commands.utils.OptionInteraction import OptionInteraction
 from commands.utils.DiscordRoleInteraction import DiscordRoleInteraction
 from commands.utils.DiscordChannelInteraction import DiscordChannelInteraction
-from utils.WarcraftLogs import get_wl_guild_id
 import discord
 
 
@@ -47,7 +46,7 @@ async def create_guild(guilds_resource: GuildsResource, client: discord.Client, 
     )
     guild = Guild(name=guild_name, realm=realm, region=region, manager_rank=manager_rank, guild_id=discord_guild.id,
                   logs_channel=logs_channel)
-    raidgroup = await create_raidgroup(client, discord_guild, member, wl_guild_id=guild.wl_guild_id)
+    raidgroup = await create_raidgroup(client, discord_guild, member)
     guild.raid_groups.append(raidgroup)
     guilds_resource.create_guild(guild)
     await member.send(f"Your guild {guild_name} has succesfully been created!")

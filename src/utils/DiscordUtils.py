@@ -1,15 +1,14 @@
 from typing import List
-from exceptions.MissingImplementationException import MissingImplementationException
-from exceptions.InternalBotException import InternalBotException
+from typing import Optional
 
 import discord
 
-from logic.MessageRef import MessageRef
 from client.entities.GuildMember import GuildMember
 from exceptions.InternalBotException import InternalBotException
-from typing import Optional
-from logic.enums.RosterStatus import RosterStatus
+from exceptions.MissingImplementationException import MissingImplementationException
 from logic.Character import Character
+from logic.MessageRef import MessageRef
+from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
 
 

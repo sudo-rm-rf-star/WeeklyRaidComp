@@ -5,7 +5,7 @@ from utils.DiscordUtils import get_member, get_member_by_id
 
 class RaidEventInvite(RaidCommand):
     @classmethod
-    def subname(cls) -> str: return "invite"
+    def sub_name(cls) -> str: return "invite"
 
     @classmethod
     def argformat(cls) -> str: return "raid_name discord_name [raid_date][raid_time]"

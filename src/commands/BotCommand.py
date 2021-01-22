@@ -34,7 +34,7 @@ class BotCommand:
         raise MissingImplementationException(cls)
 
     @classmethod
-    def subname(cls) -> str:
+    def sub_name(cls) -> str:
         raise MissingImplementationException(cls)
 
     @classmethod
@@ -98,7 +98,7 @@ class BotCommand:
 
     @classmethod
     def get_help(cls) -> str:
-        prefix = f'!{cls.name()} {cls.subname()}'
+        prefix = f'!{cls.name()} {cls.sub_name()}'
         command_with_arg_names = f'\n`{prefix} {cls.argformat()}`'
         example_args = cls.example_args() if cls.example_args() else ArgParser(cls.argformat()).get_example_args()
         command_with_arg_examples = f'\n`{prefix} {example_args}`' if example_args else ''
@@ -133,7 +133,7 @@ class BotCommand:
             if player.autoinvited:
                 member = self.discord_guild.get_member(player.discord_id)
                 if member:
-                    raiders.append(GuildMember(member, self.guild.guild_id))
+                    raiders.append(GuildMember(member, self.guild.id))
         return set(raiders)
 
     async def get_events_channel(self):
