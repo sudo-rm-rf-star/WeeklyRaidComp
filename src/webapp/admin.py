@@ -3,7 +3,7 @@ from flask_discord import DiscordOAuth2Session, requires_authorization, Unauthor
 from .controllers.ControllerFactory import ControllerFactory
 import os
 
-admin = Blueprint('admin', __name__, template_folder='templates')
+admin = Blueprint('admin', __name__, template_folder='templates', root_path='src')
 
 discord_client_id = os.getenv("DISCORD_CLIENT_ID")
 discord_client_secret = os.getenv("DISCORD_CLIENT_SECRET")
