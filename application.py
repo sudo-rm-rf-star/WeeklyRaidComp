@@ -1,9 +1,7 @@
 import sys
 from pathlib import Path
-cwd = Path(__file__).parent / 'src'
-sys.path.append(str(cwd))
 from flask import Flask
-from webapp.flask import run
+from src.webapp.flask import run
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -12,5 +10,7 @@ application = Flask(__name__)
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
+    cwd = Path(__file__).parent / 'src'
+    sys.path.append(str(cwd))
     application.debug = True
     run(application)
