@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+cwd = Path(__file__).parent / 'src'
+sys.path.append(str(cwd))
 import os
 from flask import Flask
 from src.webapp.admin import admin
