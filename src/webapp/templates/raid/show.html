@@ -6,10 +6,10 @@
 <section>
     <h1>Actions</h1>
     <ul>
-        <li><form action="{{url_for('signup_remind', name=raid.name, timestamp=raid.timestamp)}}" method="post">
+        <li><form action="{{url_for('.signup_remind', name=raid.name, timestamp=raid.timestamp)}}" method="post">
             <button type="submit">Send signup reminder</button>
         </form></li>
-        <li><form action="{{url_for('create_roster', name=raid.name, timestamp=raid.timestamp)}}" method="post">
+        <li><form action="{{url_for('.create_roster', name=raid.name, timestamp=raid.timestamp)}}" method="post">
             <button type="submit">Create the roster</button>
         </form></li>
     </ul>
@@ -18,7 +18,7 @@
     <h1>Signed players</h1>
     <ul>
         {% for character in raid.get_signed_characters() %}
-        <li><a href="/players/{{character.discord_id}}">{{character}}</a></li>
+        <li><a href="{{url_for('.player', discord_id=character.discord_id)}}">{{character}}</a></li>
         {% endfor %}
     </ul>
 </section>

@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<form action="{{url_for('raids')}}" method="post">
+<form action="{{url_for('.raids')}}" method="post">
    <p>Name <input type="text" name="name"/></p>
    <p>Date <input type="date" name="date"/></p>
    <p>Starttime <input type="time" name="time"/></p>

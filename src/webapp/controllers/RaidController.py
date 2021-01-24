@@ -23,10 +23,10 @@ class RaidController(AbstractController):
         return self.view('show', raid=raid)
 
     def store(self, form):
-        return self.redirect('raid', name='', timestamp=0)
+        return self.redirect('.raid', name='', timestamp=0)
 
     def signup_remind(self, name, timestamp):
-        return self.redirect('raid', name=name, timestamp=timestamp)
+        return self.redirect('.raid', name=name, timestamp=timestamp)
 
     def create_roster(self, name, timestamp):
-        return self.redirect('raid', name=name, timestamp=timestamp)
+        return self.redirect('.raid', name=name, timestamp=timestamp)

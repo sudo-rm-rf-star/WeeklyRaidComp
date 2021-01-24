@@ -3,7 +3,7 @@
 {% block content %}
 <ul>
     {% for player in players %}
-    <li><a href="/players/{{player.discord_id}}">{{player.selected_char}}</a></li>
+    <li><a href="{{url_for('.player', discord_id=player.discord_id)}}">{{player.selected_char}}</a></li>
     {% endfor %}
 </ul>
 {% endblock %}
