@@ -15,6 +15,7 @@ application.config["DISCORD_REDIRECT_URI"] = "http://localhost:5000/discord/redi
 application.register_blueprint(create_admin_blueprint(application))
 application.secret_key = os.getenv("API_KEY")
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "true"
+print(application.config["SECRET_KEY"])
 
 # run the app.
 if __name__ == "__main__":
