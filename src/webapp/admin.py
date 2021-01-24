@@ -4,7 +4,11 @@ from .controllers.ControllerFactory import ControllerFactory
 
 
 def create_admin_blueprint(app):
-    admin = Blueprint('admin', __name__, template_folder='webapp/templates', root_path='src')
+    admin = Blueprint('admin', __name__,
+                      template_folder='webapp/templates',
+                      static_folder='webapp/static',
+                      static_url_path='/src/webapp/static',
+                      root_path='src')
 
     discord_session = DiscordOAuth2Session(app=app)
 
