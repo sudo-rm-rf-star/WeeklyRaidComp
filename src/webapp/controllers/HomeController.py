@@ -7,7 +7,7 @@ class HomeController(AbstractController):
 
     def home(self):
         if self.is_auth():
-            return self.view('home')
-        else:
-            return self.view('guest')
+            return self.view('home', guild=self.guild, player=self.player)
+
+        return self.view('guest')
 

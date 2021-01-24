@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, request, Blueprint
+from flask import redirect, url_for, request, Blueprint
 from flask_discord import DiscordOAuth2Session, requires_authorization, Unauthorized
 from .controllers.ControllerFactory import ControllerFactory
 
@@ -17,12 +17,22 @@ def create_admin_blueprint(app):
     def player_controller():
         return ControllerFactory(discord_session).create_player_controller()
 
+    def guild_controller():
+        return ControllerFactory(discord_session).create_guild_controller()
+
     @admin.route('/')
     def home():
-        if discord_session.authorized:
-            return render_template('home.html')
-        else:
-            return render_template('guest.html')
+        return home_controller().home()
+
+    @admin.route('/guilds')
+    @requires_authorization
+    def guilds():
+        return guild_controller().index()
+
+    @admin.route('/guild/<int:guild_id>')
+    @requires_authorization
+    def guild(guild_id):
+        return guild_controller().show(guild_id)
 
     @admin.route('/raids', methods=["GET", "POST"])
     @requires_authorization
@@ -57,7 +67,7 @@ def create_admin_blueprint(app):
     def players():
         return player_controller().index()
 
-    @admin.route('/players/<int:discord_id>')
+    @admin.route('/player/<int:discord_id>')
     @requires_authorization
     def player(discord_id):
         return player_controller().show(discord_id)

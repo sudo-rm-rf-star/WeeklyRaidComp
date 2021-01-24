@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<ul>
+    {% for guild in guilds %}
+    <li><a href="{{url_for('.guild', guild_id=guild.id)}}">{{guild}}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -38,3 +38,6 @@ class Guild:
 
     def __eq__(self, other):
         return other and isinstance(other, Guild) and other.name == self.name and other.realm == self.realm and other.region == self.region
+
+    def __repr__(self):
+        return self.name
