@@ -18,8 +18,10 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
         return super(RaidEventsTable, self).get_item(guild_id=guild_id, group_id=group_id,
                                                      raid_name=raid_name, raid_datetime=raid_datetime)
 
-    def list_raid_events(self, guild_id: int, group_id: Optional[int]) -> List[RaidEvent]:
-        items = self.table.query(IndexName=RaidEventsTable.INDEX_NAME, KeyConditionExpression=Key('guild_id#group_id').eq(f'{guild_id}#{group_id}'))['Items']
+    def list_raid_events(self, guild_id: int, group_id: Optional[int], since: float = 0) -> List[RaidEvent]:
+        key_condition = Key('guild_id#group_id').eq(f'{guild_id}#{group_id}') & Key('timestamp').gte(int(since))
+        items = self.table.query(IndexName=RaidEventsTable.INDEX_NAME,
+                                 KeyConditionExpression=key_condition)['Items']
         return [self._to_object(obj) for obj in items]
 
     def create_raid_event(self, raid_event: RaidEvent) -> None:
@@ -36,7 +38,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
 
     def _to_item(self, raid_event: RaidEvent) -> Dict[str, Any]:
         item = raid_event.to_dict()
-        item['name#timestamp'] = item['name'] + '#' + item['timestamp']
+        item['name#timestamp'] = item['name'] + '#' + str(item['timestamp'])
         item['guild_id#group_id'] = item['guild_id'] + '#' + item['group_id']
         return item
 
@@ -66,6 +68,10 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
                 {
                     'AttributeName': 'guild_id#group_id',
                     'AttributeType': 'S'
+                },
+                {
+                    'AttributeName': 'timestamp',
+                    'AttributeType': 'N'
                 }
             ],
             'ProvisionedThroughput': {
@@ -80,13 +86,17 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
                             'AttributeName': 'guild_id#group_id',
                             'KeyType': 'HASH'
                         },
+                        {
+                            'AttributeName': 'timestamp',
+                            'KeyType': 'RANGE'
+                        }
                     ],
                     'Projection': {
                         'ProjectionType': 'ALL',
                     },
                     'ProvisionedThroughput': {
-                        'ReadCapacityUnits': 1,
-                        'WriteCapacityUnits': 1
+                        'ReadCapacityUnits': 2,
+                        'WriteCapacityUnits': 2
                     }
                 },
             ],

@@ -1,6 +1,8 @@
 from logic.Player import Player
 from logic.enums.SignupStatus import SignupStatus
 from logic.enums.RosterStatus import RosterStatus
+from logic.enums.Class import Class
+from logic.enums.Role import Role
 from logic.Roster import Roster
 from utils.Constants import abbrev_to_full
 from utils.DateOptionalTime import DateOptionalTime
@@ -54,10 +56,20 @@ class RaidEvent:
         return any(char for char in self.roster.characters if char.discord_id == user_id)
 
     def has_user_signed_as(self, user_id: int, signup_status: SignupStatus) -> bool:
-        return any(char for char in self.roster.characters if char.discord_id == user_id and char.signup_status == signup_status)
+        return any(char for char in self.roster.characters if
+                   char.discord_id == user_id and char.signup_status == signup_status)
 
     def get_signed_characters(self) -> List[Character]:
         return self.roster.characters
+
+    def get_characters(self, role: str = None, klass: str = None, signup_choice: str = None, roster_choice: str = None):
+        return [
+            char for char in self.get_signed_characters() if
+            (not role or char.role == Role[role.upper()]) and
+            (not klass or char.klass == Class[klass.upper()]) and
+            (not signup_choice or char.signup_status == SignupStatus[signup_choice.upper()]) and
+            (not roster_choice or char.roster_status == RosterStatus[roster_choice.upper()])
+        ]
 
     def get_signup_choice(self, player: Player) -> Optional[SignupStatus]:
         for char in self.get_signed_characters():
@@ -98,9 +110,9 @@ class RaidEvent:
             'name': self.name,
             'guild_id': str(self.guild_id),
             'group_id': str(self.group_id),
-            'timestamp': str(self.datetime.to_timestamp()),
-            'created_at': str(self.created_at.timestamp()),
-            'updated_at': str(self.updated_at.timestamp()),
+            'timestamp': int(self.datetime.to_timestamp()),
+            'created_at': int(self.created_at.timestamp()),
+            'updated_at': int(self.updated_at.timestamp()),
             'roster': self.roster.to_dict(),
             'message_refs': [msg.to_dict() for msg in self.message_refs],
             'is_open': self.is_open

@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h1>{{raid.get_name()}}</h1>
-<h2>{{raid.get_datetime()}}</h2>
+<div class="title content-center">
+    <h1 class="text-5xl">{{raid.get_name()}}</h1>
+    <h2 class="text-xl">{{raid.get_datetime()}}</h2>
+</div>
 <section>
     <h1>Actions</h1>
     <ul>
@@ -15,12 +17,16 @@
     </ul>
 </section>
 <section>
-    <h1>Signed players</h1>
-    <ul>
-        {% for character in raid.get_signed_characters() %}
-        <li><a href="{{url_for('.player', discord_id=character.discord_id)}}">{{character}}</a></li>
+    <div class="grid grid-cols-4 font-thin text-sm">
+        {% for role in ['tank', 'melee', 'ranged', 'healer'] %}
+        <div class="flex-col border p-4">
+            <div class="p-0.5"> {{role.capitalize() }} </div>
+            {% for character in raid.get_characters(role=role) %}
+            <div class="p-0.5"><a href="{{url_for('.player', discord_id=character.discord_id)}}">{{character.name}}</a></div>
+            {% endfor %}
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 </section>
 
 {% endblock %}

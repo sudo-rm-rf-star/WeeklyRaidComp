@@ -12,3 +12,7 @@ resources/players
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+node_modules/*
+package-lock.json
+static/.webassets-cache/*

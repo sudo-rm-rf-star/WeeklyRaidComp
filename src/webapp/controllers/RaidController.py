@@ -1,5 +1,6 @@
 from .AbstractController import AbstractController
 from utils.DateOptionalTime import DateOptionalTime
+from datetime import datetime, timedelta
 
 
 class RaidController(AbstractController):
@@ -10,7 +11,8 @@ class RaidController(AbstractController):
         return 'raid'
 
     def index(self):
-        raids = sorted(self.events_table.list_raid_events(self.guild_id, self.group_id),
+        since = datetime.now() - timedelta(weeks=4)
+        raids = sorted(self.events_table.list_raid_events(self.guild_id, self.group_id, since=since.timestamp()),
                        key=lambda event: event.get_datetime(), reverse=True)
         return self.view('index', raids=raids)
 
