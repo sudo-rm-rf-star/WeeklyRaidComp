@@ -1,6 +1,6 @@
 {% macro nav_item(url, text) -%}
-    <li class="w-full hover:bg-white">
-        <a class="px-3 py-2"
+    <li class="w-full hover:bg-indigo-900 px-8 py-8">
+        <a class="px-3 py-32"
            href="{{url_for(url)}}">{{text}}</a>
     </li>
 {%- endmacro %}
