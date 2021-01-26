@@ -1,13 +1,16 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="grid border-collapse">
-    <a class="block flex mx-32 my-4 border-2 border-dotted border-blue-600 h-24 hover:border-blue-800" href="{{url_for('.create_raid')}}">
-        <p class="text-5xl m-auto text-indigo-800">+</p>
-    </a>
+<div class="grid grid-cols-3 auto-cols-max">
+    <div class="m-8">
+        <a class="flex border-2 inline-block border-dotted border-blue-400 h-36 hover:border-blue-900 text-5xl content-center align-middle" href="{{url_for('.create_raid')}}">
+            <p class="text-5xl m-auto text-indigo-600 group-hover:text-indigo-900">+</p>
+        </a>
+    </div>
 
     {% for raid in raids %}
-    <a class="block flex mx-32 my-4 border-2 border-gray-800 h-24" href="{{url_for('.raid', name=raid.name, timestamp=raid.timestamp)}}">
+    <div class="m-8">
+        <a class="flex border-2 border-gray-400 h-36 hover:border-gray-900" href="{{url_for('.raid', name=raid.name, timestamp=raid.timestamp)}}">
         <div class="p-4 text-center flex-initial w-36 bg-gray-800 text-white">
             <p class="text-xl">{{raid.get_datetime().date.weekday()}}</p>
             <p class="text-sm">{{raid.get_datetime().date.day()}} {{raid.get_datetime().date.month()}}</p>
@@ -31,7 +34,7 @@
                 {% endfor %}
             </div>
         </div>
-    </a>
+    </a></div>
     {% endfor %}
 </div>
 {% endblock %}

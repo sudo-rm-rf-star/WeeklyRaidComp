@@ -16,10 +16,10 @@
         <div class="grid-cols-1">
             <img class="block m-auto" width="50" src="{{url_for('.static', filename='emojis/' + icon)}}">
             {% for title, roster_status, bg_color in
-            [('Roster', 'accept', 'bg-green-800'),
+            [('Roster', 'accept', 'bg-green-500'),
             ('Standby', 'extra', 'bg-yellow-500'),
             ('Signed', 'undecided', 'bg-gray-800'),
-            ('Declined', 'decline', 'bg-red-800')] %}
+            ('Declined', 'decline', 'bg-red-700')] %}
             {% set characters = raid.get_characters(role=role, roster_choice=roster_status) -%}
             {% if characters|length > 0 %}
                 <div class="border-2 border-gray-700 rounded-lg mr-8 my-4 overflow-hidden">
