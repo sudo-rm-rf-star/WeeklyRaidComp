@@ -3,6 +3,7 @@ from pathlib import Path
 cwd = Path(__file__).parent / 'src'
 sys.path.append(str(cwd))
 from flask_assets import Environment, Bundle
+from flask_feather import Feather
 
 import os
 from flask import Flask
@@ -29,6 +30,10 @@ tailwindcss = Bundle(
     "css/tailwind.css", filters="postcss", output="dist/css/tailwind.css"
 )
 assets.register("tailwindcss", tailwindcss)
+
+# Flask-feather
+feather = Feather()
+feather.init_app(application)
 
 # run the app.
 if __name__ == "__main__":

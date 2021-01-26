@@ -16,7 +16,13 @@ class ControllerFactory:
         self.messages_table = table_factory.get_messages_table()
         self.events_table = table_factory.get_raid_events_table()
         self.player = self.players_table.get_player_by_id(self.user.id)
-        self.guild = self.guilds_table.get_guild(self.player.selected_guild_id) if self.player else None
+        self.guild = None
+        self.discord_guild = None
+        if self.player:
+            self.guild = self.guilds_table.get_guild(self.player.selected_guild_id) if self.player else None
+            for discord_guild in self.user.fetch_guilds():
+                if discord_guild.id == self.guild.id:
+                    self.discord_guild = discord_guild
 
     def create_raid_controller(self):
         return RaidController(**self._abstract_controller_kwargs())
@@ -33,6 +39,7 @@ class ControllerFactory:
     def _abstract_controller_kwargs(self):
         return {
             "session": self.session,
+            "discord_guild": self.discord_guild,
             "player": self.player,
             "guild": self.guild,
             "events_table": self.events_table,

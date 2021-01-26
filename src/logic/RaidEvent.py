@@ -9,19 +9,23 @@ from utils.DateOptionalTime import DateOptionalTime
 from utils.Date import Date
 from utils.Time import Time
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Set
+from typing import List, Dict, Any, Optional, Set, Union
 from logic.Character import Character
 from logic.MessageRef import MessageRef
 
 
 class RaidEvent:
-    def __init__(self, name: str, raid_datetime: DateOptionalTime, guild_id: int, group_id: int, roster=None,
-                 created_at: datetime = None, updated_at: datetime = None, message_refs: List[MessageRef] = None,
-                 is_open: bool = False):
+    def __init__(self, name: str, raid_datetime: Union[DateOptionalTime, datetime], guild_id: int, group_id: int,
+                 roster=None, created_at: datetime = None, updated_at: datetime = None,
+                 message_refs: List[MessageRef] = None, is_open: bool = False):
         self.name = name
         self.guild_id = guild_id
         self.group_id = group_id
-        self.datetime = raid_datetime
+        # TODO: Refactor out DateOptionalTime
+        if isinstance(raid_datetime, datetime):
+            self.datetime = DateOptionalTime.from_datetime(datetime)
+        else:
+            self.datetime = raid_datetime
         self.timestamp = raid_datetime.to_timestamp()
         self.created_at = datetime.now() if not created_at else created_at
         self.updated_at = datetime.now() if not updated_at else updated_at
@@ -69,7 +73,7 @@ class RaidEvent:
             (not klass or char.klass == Class[klass.upper()]) and
             (not signup_choice or char.signup_status == SignupStatus[signup_choice.upper()]) and
             (not roster_choice or char.roster_status == RosterStatus[roster_choice.upper()])
-        ], key=lambda char: (char.role, char.klass, char.name))
+        ], key=lambda char: (char.role, char.klass, char.roster_status.name, char.signup_status.name, char.name))
 
     def get_signup_choice(self, player: Player) -> Optional[SignupStatus]:
         for char in self.get_signed_characters():

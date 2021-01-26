@@ -5,14 +5,16 @@ from persistence.PlayersTable import PlayersTable
 from persistence.GuildsTable import GuildsTable
 from flask import render_template, redirect, url_for
 from flask_discord import DiscordOAuth2Session
+import discord
 
 
 class AbstractController:
-    def __init__(self, *args, session: DiscordOAuth2Session, player: Player, guild: Guild,
+    def __init__(self, *args, session: DiscordOAuth2Session, discord_guild: discord.Guild, player: Player, guild: Guild,
                  events_table: RaidEventsTable, players_table: PlayersTable, guilds_table: GuildsTable):
         self.session = session
         self.player = player
         self.guild = guild
+        self.discord_guild = discord_guild
         self.events_table = events_table
         self.players_table = players_table
         self.guilds_table = guilds_table
