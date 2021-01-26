@@ -42,3 +42,5 @@
   text-shadow: 1px 0px .5px,
               -1px 0px .5px;
 }
+
+.invert { filter: invert(60%); }

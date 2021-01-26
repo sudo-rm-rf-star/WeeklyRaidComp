@@ -23,6 +23,9 @@ class DateOptionalTime:
         time = datetime.min.time() if not self.time else self.time.time
         return datetime.combine(self.date.date, time)
 
+    def day(self):
+        return self.date
+
     def weekday(self):
         return self.date.weekday()
 

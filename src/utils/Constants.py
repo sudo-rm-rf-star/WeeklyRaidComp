@@ -14,8 +14,6 @@ USE_SIGNUP_HISTORY = False
 VERBOSE = False
 SUPPORTED_RAIDS = ['mc', 'bwl', 'zg', 'aq20', 'aq', 'naxx']
 
-WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-
 abbrev_raid_name = {
     'Molten Core': 'mc',
     'Blackwing Lair': 'bwl',

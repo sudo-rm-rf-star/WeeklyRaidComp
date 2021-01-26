@@ -1,18 +1,33 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<section>
-    <h1>Actions</h1>
-    <ul>
-        <li><a href="{{url_for('.create_raid')}}">Maak een nieuwe raid</a></li>
-    </ul>
-</section>
-<section>
-    <h1>Raids</h1>
-    <ul>
-        {% for raid in raids %}
-        <li><a href="{{url_for('.raid', name=raid.name, timestamp=raid.timestamp)}}">{{raid}}</a></li>
-        {% endfor %}
-    </ul>
-</section>
+<div class="grid border-collapse">
+    {% for raid in raids %}
+    <a class="block flex mx-8 my-2 border-2 border-gray-800" href="{{url_for('.raid', name=raid.name, timestamp=raid.timestamp)}}">
+        <div class="p-4 text-center flex-initial w-36 bg-gray-800 text-white">
+            <p class="text-xl">{{raid.get_datetime().date.weekday()}}</p>
+            <p class="text-sm">{{raid.get_datetime().date.day()}} {{raid.get_datetime().date.month()}}</p>
+            <p class="text-sm">{{raid.get_datetime().time}}<p>
+        </div>
+        <div class="p-4 flex-1">
+            <p class="text-2xl">{{raid.get_name()}}</p>
+            <div class="flex align-middle ">
+                {% for roster_status, icon in
+                [('Accept', 'Accept.png'),
+                ('Extra', 'Bench.png'),
+                ('Undecided', 'Unknown.png'),
+                ('Decline', 'Decline.png')] %}
+                {% set characters = raid.get_characters(roster_choice=roster_status) -%}
+                {% if characters | length > 0 %}
+                <p class="p-0.5">
+                    {{ characters | length }}
+                    <img class="inline invert" width="20" src="{{url_for('.static', filename='emojis/' + icon)}}">
+                </p>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
 {% endblock %}

@@ -1,5 +1,5 @@
 from exceptions.InvalidArgumentException import InvalidArgumentException
-from utils.Constants import DATE_FORMAT, WEEKDAYS
+from utils.Constants import DATE_FORMAT
 import datetime
 
 
@@ -8,7 +8,13 @@ class Date:
         self.date = date
 
     def weekday(self):
-        return WEEKDAYS[self.date.weekday()]
+        return self.date.strftime('%A')
+
+    def day(self):
+        return self.date.day
+
+    def month(self):
+        return self.date.strftime('%B')
 
     @staticmethod
     def from_string(date_str):
