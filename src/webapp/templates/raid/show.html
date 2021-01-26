@@ -1,32 +1,50 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="title content-center">
-    <h1 class="text-5xl">{{raid.get_name()}}</h1>
-    <h2 class="text-xl">{{raid.get_datetime()}}</h2>
-</div>
-<section>
-    <h1>Actions</h1>
-    <ul>
-        <li><form action="{{url_for('.signup_remind', name=raid.name, timestamp=raid.timestamp)}}" method="post">
-            <button type="submit">Send signup reminder</button>
-        </form></li>
-        <li><form action="{{url_for('.create_roster', name=raid.name, timestamp=raid.timestamp)}}" method="post">
-            <button type="submit">Create the roster</button>
-        </form></li>
-    </ul>
-</section>
-<section>
-    <div class="grid grid-cols-4 font-thin text-sm">
-        {% for role in ['tank', 'melee', 'ranged', 'healer'] %}
-        <div class="flex-col border p-4">
-            <div class="p-0.5"> {{role.capitalize() }} </div>
-            {% for character in raid.get_characters(role=role) %}
-            <div class="p-0.5"><a href="{{url_for('.player', discord_id=character.discord_id)}}">{{character.name}}</a></div>
-            {% endfor %}
+<!--<section>-->
+<!--    <h1>Actions</h1>-->
+<!--    <ul>-->
+<!--        <li><form action="{{url_for('.signup_remind', name=raid.name, timestamp=raid.timestamp)}}" method="post">-->
+<!--            <button type="submit">Send signup reminder</button>-->
+<!--        </form></li>-->
+<!--        <li><form action="{{url_for('.create_roster', name=raid.name, timestamp=raid.timestamp)}}" method="post">-->
+<!--            <button type="submit">Create the roster</button>-->
+<!--        </form></li>-->
+<!--    </ul>-->
+<!--</section>-->
+<div class="w-max">
+    <div class="title text-center m-4">
+        <h2 class="text-sm">{{raid.get_datetime()}}</h2>
+        <h1 class="text-5xl">{{raid.get_name()}}</h1>
+        <h2 class="text-xl">{{raid.get_datetime().humanize()}}</h2>
+    </div>
+    <div class="grid grid-flow-col items-start w-max font-thin text-sm ml-8">
+        {% for role, icon in
+        [('tank', 'Tanks.png'),
+        ('melee', 'Melee.png'),
+        ('ranged', 'Ranged.png'),
+        ('healer', 'Healer.png')] %}
+        <div class="grid-cols-1">
+            <img class="block m-auto" width="50" src="{{url_for('.static', filename='emojis/' + icon)}}">
+            {% for title, roster_status in
+            [('Roster', 'accept'),
+            ('Standby', 'extra'),
+            ('Signed', 'undecided'),
+            ('Declined', 'decline')] %}
+            {% set characters = raid.get_characters(role=role, roster_choice=roster_status) -%}
+            {% if characters|length > 0 %}
+                <div class="border-2 border-gray-400 rounded-lg mr-8 my-4 overflow-hidden">
+                    <p class="p-1 text-center">{{title}} - {{characters|length}}</p>
+                    {% for character in characters %}
+                    <a class="block py-0.5 px-3 {{character.klass.name.lower()}} hover-bold"
+                       href="{{url_for('.player', discord_id=character.discord_id)}}">{{character.name}}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
         </div>
         {% endfor %}
     </div>
-</section>
+</div>
 
 {% endblock %}

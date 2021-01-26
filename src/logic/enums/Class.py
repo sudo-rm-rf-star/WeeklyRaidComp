@@ -10,3 +10,6 @@ class Class(Enum):
     HUNTER = auto()
     PALADIN = auto()
     WARRIOR = auto()
+
+    def __lt__(self, other):
+        return self.value < other.value

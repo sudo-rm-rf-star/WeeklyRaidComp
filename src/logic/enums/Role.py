@@ -6,3 +6,6 @@ class Role(Enum):
     RANGED = auto()
     TANK = auto()
     HEALER = auto()
+
+    def __lt__(self, other):
+        return self.value < other.value

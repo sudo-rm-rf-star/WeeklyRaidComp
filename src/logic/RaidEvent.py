@@ -63,13 +63,13 @@ class RaidEvent:
         return self.roster.characters
 
     def get_characters(self, role: str = None, klass: str = None, signup_choice: str = None, roster_choice: str = None):
-        return [
+        return sorted([
             char for char in self.get_signed_characters() if
             (not role or char.role == Role[role.upper()]) and
             (not klass or char.klass == Class[klass.upper()]) and
             (not signup_choice or char.signup_status == SignupStatus[signup_choice.upper()]) and
             (not roster_choice or char.roster_status == RosterStatus[roster_choice.upper()])
-        ]
+        ], key=lambda char: (char.role, char.klass, char.name))
 
     def get_signup_choice(self, player: Player) -> Optional[SignupStatus]:
         for char in self.get_signed_characters():

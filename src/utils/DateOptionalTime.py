@@ -2,6 +2,7 @@ from exceptions.InvalidArgumentException import InvalidArgumentException
 from utils.Time import Time
 from utils.Date import Date
 from datetime import datetime
+import arrow
 
 """ Wrapper over date and datetime for which timeutil can be empty. """
 
@@ -24,6 +25,9 @@ class DateOptionalTime:
 
     def weekday(self):
         return self.date.weekday()
+
+    def humanize(self):
+        return arrow.get(self.to_datetime()).humanize()
 
     @staticmethod
     def now():
@@ -76,6 +80,6 @@ class DateOptionalTime:
         return not self < other
 
     def __str__(self):
-        strr = str(self.date)
-        strr += ' ' + str(self.time) if self.time else ''
+        strr = f'{self.weekday()} {str(self.date)}'
+        strr += ' at ' + str(self.time) if self.time else ''
         return strr

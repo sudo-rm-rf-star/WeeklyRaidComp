@@ -1,0 +1,44 @@
+.druid {
+    background: #ff7d0a;
+}
+
+.hunter {
+    background: #abd473;
+}
+
+.mage {
+    background: #69ccf0;
+}
+
+.monk {
+    background: #00ff96;
+}
+
+.paladin {
+    background: #f58cba;
+}
+
+.priest {
+    background: #ffffff;
+}
+
+.rogue {
+    background: #fff569;
+}
+
+.shaman {
+    background: #0070de;
+}
+
+.warlock {
+    background: #9482c9;
+}
+
+.warrior {
+    background: #c79c6e;
+}
+
+.hover-bold:hover {
+  text-shadow: 1px 0px .5px,
+              -1px 0px .5px;
+}

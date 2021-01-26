@@ -5,11 +5,12 @@
     {% assets "tailwindcss" %}
       <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('.static',filename='css/app.css') }}">
   </head>
   <body>
     <div class="grid grid-cols-6 font-sans h-screen">
-      <div class="col-start-1 col-end-1 h-full w-full bg-indigo-700 text-indigo-50">{% include 'navigation.html' %}</div>
-      <div id="content" class="col-start-2 col-end-6 m-8">{% block content %}{% endblock %}</div>
+      <div class="col-span-1 h-full w-full bg-indigo-700 text-indigo-50">{% include 'navigation.html' %}</div>
+      <div id="content" class="col-span-5 bg-gray-100 w-max">{% block content %}{% endblock %}</div>
     </div>
   </body>
 </html>
