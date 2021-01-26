@@ -15,15 +15,15 @@
         ('healer', 'Healer.png')] %}
         <div class="grid-cols-1">
             <img class="block m-auto" width="50" src="{{url_for('.static', filename='emojis/' + icon)}}">
-            {% for title, roster_status in
-            [('Roster', 'accept'),
-            ('Standby', 'extra'),
-            ('Signed', 'undecided'),
-            ('Declined', 'decline')] %}
+            {% for title, roster_status, bg_color in
+            [('Roster', 'accept', 'bg-green-800'),
+            ('Standby', 'extra', 'bg-yellow-800'),
+            ('Signed', 'undecided', 'bg-gray-800'),
+            ('Declined', 'decline', 'bg-red-800')] %}
             {% set characters = raid.get_characters(role=role, roster_choice=roster_status) -%}
             {% if characters|length > 0 %}
-                <div class="border-2 border-gray-400 rounded-lg mr-8 my-4 overflow-hidden">
-                    <p class="p-1 text-center">{{title}} - {{characters|length}}</p>
+                <div class="border-2 border-gray-700 rounded-lg mr-8 my-4 overflow-hidden">
+                    <p class="p-1 text-center text-white {{bg_color}}">{{title}} - {{characters|length}}</p>
                     {% for character in characters %}
                     <a class="block py-0.5 px-3 {{character.klass.name.lower()}} hover-bold"
                        href="{{url_for('.player', discord_id=character.discord_id)}}">{{character.name}}</a>
