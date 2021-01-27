@@ -1,17 +1,17 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="grid grid-cols-3 auto-cols-max">
+<div class="grid xl:grid-cols-3 grid-cols-2 auto-cols-max">
     <div class="m-8">
-        <a class="flex border-2 inline-block border-dotted border-blue-400 h-36 hover:border-blue-900 text-5xl content-center align-middle" href="{{url_for('.create_raid')}}">
+        <a class="flex border-2 h-48 inline-block border-dotted border-blue-400 hover:border-blue-900 text-5xl content-center align-middle" href="{{url_for('.create_raid')}}">
             <p class="text-5xl m-auto text-indigo-600 group-hover:text-indigo-900">+</p>
         </a>
     </div>
 
     {% for raid in raids %}
     <div class="m-8">
-        <a class="flex border-2 border-gray-400 h-36 hover:border-gray-900" href="{{url_for('.raid', name=raid.name, timestamp=raid.timestamp)}}">
-        <div class="text-center flex-initial w-36 bg-gray-800 text-white p-4">
+        <a class="flex border-2  h-48 border-gray-400 hover:border-gray-900" href="{{url_for('.raid', name=raid.name, timestamp=raid.timestamp)}}">
+        <div class="text-center flex-1 bg-gray-800 text-white p-4">
             <div>
                 <p class="text-xl">{{raid.get_datetime().date.weekday()}}</p>
                 <p class="text-sm">{{raid.get_datetime().date.day()}} {{raid.get_datetime().date.month()}}</p>
@@ -19,8 +19,8 @@
             </div>
         </div>
         <div class="flex-1 p-4">
-            <p class="text-2xl">{{raid.get_name()}}</p>
-            <div class="grid grid-cols-2">
+            <p class="text-xl">{{raid.get_name()}}</p>
+            <div class="grid">
                 {% for signup_status, icon in
                 [('Accept', '👍'),
                 ('Late', '🕒'),
