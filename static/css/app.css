@@ -39,8 +39,7 @@
 }
 
 .hover-bold:hover {
-  text-shadow: 1px 0px .5px,
-              -1px 0px .5px;
+  font-weight: bold;
 }
 
 .invert { filter: invert(60%); }
