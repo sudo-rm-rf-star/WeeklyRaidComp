@@ -14,5 +14,5 @@ class RegisterPlayerCommand(PlayerCommand):
     def description(cls) -> str: return "Register a new player for your team. Sends a PM to the player to register."
 
     async def execute(self, player: str, **kwargs) -> None:
-        member = get_member(self.discord_guild, player)
+        member = await get_member(self.discord_guild, player)
         await register(self.client, self.guild, self.players_resource, member, allow_multiple_chars=False)

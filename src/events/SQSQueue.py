@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import boto3
 from typing import Dict, Callable
+import utils.Logger as Log
 
 QUEUE_NAME = 'BotEventQueue'
 QUEUE_POLLING_PERIOD_SECS = 5
@@ -19,10 +20,10 @@ class SQSQueue:
     def send_message(self, msg: Dict):
         self.bot_queue.send_message(MessageBody=str(msg))
 
-    def listen(self, handle_message: Callable):
-        while 1:
-            messages = self.bot_queue.receive_messages(MaxNumberOfMessages=10, WaitTimeSeconds=QUEUE_POLLING_PERIOD_SECS)
-            for message in messages:
-                body = message.body
-                handle_message(eval(body))
-                message.delete()
+    async def receive_messages(self, handle_message: Callable):
+        messages = self.bot_queue.receive_messages(MaxNumberOfMessages=10, WaitTimeSeconds=QUEUE_POLLING_PERIOD_SECS)
+        for message in messages:
+            Log.info(f"Received message {message}")
+            body = message.body
+            await handle_message(eval(body))
+            message.delete()

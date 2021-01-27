@@ -35,18 +35,16 @@ def get_emoji(client: discord.Client, emoji_name: str) -> discord.Emoji:
     return emoji
 
 
-def get_member(guild: discord.Guild, user_name: str) -> Optional[GuildMember]:
-    member = guild.get_member_named(user_name)
-    return GuildMember(member, guild.id) if member else None
+async def get_member(guild: discord.Guild, user_name: str) -> Optional[GuildMember]:
+    async for member in guild.fetch_members(limit=None):
+        if member.display_name == user_name or member.name == user_name:
+            return member
+    return None
 
 
 async def get_member_by_id(guild: discord.Guild, user_id: int) -> GuildMember:
     member = await guild.fetch_member(user_id)
     return GuildMember(member, guild.id)
-
-
-def get_users(guild: discord.Guild) -> List[GuildMember]:
-    return [GuildMember(member, guild.id) for member in guild.members]
 
 
 async def get_role(guild: discord.Guild, role_name: str) -> discord.Role:

@@ -4,6 +4,7 @@ from exceptions.InternalBotException import InternalBotException
 from websockets.exceptions import InvalidStatusCode
 from commands.CommandRunner import CommandRunner
 from commands.character.SignupCharacterCommand import SignupCharacterCommand
+from events.SQSQueue import SQSQueue
 from utils.Constants import MAINTAINER_ID
 from utils.EmojiNames import EMOJI_SIGNUP_STATUS
 from client.RaidEventsResource import RaidEventsResource
@@ -16,15 +17,16 @@ from datetime import datetime
 import utils.Logger as Log
 import discord
 import logging
+import asyncio
 import os
 import sys
 import traceback
 
 maintainer = None
+LOOP_INTERVAL_SECS = 10
 
 
 def run() -> None:
-    os.environ['TZ'] = 'Europe/Brussels'
     if sys.platform != 'win32':
         from time import tzset
         tzset()
@@ -34,20 +36,34 @@ def run() -> None:
     Log.setup()
 
     token = os.getenv('DISCORD_BOT_TOKEN')
-    assert token, "Could not find any discord token"
+    assert token, "Could not find any discord bot token"
 
-    discord_client = discord.Client(fetch_offline_members=False)
-
+    discord_client = discord.Client()
     players_resource = PlayersResource()
     guilds_resource = GuildsResource(discord_client)
     messages_resource = MessagesResource()
     events_resource = RaidEventsResource(discord_client, messages_resource)
     command_runner = CommandRunner(client=discord_client, players_resource=players_resource, events_resource=events_resource, guilds_resource=guilds_resource,
                                    messages_resource=messages_resource)
+    events_queue = SQSQueue()
+    loop = discord_client.loop
+
+    async def listen_queue():
+        await events_queue.receive_messages(send_maintainer)
+        loop.call_later(LOOP_INTERVAL_SECS, loop.create_task, listen_queue())
+
+    async def send_maintainer(msg):
+        global maintainer
+        await maintainer.send(msg)
 
     @discord_client.event
     async def on_ready() -> None:
-        logging.getLogger().info(f'{discord_client.user} has connected.')
+        global maintainer
+        print(f'{discord_client.user} has connected.')
+        maintainer = await discord_client.fetch_user(MAINTAINER_ID)
+        loop.create_task(listen_queue())
+
+    discord_client.run(token)
 
     @discord_client.event
     async def on_message(message: discord.Message) -> None:
