@@ -9,7 +9,6 @@ from logic.enums.Race import Race
 from logic.Character import Character
 from exceptions.InternalBotException import InternalBotException
 from logic.Guild import Guild
-from datetime import datetime
 
 
 class PlayersTable(DynamoDBTable[Player]):
@@ -129,10 +128,6 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         selected_char = item.get('selected_char', None)
         selected_raidgroup_id = int(item['selected_raidgroup_id']) if item.get('selected_raidgroup_id',
                                                                                'None') != 'None' else None  # This isn't great
-        standby_dates = {k: [datetime.timestamp(x) for x in v] for k, v in
-                         item.get('standby_dates', {}).items()}
-        present_dates = {k: [datetime.timestamp(x) for x in v] for k, v in
-                         item.get('present_dates', {}).items()}
         char_name = item['name']
         klass = Class[item['class']]
         role = Role[item['role']]

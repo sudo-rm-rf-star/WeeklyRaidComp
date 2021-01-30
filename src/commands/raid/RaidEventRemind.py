@@ -17,7 +17,10 @@ class RaidEventRemind(RaidCommand):
     async def execute(self, raid_name, raid_datetime, **kwargs):
         raid_event = self.get_raid_event(raid_name, raid_datetime)
         unsigned_raiders = await self.get_unsigned_players(raid_event)
-        self.respond(f'These players have not signed for {raid_event}: {", ".join(map(str, unsigned_raiders))}')
+        self.respond(
+            f'These players have not signed for {raid_event}: '
+            f'{", ".join(map(lambda raider: raider.display_name, unsigned_raiders))}'
+        )
         for raider in unsigned_raiders:
             try:
                 await raider.send(
