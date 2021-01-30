@@ -1,5 +1,5 @@
 from commands.utils.PlayerInteraction import InteractionMessage
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 import discord
 from typing import List
 
@@ -20,4 +20,4 @@ class OptionInteraction(InteractionMessage):
         except (ValueError, TypeError):
             if response in self.options:
                 return response
-            raise InvalidArgumentException(f'Please choose on of:\n{self.options_str}')
+            raise InvalidInputException(f'Please choose on of:\n{self.options_str}')

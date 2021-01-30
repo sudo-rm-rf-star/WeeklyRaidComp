@@ -8,7 +8,7 @@ from logic.enums.SignupStatus import SignupStatus
 from logic.MessageRef import MessageRef
 import discord
 import utils.Logger as Log
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 import math
 
 EMPTY_FIELD = '\u200e'
@@ -26,7 +26,7 @@ class DiscordMessage:
     async def send_to(self, recipient: Union[GuildMember, discord.TextChannel]) -> List[discord.Message]:
         messages = []
         if recipient is None:
-            raise InvalidArgumentException(f'Recipient is empty.')
+            raise InvalidInputException(f'Recipient is empty.')
         try:
             if self.embed:
                 embed = self.embed.to_dict()

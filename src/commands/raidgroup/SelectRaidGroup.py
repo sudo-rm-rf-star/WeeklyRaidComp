@@ -1,6 +1,6 @@
 from commands.raidgroup.RaidGroupCommand import RaidGroupCommand
 from exceptions.InternalBotException import InternalBotException
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 
 
 class SelectRaidGroup(RaidGroupCommand):
@@ -16,7 +16,7 @@ class SelectRaidGroup(RaidGroupCommand):
     async def execute(self, raidgroup: str, **kwargs) -> None:
         raidgroups = [raid_group for raid_group in self.guild.raid_groups if raid_group.name == raidgroup]
         if len(raidgroups) == 0:
-            raise InvalidArgumentException('The given raid group does not exist.')
+            raise InvalidInputException('The given raid group does not exist.')
         if len(raidgroups) > 1:
             raise InternalBotException(f"Multiple raid groups exist with the same name {raidgroup}")
         raidgroup = raidgroups[0]

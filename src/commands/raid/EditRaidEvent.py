@@ -1,11 +1,11 @@
 from commands.raid.RaidCommand import RaidCommand
-from utils.DateOptionalTime import DateOptionalTime
+from datetime import datetime
 
 
 class EditRaidEvent(RaidCommand):
     @classmethod
     def argformat(cls) -> str:
-        return "raid_name raid_date raid_time new_raid_name new_raid_date new_raid_time"
+        return "raid_name raid_datetime new_raid_name new_raid_date new_raid_time"
 
     @classmethod
     def description(cls) -> str:
@@ -16,7 +16,7 @@ class EditRaidEvent(RaidCommand):
         return "edit"
 
     async def execute(self, raid_name, raid_datetime, new_raid_name, new_raid_datetime, **kwargs):
-        raid_event = self.events_resource.get_raid(self.discord_guild, self.get_raidgroup().group_id, raid_name,
+        raid_event = self.events_resource.get_raid(self.discord_guild, self.get_raidgroup().id, raid_name,
                                                    raid_datetime)
         if not raid_event:
             self.respond(f'Found no raid event for {raid_name} on {raid_datetime}')
@@ -33,6 +33,6 @@ class EditRaidEvent(RaidCommand):
         new_raid_event.is_open = is_open
         self.events_resource.update_raid(self.discord_guild, new_raid_event)
         self.events_resource.delete_raid(raid_event)
-        if new_raid_event.get_datetime() < DateOptionalTime.now():
+        if new_raid_event.get_datetime() < datetime.now():
             self.send_message_to_raiders(f'An event has been updated from {str(raid_event)} to {str(new_raid_event)}. '
                                          f'If you already signed, you are still signed for the new raid.')

@@ -11,7 +11,7 @@ class CreateRosterCommand(RosterCommand):
                                         "This command can be used several times for the same event."
 
     @classmethod
-    def argformat(cls) -> str: return "raid_name [raid_date][raid_time]"
+    def argformat(cls) -> str: return "raid_name [raid_datetime]"
 
     async def execute(self, raid_name, raid_datetime, **kwargs):
         raid_event: RaidEvent = self.get_raid_event(raid_name, raid_datetime)

@@ -1,10 +1,10 @@
 from persistence.TableFactory import TableFactory
 from persistence.PlayersTable import PlayersTable
 from logic.Player import Player
-from logic.RaidGroup import RaidGroup
+from logic.RaidTeam import RaidTeam
 from typing import List, Optional
 from client.entities.GuildMember import GuildMember
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 from logic.Character import Character
 from logic.Guild import Guild
 
@@ -31,11 +31,11 @@ class PlayersResource:
     def select_character(self, player: Player, char_name: str):
         char_names = [char.name for char in player.characters]
         if not any(x == char_name for x in char_names):
-            raise InvalidArgumentException(f"You don't have a character named {char_name}. Your characters are: " + ", ".join(char_names))
+            raise InvalidInputException(f"You don't have a character named {char_name}. Your characters are: " + ", ".join(char_names))
         player.selected_char = char_name
         self.update_player(player)
 
-    def select_raidgroup(self, guild_member: GuildMember, raidgroup: RaidGroup):
+    def select_raidgroup(self, guild_member: GuildMember, raidgroup: RaidTeam):
         player = self.get_player_by_id(guild_member.id)
-        player.selected_raidgroup_id = raidgroup.group_id
+        player.selected_raidgroup_id = raidgroup.id
         self.update_player(player)

@@ -14,13 +14,13 @@ from client.MessagesResource import MessagesResource
 from logic.RaidEvent import RaidEvent
 from logic.Player import Player
 from logic.Guild import Guild
-from logic.RaidGroup import RaidGroup
+from logic.RaidTeam import RaidTeam
 from logic.MessageRef import MessageRef
+from events.EventQueue import EventQueue
 import asyncio
 import discord
 from commands.utils.ArgParser import ArgParser
-from utils.DateOptionalTime import DateOptionalTime
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 from commands.utils.PlayerInteraction import interact
 from commands.utils.PlayerInteraction import InteractionMessage
 
@@ -57,11 +57,11 @@ class BotCommand:
     def visible(cls) -> bool:
         return True
 
-    def __init__(self, client: discord.Client, players_resource: PlayersResource, events_resource: RaidEventsResource, guilds_resource: GuildsResource,
-                 messages_resource: MessagesResource, message: Optional[Message], message_ref: Optional[MessageRef],
-                 raw_reaction: discord.RawReactionActionEvent,
-                 member: GuildMember, player: Player, discord_guild: discord.Guild, guild: Guild, raidgroup: RaidGroup, channel: Optional[TextChannel],
-                 logs_channel: TextChannel):
+    def __init__(self, client: discord.Client, players_resource: PlayersResource, events_resource: RaidEventsResource,
+                 guilds_resource: GuildsResource, messages_resource: MessagesResource, message: Optional[Message],
+                 message_ref: Optional[MessageRef], raw_reaction: discord.RawReactionActionEvent, member: GuildMember,
+                 player: Player, discord_guild: discord.Guild, guild: Guild, raidgroup: RaidTeam,
+                 channel: Optional[TextChannel], logs_channel: TextChannel, event_queue: EventQueue):
         self.client: discord.Client = client
         self.players_resource: PlayersResource = players_resource
         self.events_resource = events_resource
@@ -75,6 +75,7 @@ class BotCommand:
         self.discord_guild = discord_guild
         self.guild = guild
         self.channel = channel
+        self.event_queue = event_queue
         self._raidgroup = raidgroup
         self._logs_channel = logs_channel
 
@@ -104,14 +105,14 @@ class BotCommand:
         command_with_arg_examples = f'\n`{prefix} {example_args}`' if example_args else ''
         return f'**{cls.description()}**{command_with_arg_names}{command_with_arg_examples}'
 
-    def get_raidgroup(self) -> RaidGroup:
+    def get_raidgroup(self) -> RaidTeam:
         group_ids = [group_id for group_id in self.guild.raid_groups]
         if len(group_ids) != 1 and not self._raidgroup:
             raise NoRaidGroupSpecifiedException(self.guild)
         return self._raidgroup if len(group_ids) != 1 else group_ids[0]
 
     def get_group_id(self) -> int:
-        return self.get_raidgroup().group_id
+        return self.get_raidgroup().id
 
     def get_raider_rank(self) -> str:
         return self.get_raidgroup().raider_rank
@@ -139,11 +140,11 @@ class BotCommand:
     async def get_events_channel(self):
         return await get_channel(self.discord_guild, self.get_raidgroup().events_channel)
 
-    def get_raid_event(self, raid_name: str, raid_datetime: DateOptionalTime) -> RaidEvent:
+    def get_raid_event(self, raid_name: str, raid_datetime: datetime) -> RaidEvent:
         raid_event = self.events_resource.get_raid(discord_guild=self.discord_guild, group_id=self.get_group_id(),
                                                    raid_name=raid_name, raid_datetime=raid_datetime)
         if not raid_event:
-            raise InvalidArgumentException(f'Raid event not found for {raid_name}')
+            raise InvalidInputException(f'Raid event not found for {raid_name}')
         return raid_event
 
     def send_message_to_raiders(self, content: str):

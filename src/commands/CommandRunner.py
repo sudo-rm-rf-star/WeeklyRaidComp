@@ -35,12 +35,13 @@ from client.RaidEventsResource import RaidEventsResource
 from client.GuildsResource import GuildsResource
 from client.PlayersResource import PlayersResource
 from client.MessagesResource import MessagesResource
-from logic.RaidGroup import RaidGroup
+from logic.RaidTeam import RaidTeam
 from utils.DiscordUtils import get_channel, get_member_by_id
 from collections import defaultdict
 from exceptions.InternalBotException import InternalBotException
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 from utils.Constants import BOT_NAME
+from events.EventQueue import EventQueue
 
 COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceCommand, RegisterPlayerCommand,
             SignupCharacterCommand, RemoveRaidCommand, ListRaidGroups, SelectRaidGroup, AddRaidGroup,
@@ -51,13 +52,14 @@ COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, CreateGuild, AnnounceC
 
 class CommandRunner:
     def __init__(self, client: discord.Client, players_resource: PlayersResource, events_resource: RaidEventsResource,
-                 guilds_resource: GuildsResource, messages_resource: MessagesResource):
+                 guilds_resource: GuildsResource, messages_resource: MessagesResource, event_queue: EventQueue):
         self.client = client
         self.players_resource = players_resource
         self.events_resource = events_resource
         self.guilds_resource = guilds_resource
         self.messages_resource = messages_resource
         self.commands = _to_command_dict(COMMANDS)
+        self.event_queue = event_queue
 
     async def run_command_for_message(self, message: discord.Message):
         name, sub_name, argv = None, None, None
@@ -120,7 +122,7 @@ class CommandRunner:
                 if player.selected_guild_id:
                     discord_guild = await self.client.fetch_guild(player.selected_guild_id)
                 else:
-                    raise InvalidArgumentException("Please execute this command on your discord server.")
+                    raise InvalidInputException("Please execute this command on your discord server.")
             guild_id = discord_guild.id
             guild_member = await get_member_by_id(discord_guild, user_id)
             channel = message.channel
@@ -148,7 +150,7 @@ class CommandRunner:
         if needs_update:
             self.players_resource.update_player(player)
 
-        raidgroup: RaidGroup = GuildsResource.get_group(guild, player)
+        raidgroup: RaidTeam = GuildsResource.get_group(guild, player)
         logs_channel: discord.TextChannel = await get_channel(discord_guild, guild.logs_channel)
         return command_type(client=self.client, players_resource=self.players_resource,
                             events_resource=self.events_resource,
@@ -156,7 +158,7 @@ class CommandRunner:
                             raw_reaction=raw_reaction, member=guild_member,
                             player=player, discord_guild=discord_guild, guild=guild, raidgroup=raidgroup,
                             channel=channel, logs_channel=logs_channel,
-                            messages_resource=self.messages_resource)
+                            messages_resource=self.messages_resource, event_queue=self.event_queue)
 
 
 def _to_command_dict(commands: Set[Type[BotCommand]]) -> Dict[str, Dict[str, Type[BotCommand]]]:

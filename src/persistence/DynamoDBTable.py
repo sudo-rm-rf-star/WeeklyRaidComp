@@ -51,7 +51,7 @@ class DynamoDBTable(Generic[T]):
     def _get_table(self, table_name: str):
         try:
             table = self.create_table(table_name)
-            table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
+            table.meta.discord_client.get_waiter('table_exists').wait(TableName=table_name)
         except ClientError as e:
             if e.response['Error']['Code'] != 'ResourceInUseException':
                 raise e

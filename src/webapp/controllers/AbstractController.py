@@ -6,19 +6,21 @@ from persistence.GuildsTable import GuildsTable
 from flask import render_template, redirect, url_for
 from flask_discord import DiscordOAuth2Session
 import discord
+from events.EventQueue import EventQueue
 
 
 class AbstractController:
-    def __init__(self, *args, session: DiscordOAuth2Session, discord_guild: discord.Guild, player: Player, guild: Guild,
-                 events_table: RaidEventsTable, players_table: PlayersTable, guilds_table: GuildsTable):
+    def __init__(self, *args, session: DiscordOAuth2Session, player: Player, guild: Guild,
+                 raids_table: RaidEventsTable, players_table: PlayersTable, guilds_table: GuildsTable,
+                 event_queue: EventQueue):
         self.session = session
         self.player = player
         self.guild = guild
-        self.discord_guild = discord_guild
-        self.events_table = events_table
+        self.raids_table = raids_table
         self.players_table = players_table
         self.guilds_table = guilds_table
-        self.guild_id = self.player.selected_guild_id if self.player else None
+        self.event_queue = event_queue
+        self.guild_id = self.guild.id
         self.group_id = self.player.selected_raidgroup_id if self.player else None
 
     def view_directory(self):

@@ -5,28 +5,22 @@ from logic.enums.Class import Class
 from logic.enums.Role import Role
 from logic.Roster import Roster
 from utils.Constants import abbrev_to_full
-from utils.DateOptionalTime import DateOptionalTime
-from utils.Date import Date
-from utils.Time import Time
-from datetime import datetime
-from typing import List, Dict, Any, Optional, Set, Union
+from datetime import datetime, date, time
+from typing import List, Dict, Any, Optional
 from logic.Character import Character
 from logic.MessageRef import MessageRef
+import arrow
 
 
 class RaidEvent:
-    def __init__(self, name: str, raid_datetime: Union[DateOptionalTime, datetime], guild_id: int, group_id: int,
+    def __init__(self, name: str, raid_datetime: datetime, guild_id: int, group_id: int,
                  roster=None, created_at: datetime = None, updated_at: datetime = None,
                  message_refs: List[MessageRef] = None, is_open: bool = False):
         self.name = name
         self.guild_id = guild_id
-        self.group_id = group_id
-        # TODO: Refactor out DateOptionalTime
-        if isinstance(raid_datetime, datetime):
-            self.datetime = DateOptionalTime.from_datetime(datetime)
-        else:
-            self.datetime = raid_datetime
-        self.timestamp = raid_datetime.to_timestamp()
+        self.team_id = group_id
+        self.datetime = raid_datetime
+        self.timestamp = int(raid_datetime.timestamp())
         self.created_at = datetime.now() if not created_at else created_at
         self.updated_at = datetime.now() if not updated_at else updated_at
         self.roster = Roster(name) if not roster else roster
@@ -84,23 +78,29 @@ class RaidEvent:
     def get_name(self, abbrev: bool = False) -> str:
         return self.name if abbrev else abbrev_to_full[self.name]
 
-    def get_datetime(self) -> DateOptionalTime:
+    def get_datetime(self) -> datetime:
         return self.datetime
 
-    def get_date(self) -> Date:
-        return self.get_datetime().date
+    def get_date(self) -> date:
+        return self.get_datetime().date()
 
-    def get_time(self) -> Time:
-        return self.get_datetime().time
+    def get_time(self) -> str:
+        return self.get_datetime().time().strftime("%H:%M")
 
     def get_weekday(self) -> str:
-        return self.get_datetime().weekday()
+        return self.get_datetime().strftime("%A")
+
+    def get_month(self) -> str:
+        return self.get_datetime().strftime("%B")
+
+    def relative_time(self):
+        return arrow.get(self.datetime).humanize()
 
     @staticmethod
     def from_dict(item: Dict[str, Any]):
         raid_name = item['name']
         return RaidEvent(name=raid_name,
-                         raid_datetime=DateOptionalTime.from_timestamp(int(item['timestamp'])),
+                         raid_datetime=datetime.fromtimestamp(int(item['timestamp'])),
                          guild_id=int(item['guild_id']),
                          group_id=int(item['group_id']),
                          created_at=datetime.fromtimestamp(float(item['created_at'])),
@@ -113,8 +113,8 @@ class RaidEvent:
         return {
             'name': self.name,
             'guild_id': str(self.guild_id),
-            'group_id': str(self.group_id),
-            'timestamp': int(self.datetime.to_timestamp()),
+            'group_id': str(self.team_id),
+            'timestamp': int(self.datetime.timestamp()),
             'created_at': int(self.created_at.timestamp()),
             'updated_at': int(self.updated_at.timestamp()),
             'roster': self.roster.to_dict(),

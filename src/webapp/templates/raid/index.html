@@ -10,12 +10,13 @@
 
     {% for raid in raids %}
     <div class="m-8">
-        <a class="flex border-2  h-48 border-gray-400 hover:border-gray-900" href="{{url_for('.raid', name=raid.name, timestamp=raid.timestamp)}}">
+        <a class="flex border-2  h-48 border-gray-400 hover:border-gray-900"
+           href="{{url_for('.raid', team_id=raid.team_id, name=raid.name, timestamp=raid.timestamp)}}">
         <div class="text-center flex-1 bg-gray-800 text-white p-4">
             <div>
-                <p class="text-xl">{{raid.get_datetime().date.weekday()}}</p>
-                <p class="text-sm">{{raid.get_datetime().date.day()}} {{raid.get_datetime().date.month()}}</p>
-                <p class="text-sm">{{raid.get_datetime().time}}<p>
+                <p class="text-xl">{{raid.get_weekday()}}</p>
+                <p class="text-sm">{{raid.get_datetime().day}} {{raid.get_month()}}</p>
+                <p class="text-sm">{{raid.get_time()}}<p>
             </div>
         </div>
         <div class="flex-1 p-4">

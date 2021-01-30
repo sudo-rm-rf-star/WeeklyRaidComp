@@ -1,6 +1,6 @@
 from commands.raid.RaidCommand import RaidCommand
-from utils.DateOptionalTime import DateOptionalTime
 from utils.DiscordUtils import get_member, get_member_by_id
+from datetime import datetime
 
 
 class RaidEventInvite(RaidCommand):
@@ -8,14 +8,14 @@ class RaidEventInvite(RaidCommand):
     def sub_name(cls) -> str: return "invite"
 
     @classmethod
-    def argformat(cls) -> str: return "raid_name discord_name [raid_date][raid_time]"
+    def argformat(cls) -> str: return "raid_name discord_name [raid_datetime]"
 
     @classmethod
     def description(cls) -> str: return "Invites a specific person to the raid. You can use the discord name or " \
                                         "the character name (if the player has already registered)"
 
-    async def execute(self, raid_name: str, discord_name: str, raid_datetime: DateOptionalTime, **kwargs):
-        raid_event = self.events_resource.get_raid(discord_guild=self.discord_guild, group_id=self._raidgroup.group_id,
+    async def execute(self, raid_name: str, discord_name: str, raid_datetime: datetime, **kwargs):
+        raid_event = self.events_resource.get_raid(discord_guild=self.discord_guild, group_id=self._raidgroup.id,
                                                    raid_name=raid_name, raid_datetime=raid_datetime)
         player = self.players_resource.get_player_by_name(discord_name.capitalize(), self.guild)
         if player:

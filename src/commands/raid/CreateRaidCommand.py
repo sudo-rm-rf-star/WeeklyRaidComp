@@ -1,13 +1,13 @@
 from commands.raid.RaidCommand import RaidCommand
-from utils.DateOptionalTime import DateOptionalTime
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
+from datetime import datetime
 
 
 class CreateRaidCommand(RaidCommand):
     @classmethod
-    def argformat(cls) -> str: return "raid_name raid_date raid_time"
+    def argformat(cls) -> str: return "raid_name raid_datetime"
 
     async def execute(self, raid_name, raid_datetime, is_open, **kwargs):
-        if raid_datetime < DateOptionalTime.now():
-            raise InvalidArgumentException('Raid event must be in future')
+        if raid_datetime < datetime.now():
+            raise InvalidInputException('Raid event must be in future')
         await self.create_raid(raid_name, raid_datetime, is_open)

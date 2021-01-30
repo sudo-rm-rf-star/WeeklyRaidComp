@@ -1,7 +1,7 @@
 import discord
 
 from commands.utils.OptionInteraction import OptionInteraction
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 from utils.DiscordUtils import get_role, get_roles_non_async
 
 
@@ -16,4 +16,4 @@ class DiscordRoleInteraction(OptionInteraction):
         if role:
             return response
         else:
-            raise InvalidArgumentException(f'Please choose on of: {self.options}')
+            raise InvalidInputException(f'Please choose on of: {self.options}')

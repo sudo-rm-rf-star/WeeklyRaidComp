@@ -4,25 +4,23 @@ from .RaidController import RaidController
 from .HomeController import HomeController
 from .PlayerController import PlayerController
 from .GuildController import GuildController
+from events.EventQueue import EventQueue
 
 
 class ControllerFactory:
     def __init__(self, session: DiscordOAuth2Session):
         self.session = session
         self.user = session.fetch_user()
+        self.event_queue = EventQueue()
         table_factory = TableFactory()
         self.players_table = table_factory.get_players_table()
         self.guilds_table = table_factory.get_guilds_table()
         self.messages_table = table_factory.get_messages_table()
-        self.events_table = table_factory.get_raid_events_table()
+        self.raids_table = table_factory.get_raid_events_table()
         self.player = self.players_table.get_player_by_id(self.user.id)
         self.guild = None
-        self.discord_guild = None
         if self.player:
             self.guild = self.guilds_table.get_guild(self.player.selected_guild_id) if self.player else None
-            for discord_guild in self.user.fetch_guilds():
-                if discord_guild.id == self.guild.id:
-                    self.discord_guild = discord_guild
 
     def create_raid_controller(self):
         return RaidController(**self._abstract_controller_kwargs())
@@ -39,10 +37,10 @@ class ControllerFactory:
     def _abstract_controller_kwargs(self):
         return {
             "session": self.session,
-            "discord_guild": self.discord_guild,
             "player": self.player,
             "guild": self.guild,
-            "events_table": self.events_table,
+            "raids_table": self.raids_table,
             "players_table": self.players_table,
-            "guilds_table": self.guilds_table
+            "guilds_table": self.guilds_table,
+            "event_queue": self.event_queue
         }

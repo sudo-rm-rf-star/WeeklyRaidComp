@@ -50,10 +50,10 @@ def create_admin_blueprint(app):
     def create_raid():
         return raid_controller().create()
 
-    @admin.route('/raids/<name>/<int:timestamp>')
+    @admin.route('/raids/<team_id>/<name>/<int:timestamp>')
     @requires_authorization
-    def raid(name, timestamp):
-        return raid_controller().show(name, timestamp)
+    def raid(team_id, name, timestamp):
+        return raid_controller().show(team_id, name, timestamp)
 
     @admin.route('/raids/<name>/<int:timestamp>/signup-remind', methods=["POST"])
     @requires_authorization

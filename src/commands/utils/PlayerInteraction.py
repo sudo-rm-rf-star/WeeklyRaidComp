@@ -1,5 +1,5 @@
 from exceptions.InternalBotException import InternalBotException
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 from client.entities.DiscordMessage import DiscordMessage
 from typing import Generic, TypeVar, Union, Any
 import discord
@@ -60,7 +60,7 @@ class EnumResponseInteractionMessage(InteractionMessage, Generic[T]):
         try:
             return self.enum[option]
         except KeyError:
-            raise InvalidArgumentException(f'Please choose on of: {self.options}')
+            raise InvalidInputException(f'Please choose on of: {self.options}')
 
 
 async def interact(member: GuildMember, message: InteractionMessage) -> Any:
@@ -72,9 +72,9 @@ async def interact(member: GuildMember, message: InteractionMessage) -> Any:
         try:
             response = await message.get_response()
             finished = True
-        except InvalidArgumentException as ex:
+        except InvalidInputException as ex:
             if trie >= TRIES:
-                raise InvalidArgumentException("Exceeded retries, aborting signup.")
+                raise InvalidInputException("Exceeded retries, aborting signup.")
             await member.send(content=str(ex))
             trie += 1
 

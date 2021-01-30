@@ -5,7 +5,7 @@
     <div class="title text-center m-4">
         <h2 class="text-sm">{{raid.get_datetime()}}</h2>
         <h1 class="text-5xl">{{raid.get_name()}}</h1>
-        <h2 class="text-xl">{{raid.get_datetime().humanize()}}</h2>
+        <h2 class="text-xl">{{raid.relative_time()}}</h2>
     </div>
     <div class="grid grid-flow-col items-start w-max font-thin text-sm ml-8">
         {% for role, icon in
@@ -18,7 +18,7 @@
             {% for title, roster_status, bg_color in
             [('Roster', 'accept', 'bg-green-500'),
             ('Standby', 'extra', 'bg-yellow-500'),
-            ('Signed', 'undecided', 'bg-gray-800'),
+            ('Invited', 'undecided', 'bg-gray-800'),
             ('Declined', 'decline', 'bg-red-700')] %}
             {% set characters = raid.get_characters(role=role, roster_choice=roster_status) -%}
             {% if characters|length > 0 %}

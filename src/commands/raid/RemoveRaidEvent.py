@@ -1,5 +1,5 @@
 from commands.raid.RaidCommand import RaidCommand
-from utils.DateOptionalTime import DateOptionalTime
+from datetime import datetime
 
 
 class RemoveRaidCommand(RaidCommand):
@@ -9,13 +9,13 @@ class RemoveRaidCommand(RaidCommand):
 
     @classmethod
     def argformat(cls) -> str:
-        return "raid_name [raid_date][raid_time][silent]"
+        return "raid_name [raid_datetime][silent]"
 
     @classmethod
     def description(cls) -> str:
         return "Remove the event for a raid"
 
-    async def execute(self, raid_name: str, raid_datetime: DateOptionalTime, silent: bool, **kwargs):
+    async def execute(self, raid_name: str, raid_datetime: datetime, silent: bool, **kwargs):
         raid_event = self.get_raid_event(raid_name, raid_datetime)
         await self.events_resource.remove_raid(self.discord_guild, raid_event)
         if not silent:

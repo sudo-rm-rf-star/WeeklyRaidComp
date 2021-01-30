@@ -4,7 +4,7 @@ from commands.raid.RaidCommand import RaidCommand
 class ShowRaidEvent(RaidCommand):
     @classmethod
     def argformat(cls) -> str:
-        return "raid_name [raid_date][raid_time]"
+        return "raid_name [raid_datetime]"
 
     @classmethod
     def description(cls) -> str:

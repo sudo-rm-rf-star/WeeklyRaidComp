@@ -8,8 +8,8 @@ from logic.enums.Class import Class
 from logic.enums.Race import Race
 from logic.Character import Character
 from exceptions.InternalBotException import InternalBotException
-from utils.DateOptionalTime import DateOptionalTime
 from logic.Guild import Guild
+from datetime import datetime
 
 
 class PlayersTable(DynamoDBTable[Player]):
@@ -39,8 +39,6 @@ class PlayersTable(DynamoDBTable[Player]):
                 'discord_id': str(player.discord_id),
                 'realm#region': f'{player.realm}#{player.region}',
                 'created_at': str(player.created_at),
-                'present_dates': {k: [x.to_timestamp() for x in v] for k, v in player.present_dates.items()},
-                'standby_dates': {k: [x.to_timestamp() for x in v] for k, v in player.standby_dates.items()},
                 'selected_char': player.selected_char,
                 'selected_raidgroup_id': str(player.selected_raidgroup_id),
                 'name': character.name,
@@ -131,9 +129,9 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         selected_char = item.get('selected_char', None)
         selected_raidgroup_id = int(item['selected_raidgroup_id']) if item.get('selected_raidgroup_id',
                                                                                'None') != 'None' else None  # This isn't great
-        standby_dates = {k: [DateOptionalTime.from_timestamp(x) for x in v] for k, v in
+        standby_dates = {k: [datetime.timestamp(x) for x in v] for k, v in
                          item.get('standby_dates', {}).items()}
-        present_dates = {k: [DateOptionalTime.from_timestamp(x) for x in v] for k, v in
+        present_dates = {k: [datetime.timestamp(x) for x in v] for k, v in
                          item.get('present_dates', {}).items()}
         char_name = item['name']
         klass = Class[item['class']]
@@ -145,18 +143,18 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         autoinvited = item.get('autoinvited', False)
         if discord_id not in players:
             players[discord_id] = Player(discord_id=discord_id, realm=realm, region=region, selected_char=selected_char,
-                                         characters=[], created_at=created_at, present_dates=present_dates,
-                                         standby_dates=standby_dates, selected_raidgroup_id=selected_raidgroup_id,
-                                         guild_ids=guild_ids, selected_guild_id=selected_guild_id, autoinvited=autoinvited)
+                                         characters=[], created_at=created_at,
+                                         selected_raidgroup_id=selected_raidgroup_id, guild_ids=guild_ids,
+                                         selected_guild_id=selected_guild_id, autoinvited=autoinvited)
         player = players[discord_id]
         if realm != player.realm or region != player.region or selected_char != player.selected_char or \
-                selected_raidgroup_id != player.selected_raidgroup_id or present_dates != player.present_dates or \
-                standby_dates != player.standby_dates or created_at != player.created_at or guild_ids != player.guild_ids:
+                selected_raidgroup_id != player.selected_raidgroup_id or created_at != player.created_at or \
+                guild_ids != player.guild_ids:
             print(guild_ids, player.guild_ids)
             raise InternalBotException("Player rows are not consistent.")
         player.characters.append(
             Character(char_name=char_name, discord_id=discord_id, klass=klass, role=role, race=race,
-                      standby_dates=standby_dates, created_at=created_at))
+                      created_at=created_at))
     return list(players.values())
 
 

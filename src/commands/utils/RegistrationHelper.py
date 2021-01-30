@@ -10,7 +10,7 @@ import asyncio
 import discord
 from datetime import datetime
 import re
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 from typing import Tuple, Optional
 from logic.Guild import Guild
 
@@ -47,7 +47,7 @@ class GetNameMesage(InteractionMessage):
     async def get_response(self) -> str:
         name = (await super(GetNameMesage, self).get_response()).strip().capitalize()
         if re.search(r"\s", name):
-            raise InvalidArgumentException(f'Please use your character name')
+            raise InvalidInputException(f'Please use your character name')
         return name
 
 

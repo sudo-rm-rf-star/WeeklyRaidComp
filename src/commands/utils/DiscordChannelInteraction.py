@@ -1,6 +1,6 @@
 from commands.utils.OptionInteraction import OptionInteraction
 from utils.DiscordUtils import get_channel, get_channels_non_async
-from exceptions.InvalidArgumentException import InvalidArgumentException
+from exceptions.InvalidInputException import InvalidInputException
 import discord
 
 
@@ -15,4 +15,4 @@ class DiscordChannelInteraction(OptionInteraction):
         if channel:
             return response
         else:
-            raise InvalidArgumentException(f'Please choose on of: {self.options}')
+            raise InvalidInputException(f'Please choose on of: {self.options}')

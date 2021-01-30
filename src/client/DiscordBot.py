@@ -10,6 +10,8 @@ from client.RaidEventsResource import RaidEventsResource
 from client.PlayersResource import PlayersResource
 from client.GuildsResource import GuildsResource
 from client.MessagesResource import MessagesResource
+from events.EventQueue import EventQueue
+from events.EventHandlerFactory import EventHandlerFactory
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -21,6 +23,7 @@ import sys
 import traceback
 
 maintainer = None
+LOOP_INTERVAL_SECS = 10
 
 
 def run() -> None:
@@ -34,7 +37,7 @@ def run() -> None:
     Log.setup()
 
     token = os.getenv('DISCORD_BOT_TOKEN')
-    assert token, "Could not find any discord token"
+    assert token, "Could not find any discord bot token"
 
     discord_client = discord.Client(fetch_offline_members=False)
 
@@ -42,12 +45,23 @@ def run() -> None:
     guilds_resource = GuildsResource(discord_client)
     messages_resource = MessagesResource()
     events_resource = RaidEventsResource(discord_client, messages_resource)
-    command_runner = CommandRunner(client=discord_client, players_resource=players_resource, events_resource=events_resource, guilds_resource=guilds_resource,
-                                   messages_resource=messages_resource)
+    event_queue = EventQueue()
+    command_runner = CommandRunner(client=discord_client, players_resource=players_resource,
+                                   events_resource=events_resource, guilds_resource=guilds_resource,
+                                   messages_resource=messages_resource, event_queue=event_queue)
+    events_handler_factory = EventHandlerFactory(discord_client, players_table=players_resource.players_table,
+                                                 guilds_table=guilds_resource.guilds_table,
+                                                 raids_table=events_resource.events_table,
+                                                 messages_table=messages_resource.messages_table)
+
+    async def listen_queue():
+        await event_queue.listen(events_handler_factory)
+        discord_client.loop.call_later(LOOP_INTERVAL_SECS, discord_client.loop.create_task, listen_queue())
 
     @discord_client.event
     async def on_ready() -> None:
         logging.getLogger().info(f'{discord_client.user} has connected.')
+        discord_client.loop.create_task(listen_queue())
 
     @discord_client.event
     async def on_message(message: discord.Message) -> None:
