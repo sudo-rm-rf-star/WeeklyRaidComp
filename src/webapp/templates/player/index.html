@@ -1,9 +1,36 @@
+{% from 'components/raid_button.html' import raid_button %}
+
 {% extends "layout.html" %}
 
 {% block content %}
-<ul>
-    {% for player in players %}
-    <li><a href="{{url_for('.player', discord_id=player.discord_id)}}">{{player.selected_char}}</a></li>
-    {% endfor %}
-</ul>
+<div class="w-max">
+    <div class="flex">
+        <div class="flex-1 title text-center m-4">
+            <h1 class="text-5xl">{{guild.name}}</h1>
+            <h1 class="text-5xl">{{raidteam.name}}</h1>
+        </div>
+    </div>
+    <div class="grid grid-flow-col items-start w-max font-thin text-sm ml-8">
+        {% for role, icon in
+        [('tank', 'Tanks.png'),
+        ('melee', 'Melee.png'),
+        ('ranged', 'Ranged.png'),
+        ('healer', 'Healer.png')] %}
+        <div class="grid-cols-1">
+            <img class="block m-auto" width="50" src="{{url_for('.static', filename='emojis/' + icon)}}">
+            {% set characters = raid.get_characters(role=role) -%}
+            <div class="border-2 border-gray-700 rounded-lg mr-8 my-4 overflow-hidden">
+                <p class="p-1 text-center text-white font-semibold {{bg_color}}">{{title}} - {{characters|length}}</p>
+                {% for character in characters %}
+                <a class="block py-0.5 px-2 {{character.klass.name.lower()}} hover-bold"
+                   href="{{url_for('.player', discord_id=character.discord_id)}}">
+                    {{character.name}}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 {% endblock %}

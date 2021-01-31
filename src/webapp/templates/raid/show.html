@@ -4,15 +4,17 @@
 
 {% block content %}
 <div class="w-max">
-    <div class="title text-center m-4">
-        <h2 class="text-sm">{{raid.get_datetime()}}</h2>
-        <h1 class="text-5xl">{{raid.get_name()}}</h1>
-        <h2 class="text-xl">{{raid.relative_time()}}</h2>
-    </div>
     <div class="flex">
-        {{raid_button('.create-roster', 'Create roster')}}
-        {{raid_button('.send-reminder', 'Send reminder')}}
-<!--        {{raid_button('.raids', 'Invite player')}}-->
+        <div class="flex-1 title text-center m-4">
+            <h2 class="text-sm">{{raid.get_datetime()}}</h2>
+            <h1 class="text-5xl">{{raid.get_name()}}</h1>
+            <h2 class="text-xl">{{raid.relative_time()}}</h2>
+        </div>
+        <div class="flex-none flex w-1/3 min-h">
+            {{raid_button('.create_roster', 'Create roster', raid, "bg-gray-700")}}
+            {{raid_button('.send_reminder', 'Send reminder', raid)}}
+            {{raid_button('.invite_player', 'Invite player', raid)}}
+        </div>
     </div>
     <div class="grid grid-flow-col items-start w-max font-thin text-sm ml-8">
         {% for role, icon in

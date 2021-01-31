@@ -22,7 +22,7 @@ class SignupCharacterCommand(CharacterCommand):
         if not raid_event:
             self.respond("The event you signed up for no longer exists...")
             return
-        seconds_until_event = (datetime.now() - raid_event.get_datetime().to_datetime()).seconds
+        seconds_until_event = (datetime.now() - raid_event.get_datetime()).seconds
         if seconds_until_event < 0:
             self.respond(f"Sorry, but you cannot sign for {raid_event} as it has already started or finished.")
             return

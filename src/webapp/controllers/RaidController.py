@@ -39,11 +39,14 @@ class RaidController(AbstractController):
             return self.redirect('.raid', team_id=raid_event.team_id, name=raid_event.name,
                                  timestamp=raid_event.timestamp)
 
-    def send_reminder(self, name, timestamp):
-        return self.redirect('.raid', team_id=None, name=name, timestamp=timestamp)
+    def send_reminder(self, team_id, name, timestamp):
+        return self.redirect('.raid', team_id=team_id, name=name, timestamp=timestamp)
 
-    def create_roster(self, name, timestamp):
-        return self.redirect('.raid', team_id=None, name=name, timestamp=timestamp)
+    def create_roster(self, team_id, name, timestamp):
+        return self.redirect('.raid', team_id=team_id, name=name, timestamp=timestamp)
+
+    def invite_player(self, team_id, name, timestamp):
+        return self.redirect('.raid', team_id=team_id, name=name, timestamp=timestamp)
 
     def verify_form_and_create_raid(self, form):
         errors = []
@@ -67,8 +70,8 @@ class RaidController(AbstractController):
             else:
                 if form_name and form_team_id:
                     try:
-                        self.raids_resource.create_raid(name=form['name'], raid_datetime=raid_datetime,
-                                                        guild_id=self.guild_id, group_id=form['team_id'])
+                        raid_event = self.raids_resource.create_raid(name=form['name'], raid_datetime=raid_datetime,
+                                                                     guild_id=self.guild_id, group_id=form['team_id'])
                     except InvalidInputException as e:
                         errors.append(e.message)
         return raid_event, errors
