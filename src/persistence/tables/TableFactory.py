@@ -1,11 +1,11 @@
 from utils.Singleton import Singleton
-from persistence.PlayersTable import PlayersTable
-from persistence.RaidEventsTable import RaidEventsTable
-from persistence.GuildsTable import GuildsTable
+from persistence.tables.PlayersTable import PlayersTable
+from persistence.tables.RaidEventsTable import RaidEventsTable
+from persistence.tables.GuildsTable import GuildsTable
 import boto3
 from dotenv import load_dotenv
 import os
-from persistence.MessagesTable import MessagesTable
+from persistence.tables.MessagesTable import MessagesTable
 
 
 class TableFactory(metaclass=Singleton):

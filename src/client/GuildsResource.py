@@ -5,8 +5,8 @@ import discord
 from logic.Guild import Guild
 from logic.Player import Player
 from logic.RaidTeam import RaidTeam
-from persistence.GuildsTable import GuildsTable
-from persistence.TableFactory import TableFactory
+from persistence.tables.GuildsTable import GuildsTable
+from persistence.tables.TableFactory import TableFactory
 
 
 class GuildsResource:

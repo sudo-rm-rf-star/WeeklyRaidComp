@@ -2,10 +2,10 @@ from .EventHandler import EventHandler
 from .Event import Event
 from pydoc import locate
 from exceptions.InternalBotException import InternalBotException
-from persistence.MessagesTable import MessagesTable
-from persistence.RaidEventsTable import RaidEventsTable
-from persistence.GuildsTable import GuildsTable
-from persistence.PlayersTable import PlayersTable
+from persistence.tables.MessagesTable import MessagesTable
+from persistence.tables.RaidEventsTable import RaidEventsTable
+from persistence.tables.GuildsTable import GuildsTable
+from persistence.tables.PlayersTable import PlayersTable
 
 
 class EventHandlerFactory:

@@ -1,4 +1,4 @@
-from persistence.TableFactory import TableFactory
+from persistence.tables.TableFactory import TableFactory
 
 if __name__ == '__main__':
     table_factory = TableFactory()

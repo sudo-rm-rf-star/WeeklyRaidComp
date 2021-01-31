@@ -1,5 +1,5 @@
-from persistence.TableFactory import TableFactory
-from persistence.MessagesTable import MessagesTable
+from persistence.tables.TableFactory import TableFactory
+from persistence.tables.MessagesTable import MessagesTable
 from logic.MessageRef import MessageRef
 from typing import Optional
 from datetime import datetime

@@ -1,7 +1,7 @@
 from boto3.dynamodb.conditions import Key
 from logic.Player import Player
 from typing import Dict, Any
-from persistence.DynamoDBTable import DynamoDBTable
+from persistence.tables.DynamoDBTable import DynamoDBTable
 from typing import List, Optional
 from logic.enums.Role import Role
 from logic.enums.Class import Class

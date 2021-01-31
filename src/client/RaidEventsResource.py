@@ -9,8 +9,8 @@ from client.entities.RaidMessage import RaidMessage
 from exceptions.InvalidInputException import InvalidInputException
 from logic.MessageRef import MessageRef
 from logic.RaidEvent import RaidEvent
-from persistence.RaidEventsTable import RaidEventsTable
-from persistence.TableFactory import TableFactory
+from persistence.tables.RaidEventsTable import RaidEventsTable
+from persistence.tables.TableFactory import TableFactory
 from utils.Constants import abbrev_to_full
 from utils.DiscordUtils import get_message
 from datetime import datetime
@@ -39,7 +39,7 @@ class RaidEventsResource:
 
     def update_raid(self, discord_guild: discord.Guild, raid_event: RaidEvent):
         self.raid_cache.update(raid_event)
-        self.events_table.create_raid_event(raid_event)
+        self.events_table.update_raid_event(raid_event)
         RaidMessage(self.discord_client, discord_guild, raid_event).sync()
 
     def get_raid(self, discord_guild: discord.Guild, group_id: int, raid_name: str,

@@ -1,3 +1,5 @@
+{% from 'components/raid_button.html' import raid_button %}
+
 {% extends "layout.html" %}
 
 {% block content %}
@@ -6,6 +8,11 @@
         <h2 class="text-sm">{{raid.get_datetime()}}</h2>
         <h1 class="text-5xl">{{raid.get_name()}}</h1>
         <h2 class="text-xl">{{raid.relative_time()}}</h2>
+    </div>
+    <div class="flex">
+        {{raid_button('.create-roster', 'Create roster')}}
+        {{raid_button('.send-reminder', 'Send reminder')}}
+<!--        {{raid_button('.raids', 'Invite player')}}-->
     </div>
     <div class="grid grid-flow-col items-start w-max font-thin text-sm ml-8">
         {% for role, icon in

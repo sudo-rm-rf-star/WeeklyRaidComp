@@ -1,4 +1,4 @@
-from persistence.TableFactory import TableFactory
+from persistence.tables.TableFactory import TableFactory
 from flask_discord import DiscordOAuth2Session
 from .RaidController import RaidController
 from .HomeController import HomeController

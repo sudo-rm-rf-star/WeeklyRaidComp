@@ -1,5 +1,5 @@
-from persistence.TableFactory import TableFactory
-from persistence.PlayersTable import PlayersTable
+from persistence.tables.TableFactory import TableFactory
+from persistence.tables.PlayersTable import PlayersTable
 from logic.Player import Player
 from logic.RaidTeam import RaidTeam
 from typing import List, Optional

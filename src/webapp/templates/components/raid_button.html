@@ -1,0 +1,7 @@
+{% macro raid_button(url, text) -%}
+<a href="{{url_for(url)}}"
+   class="bg-green-500 flex justify-center items-center w-full text-white p-1 my-2 mx-4 rounded-md
+   focus:outline-none hover:bg-green-800">
+    {{text}}
+</a>
+{%- endmacro %}

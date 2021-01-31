@@ -16,15 +16,9 @@ class RaidCommand(BotCommand):
         return "raid"
 
     async def create_raid(self, raid_name: str, raid_datetime: datetime, is_open: bool):
-        guild_id = self.discord_guild.id
-        group_id = self.get_raidgroup().id
-        if self.events_resource.raid_exists(guild_id, group_id, raid_name, raid_datetime):
-            raise InvalidInputException(f'Raid event for {raid_name} on {raid_datetime} already exists.')
-        raid_event = RaidEvent(name=raid_name, raid_datetime=raid_datetime, guild_id=guild_id, group_id=group_id,
-                               is_open=is_open)
-        self.events_resource.create_raid(raid_event)
+        raid_event = self.raids_resource.create_raid(name=raid_name, raid_datetime=raid_datetime,
+                                                     guild_id=self.discord_guild.id, group_id=self.get_group_id())
         self.respond(f'Raid {raid_event} has been successfully created.')
-        self.event_queue.send_event(RaidEventCreated(raid_event))
         return raid_event
 
     async def send_raid_notification(self, raid_event: RaidEvent, raiders: List[GuildMember]) -> None:

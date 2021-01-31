@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Optional, List, Any, Type, Set
 from client.PlayersResource import PlayersResource
 from client.RaidEventsResource import RaidEventsResource
+from persistence.RaidsResource import RaidsResource
 from client.GuildsResource import GuildsResource
 from client.MessagesResource import MessagesResource
 from logic.RaidEvent import RaidEvent
@@ -64,6 +65,7 @@ class BotCommand:
                  channel: Optional[TextChannel], logs_channel: TextChannel, event_queue: EventQueue):
         self.client: discord.Client = client
         self.players_resource: PlayersResource = players_resource
+        self.raids_resource = RaidsResource()
         self.events_resource = events_resource
         self.guilds_resource = guilds_resource
         self.messages_resource = messages_resource

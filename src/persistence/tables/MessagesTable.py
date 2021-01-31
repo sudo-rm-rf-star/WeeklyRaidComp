@@ -1,6 +1,6 @@
 from logic.MessageRef import MessageRef
 from typing import Dict, Any
-from persistence.DynamoDBTable import DynamoDBTable
+from persistence.tables.DynamoDBTable import DynamoDBTable
 from datetime import datetime
 
 

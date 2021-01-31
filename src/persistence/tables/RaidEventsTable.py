@@ -4,7 +4,7 @@ from boto3.dynamodb.conditions import Key
 
 from logic.RaidEvent import RaidEvent
 from logic.Guild import Guild
-from persistence.DynamoDBTable import DynamoDBTable
+from persistence.tables.DynamoDBTable import DynamoDBTable
 from datetime import datetime
 from exceptions.InvalidInputException import InvalidInputException
 

@@ -1,11 +1,10 @@
 from logic.Player import Player
 from logic.Guild import Guild
-from persistence.RaidEventsTable import RaidEventsTable
-from persistence.PlayersTable import PlayersTable
-from persistence.GuildsTable import GuildsTable
+from persistence.tables.RaidEventsTable import RaidEventsTable
+from persistence.tables.PlayersTable import PlayersTable
+from persistence.tables.GuildsTable import GuildsTable
 from flask import render_template, redirect, url_for
 from flask_discord import DiscordOAuth2Session
-import discord
 from events.EventQueue import EventQueue
 
 

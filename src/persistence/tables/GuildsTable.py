@@ -1,6 +1,6 @@
 from logic.Guild import Guild
 from typing import Dict, Any
-from persistence.DynamoDBTable import DynamoDBTable
+from persistence.tables.DynamoDBTable import DynamoDBTable
 
 
 class GuildsTable(DynamoDBTable[Guild]):

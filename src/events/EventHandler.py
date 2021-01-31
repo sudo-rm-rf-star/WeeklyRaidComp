@@ -2,10 +2,10 @@ from exceptions.MissingImplementationException import MissingImplementationExcep
 import discord
 from .Event import Event
 from .DiscordGuild import DiscordGuild, create_helper
-from persistence.RaidEventsTable import RaidEventsTable
-from persistence.GuildsTable import GuildsTable
-from persistence.PlayersTable import PlayersTable
-from persistence.MessagesTable import MessagesTable
+from persistence.tables.RaidEventsTable import RaidEventsTable
+from persistence.tables.GuildsTable import GuildsTable
+from persistence.tables.PlayersTable import PlayersTable
+from persistence.tables.MessagesTable import MessagesTable
 from utils.Constants import MAINTAINER_ID
 import utils.Logger as Log
 import traceback

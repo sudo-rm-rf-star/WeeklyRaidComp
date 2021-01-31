@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from utils.Singleton import Singleton
 import os
 import boto3
 import utils.Logger as Log
@@ -9,7 +10,7 @@ QUEUE_NAME = 'BotEventQueue'
 QUEUE_POLLING_PERIOD_SECS = 5
 
 
-class EventQueue:
+class EventQueue(metaclass=Singleton):
     def __init__(self):
         load_dotenv()
         access_key = os.getenv('AWS_ACCESS_KEY')

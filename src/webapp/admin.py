@@ -48,22 +48,22 @@ def create_admin_blueprint(app):
     @admin.route('/raids/create')
     @requires_authorization
     def create_raid():
-        return raid_controller().create()
+        return raid_controller().create_raid()
 
     @admin.route('/raids/<team_id>/<name>/<int:timestamp>')
     @requires_authorization
     def raid(team_id, name, timestamp):
         return raid_controller().show(team_id, name, timestamp)
 
-    @admin.route('/raids/<name>/<int:timestamp>/signup-remind', methods=["POST"])
+    @admin.route('/raids/<team_id>/<name>/<int:timestamp>/signup-remind', methods=["POST"])
     @requires_authorization
-    def signup_remind(name, timestamp):
-        return raid_controller().signup_remind(name, timestamp)
+    def signup_remind(team_id, name, timestamp):
+        return raid_controller().send_reminder(team_id, name, timestamp)
 
-    @admin.route('/raids/<name>/<int:timestamp>/create-roster', methods=["POST"])
+    @admin.route('/raids/<team_id>/<name>/<int:timestamp>/create-roster', methods=["POST"])
     @requires_authorization
-    def create_roster(name, timestamp):
-        return raid_controller().create_roster(name, timestamp)
+    def create_roster(team_id, name, timestamp):
+        return raid_controller().create_roster(team_id, name, timestamp)
 
     @admin.route('/players')
     @requires_authorization

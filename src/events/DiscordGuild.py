@@ -1,7 +1,7 @@
 from utils.DiscordUtils import *
 from logic.Guild import Guild
 from logic.RaidTeam import RaidTeam
-from persistence.PlayersTable import PlayersTable
+from persistence.tables.PlayersTable import PlayersTable
 from typing import Optional, Set
 import logging
 
