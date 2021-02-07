@@ -37,6 +37,9 @@ async def create_raidteam(client: discord.Client, discord_guild: discord.Guild, 
     options = ["EU"]
     region = await OptionInteraction.interact(client=client, guild=discord_guild, member=member, content=msg,
                                               options=options)
+    msg = "Please choose a Discord text channel to post all of the raid events for this raid group."
+    events_channel = await DiscordChannelInteraction.interact(client=client, guild=discord_guild, content=msg,
+                                                              member=member)
     msg = "Please select a Discord TextChannel to post all of the logs for this bot. This will contain additional " \
           "information on any interaction with this bot."
     logs_channel = await DiscordChannelInteraction.interact(client=client, guild=discord_guild, content=msg,
@@ -48,9 +51,6 @@ async def create_raidteam(client: discord.Client, discord_guild: discord.Guild, 
     msg = "Please choose the Discord role to manage this raid team. Players with this role can for example create new raids and " \
           "execute other DokBot commands."
     manager_rank = await DiscordRoleInteraction.interact(client=client, guild=discord_guild, member=member, content=msg)
-    msg = "Please choose a Discord text channel to post all of the raid events for this raid group."
-    events_channel = await DiscordChannelInteraction.interact(client=client, guild=discord_guild, content=msg,
-                                                              member=member)
     raid_team = RaidTeam(guild_id=discord_guild.id, team_name=team_name, raider_rank=raider_rank, realm=realm,
                          region=region, officer_rank=manager_rank, events_channel=events_channel,
                          logs_channel=logs_channel)

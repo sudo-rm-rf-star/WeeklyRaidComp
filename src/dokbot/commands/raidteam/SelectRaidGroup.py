@@ -7,10 +7,8 @@ class SelectRaidTeam(RaidTeamCommand):
     def sub_name(cls) -> str: return "select"
 
     @classmethod
-    def argformat(cls) -> str: return "raidteam"
-
-    @classmethod
     def description(cls) -> str: return "Select an existing raid team you'd like to manage or add a new one."
 
     async def execute(self, **kwargs) -> None:
-        return await self.interact(RaidTeamSelectionInteraction)
+        raid_team = await self.interact(RaidTeamSelectionInteraction)
+        self.respond(f'You will now manage {raid_team}')
