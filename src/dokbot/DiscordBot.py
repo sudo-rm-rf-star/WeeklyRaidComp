@@ -38,7 +38,9 @@ def run() -> None:
     token = os.getenv('DISCORD_BOT_TOKEN')
     assert token, "Could not find any dokbot bot token"
 
-    discord_client = discord.Client(fetch_offline_members=False)
+    intents = discord.Intents.default()
+    intents.members = True
+    discord_client = discord.Client(fetch_offline_members=False, intents=intents)
     event_queue = EventQueue()
     command_runner = CommandRunner(client=discord_client)
     events_handler_factory = EventHandlerFactory(discord_client)

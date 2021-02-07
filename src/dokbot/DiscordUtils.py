@@ -100,4 +100,7 @@ async def set_roster_status(guild: discord.Guild, member: GuildMember, character
 
 async def _roster_status_to_role(guild: discord.Guild, roster_status: RosterStatus) -> discord.Role:
     role_name = f'Roster{str(roster_status.name).capitalize()}'
-    return await get_role(guild, role_name)
+    role = await get_role(guild, role_name)
+    if not role:
+        role = await guild.create_role(name=role_name)
+    return role

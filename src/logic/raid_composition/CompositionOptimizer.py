@@ -25,7 +25,10 @@ class CompositionOptimizer:
 
         # By sorting by role and then class we effectively make all neighbors in the next array by switching a
         # neighboring zero and one
-        self.population = sorted([character for character in characters if (character.get_signup_status() != SignupStatus.DECLINE and character.get_roster_status() != RosterStatus.DECLINE)],
+        self.population = sorted([character for character in characters
+                                  if character.get_signup_status() != SignupStatus.DECLINE
+                                  and character.get_roster_status() != RosterStatus.DECLINE
+                                  and not (character.get_signup_status() == SignupStatus.UNDECIDED and character.get_roster_status() == RosterStatus.UNDECIDED)],
                                  key=lambda char: (char.role.name, char.klass.name))
         self.population_size = len(self.population)
 
@@ -35,6 +38,8 @@ class CompositionOptimizer:
         for character in self.characters:
             if character in accepted_characters:
                 roster_status = RosterStatus.ACCEPT
+            elif character.get_signup_status() == SignupStatus.UNDECIDED and character.get_roster_status() == RosterStatus.UNDECIDED:
+                roster_status = RosterStatus.UNDECIDED
             elif character.get_signup_status() != SignupStatus.DECLINE and character.get_roster_status() != RosterStatus.DECLINE:
                 roster_status = RosterStatus.EXTRA
             else:
