@@ -17,4 +17,4 @@ class RemoveRaidCommand(RaidCommand):
 
     async def execute(self, raid_name: str, raid_datetime: datetime, **kwargs):
         raid_event = await self.get_raid_event(raid_name, raid_datetime)
-        self.raids_resource.delete_raid(raid_event)
+        self.raids_resource.remove_raid(raid_event)

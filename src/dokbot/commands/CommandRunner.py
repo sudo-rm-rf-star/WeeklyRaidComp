@@ -9,7 +9,6 @@ from dokbot.commands.player.AnnounceCommand import AnnounceCommand
 from dokbot.commands.player.RegisterPlayerCommand import RegisterPlayerCommand
 from dokbot.commands.player.ListAllPlayersCommand import ListAllPlayersCommand
 from dokbot.commands.player.ListSelectedPlayersCommand import ListSelectedPlayersCommand
-from dokbot.commands.player.AutoInvitePlayer import AutoInvitePlayer
 from dokbot.commands.character.SignupCharacterCommand import SignupCharacterCommand
 from dokbot.commands.raid.CreateOpenRaid import CreateOpenRaid
 from dokbot.commands.raid.CreateClosedRaid import CreateClosedRaid
@@ -19,7 +18,7 @@ from dokbot.commands.raid.RaidEventInvite import RaidEventInvite
 from dokbot.commands.raid.RaidEventRemind import RaidEventRemind
 from dokbot.commands.raid.OpenRaidEvent import OpenRaidEvent
 from dokbot.commands.raid.ShowRaidEvent import ShowRaidEvent
-from dokbot.commands.raidteam.SelectRaidGroup import SelectRaidTeam
+from dokbot.commands.raidteam.SelectRaidTeam import SelectRaidTeam
 from dokbot.commands.roster.AcceptPlayerCommand import AcceptPlayerCommand
 from dokbot.commands.roster.BenchPlayerCommand import BenchPlayerCommand
 from dokbot.commands.roster.DeclinePlayerCommand import DeclinePlayerCommand
@@ -40,7 +39,7 @@ COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, AnnounceCommand, Regis
             SignupCharacterCommand, RemoveRaidCommand, SelectRaidTeam, AcceptPlayerCommand, BenchPlayerCommand,
             DeclinePlayerCommand, CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListAllPlayersCommand,
             CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ListSelectedPlayersCommand, RemoveCharacter,
-            OpenRaidEvent, ShowRaidEvent, AutoInvitePlayer}
+            OpenRaidEvent, ShowRaidEvent}
 
 
 class CommandRunner:

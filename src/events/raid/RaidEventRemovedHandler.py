@@ -20,3 +20,5 @@ class RaidEventRemovedHandler(RaidEventHandler):
 
         if raid_event.get_datetime() > datetime.now():
             await discord_guild.send_message_to_raiders(f'{raid_event} has been cancelled.')
+
+        self.raids_resource.delete_raid(raid_event)

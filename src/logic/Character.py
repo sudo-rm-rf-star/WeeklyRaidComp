@@ -64,8 +64,8 @@ class Character:
             'class': self.klass.name,
             'role': self.role.name,
             'race': self.race.name,
-            'roster_status': [(roster_status.name, timestamp) for roster_status, timestamp in self.roster_statuses],
-            'signup_status': [(signup_status.name, timestamp) for signup_status, timestamp in self.signup_statuses],
+            'roster_statuses': [(roster_status.name, timestamp) for roster_status, timestamp in self.roster_statuses],
+            'signup_statuses': [(signup_status.name, timestamp) for signup_status, timestamp in self.signup_statuses],
             'created_at': int(self.created_at if self.created_at else datetime.now().timestamp())
         }
 

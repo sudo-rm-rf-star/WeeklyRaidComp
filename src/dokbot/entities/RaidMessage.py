@@ -104,7 +104,10 @@ class RaidMessage(DiscordMessage):
         declined_characters = [char.name for char in characters_by_status[RosterStatus.DECLINE]]
         invited_but_not_signed_characters = [char.name for char in characters_by_status[RosterStatus.UNDECIDED]
                                              if char.get_signup_status() == SignupStatus.UNDECIDED]
-        if len(invited_but_not_signed_characters) > 0:
+        if len(invited_but_not_signed_characters) > 20:
+            value = f'**Invited**: {", ".join(invited_but_not_signed_characters[:20])}, ...'
+            fields.append(self._field(value, inline=False))
+        elif len(invited_but_not_signed_characters) > 0:
             value = f'**Invited**: {", ".join(invited_but_not_signed_characters)}'
             fields.append(self._field(value, inline=False))
         if len(declined_characters) > 0:

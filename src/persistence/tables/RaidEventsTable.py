@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 
 from boto3.dynamodb.conditions import Key
 
@@ -27,8 +27,19 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
         return super(RaidEventsTable, self).get_item(guild_id=guild_id, team_name=team_name, raid_name=raid_name,
                                                      raid_datetime=raid_datetime)
 
-    def list_raid_events(self, raid_team_name: str, since: float = 0) -> List[RaidEvent]:
-        key_condition = Key('team_name').eq(raid_team_name) & Key('timestamp').gte(int(since))
+    def list_raid_events(self, raid_team_name: str,
+                         since: Optional[Union[float, datetime]] = 0,
+                         until: Optional[Union[float, datetime]] = None) -> List[RaidEvent]:
+        if until and isinstance(until, datetime):
+            until = until.timestamp()
+        if since and isinstance(since, datetime):
+            since = since.timestamp()
+
+        if until:
+            key_condition = Key('team_name').eq(raid_team_name) & Key('timestamp').between(int(since), int(until))
+        else:
+            key_condition = Key('team_name').eq(raid_team_name) & Key('timestamp').gte(int(since))
+
         items = self.table.query(IndexName=RaidEventsTable.INDEX_NAME,
                                  KeyConditionExpression=key_condition)['Items']
         return [self._to_object(obj) for obj in items]

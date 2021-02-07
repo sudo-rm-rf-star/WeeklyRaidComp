@@ -73,7 +73,7 @@ class BotCommand:
         self.player = player
         self.discord_guild = discord_guild
         self.channel = channel
-        self.raid_team = raidteam
+        self.raid_team: RaidTeam = raidteam
 
     async def execute(self, **kwargs):
         raise MissingImplementationException(BotCommand)
@@ -86,7 +86,7 @@ class BotCommand:
         await self.execute(**kwargs)
 
     async def get_raidteam(self) -> RaidTeam:
-        if not self.raid_team:
+        if not self.raid_team or self.raid_team.guild_id != self.discord_guild.id:
             self.raid_team = await self.interact(RaidTeamSelectionInteraction)
         return self.raid_team
 
