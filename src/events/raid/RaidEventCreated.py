@@ -7,6 +7,6 @@ from dataclasses import dataclass
 class RaidEventCreated(Event):
     def __init__(self, raid_event: RaidEvent):
         self.guild_id = raid_event.guild_id
-        self.group_id = raid_event.team_id
+        self.team_name = raid_event.team_name
         self.raid_name = raid_event.name
         self.raid_datetime = raid_event.datetime

@@ -1,4 +1,4 @@
-from client.entities.GuildMember import GuildMember
+from dokbot.entities.GuildMember import GuildMember
 from exceptions.BotException import BotException
 
 

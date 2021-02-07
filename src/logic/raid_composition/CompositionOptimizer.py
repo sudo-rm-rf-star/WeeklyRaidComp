@@ -25,23 +25,22 @@ class CompositionOptimizer:
 
         # By sorting by role and then class we effectively make all neighbors in the next array by switching a
         # neighboring zero and one
-        self.population = sorted([character for character in characters if (character.signup_status != SignupStatus.DECLINE and character.roster_status != RosterStatus.DECLINE)],
+        self.population = sorted([character for character in characters if (character.get_signup_status() != SignupStatus.DECLINE and character.get_roster_status() != RosterStatus.DECLINE)],
                                  key=lambda char: (char.role.name, char.klass.name))
         self.population_size = len(self.population)
 
     def make_raid_composition(self) -> List[Character]:
         accepted_characters = self.candidate_to_characters(self.random_restart_hill_climbing())
         updated_characters = []
-        print(len(accepted_characters))
         for character in self.characters:
             if character in accepted_characters:
                 roster_status = RosterStatus.ACCEPT
-            elif character.signup_status != SignupStatus.DECLINE and character.roster_status != RosterStatus.DECLINE:
+            elif character.get_signup_status() != SignupStatus.DECLINE and character.get_roster_status() != RosterStatus.DECLINE:
                 roster_status = RosterStatus.EXTRA
             else:
                 roster_status = RosterStatus.DECLINE
-            if roster_status != character.roster_status:
-                character.roster_status = roster_status
+            if roster_status != character.get_roster_status():
+                character.set_roster_status(roster_status)
                 updated_characters.append(character)
         return updated_characters
 

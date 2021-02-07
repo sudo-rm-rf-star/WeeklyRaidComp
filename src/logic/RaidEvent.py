@@ -5,7 +5,7 @@ from logic.enums.Class import Class
 from logic.enums.Role import Role
 from logic.Roster import Roster
 from utils.Constants import abbrev_to_full
-from datetime import datetime, date, time
+from datetime import datetime, date
 from typing import List, Dict, Any, Optional
 from logic.Character import Character
 from logic.MessageRef import MessageRef
@@ -13,12 +13,12 @@ import arrow
 
 
 class RaidEvent:
-    def __init__(self, name: str, raid_datetime: datetime, guild_id: int, group_id: int,
+    def __init__(self, name: str, raid_datetime: datetime, guild_id: int, team_name: str,
                  roster=None, created_at: datetime = None, updated_at: datetime = None,
                  message_refs: List[MessageRef] = None, is_open: bool = False):
         self.name = name
         self.guild_id = guild_id
-        self.team_id = group_id
+        self.team_name = team_name
         self.datetime = raid_datetime
         self.timestamp = int(raid_datetime.timestamp())
         self.created_at = datetime.now() if not created_at else created_at
@@ -55,24 +55,29 @@ class RaidEvent:
 
     def has_user_signed_as(self, user_id: int, signup_status: SignupStatus) -> bool:
         return any(char for char in self.roster.characters if
-                   char.discord_id == user_id and char.signup_status == signup_status)
+                   char.discord_id == user_id and char.get_signup_status() == signup_status)
 
     def get_signed_characters(self) -> List[Character]:
         return self.roster.characters
 
-    def get_characters(self, role: str = None, klass: str = None, signup_choice: str = None, roster_choice: str = None):
+    def get_characters(self, role: str = None, klass: str = None, signup_choice=None, roster_choice=None):
+        if signup_choice and isinstance(signup_choice, str):
+            signup_choice = SignupStatus[signup_choice.upper()]
+        if roster_choice and isinstance(roster_choice, str):
+            roster_choice = RosterStatus[roster_choice.upper()]
+
         return sorted([
             char for char in self.get_signed_characters() if
             (not role or char.role == Role[role.upper()]) and
             (not klass or char.klass == Class[klass.upper()]) and
-            (not signup_choice or char.signup_status == SignupStatus[signup_choice.upper()]) and
-            (not roster_choice or char.roster_status == RosterStatus[roster_choice.upper()])
-        ], key=lambda char: (char.role, char.klass, char.roster_status.name, char.signup_status.name, char.name))
+            (not signup_choice or char.get_signup_status() == signup_choice) and
+            (not roster_choice or char.get_roster_status() == roster_choice)
+        ], key=lambda char: (char.role, char.klass, char.get_roster_status().name, char.get_signup_status().name, char.name))
 
     def get_signup_choice(self, player: Player) -> Optional[SignupStatus]:
         for char in self.get_signed_characters():
             if player.discord_id == char.discord_id:
-                return char.signup_status
+                return char.get_signup_status()
         return SignupStatus.UNDECIDED
 
     def get_name(self, abbrev: bool = False) -> str:
@@ -102,7 +107,7 @@ class RaidEvent:
         return RaidEvent(name=raid_name,
                          raid_datetime=datetime.fromtimestamp(int(item['timestamp'])),
                          guild_id=int(item['guild_id']),
-                         group_id=int(item['group_id']),
+                         team_name=item['team_name'],
                          created_at=datetime.fromtimestamp(float(item['created_at'])),
                          updated_at=datetime.fromtimestamp(float(item['updated_at'])),
                          roster=Roster.from_dict(raid_name, item['roster']),
@@ -113,7 +118,7 @@ class RaidEvent:
         return {
             'name': self.name,
             'guild_id': str(self.guild_id),
-            'group_id': str(self.team_id),
+            'team_name': str(self.team_name),
             'timestamp': int(self.datetime.timestamp()),
             'created_at': int(self.created_at.timestamp()),
             'updated_at': int(self.updated_at.timestamp()),

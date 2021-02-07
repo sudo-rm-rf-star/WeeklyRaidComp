@@ -8,7 +8,7 @@ from logic.enums.Class import Class
 from logic.enums.Race import Race
 from logic.Character import Character
 from exceptions.InternalBotException import InternalBotException
-from logic.Guild import Guild
+from logic.RaidTeam import RaidTeam
 
 
 class PlayersTable(DynamoDBTable[Player]):
@@ -18,35 +18,28 @@ class PlayersTable(DynamoDBTable[Player]):
     def __init__(self, ddb):
         super().__init__(ddb, PlayersTable.TABLE_NAME)
 
-    def get_player_by_name(self, player_name: str, guild: Guild) -> Optional[Player]:
-        return _synthesize_player(self.table.query(IndexName=PlayersTable.INDEX_NAME,
-                                                   KeyConditionExpression=index_expression(guild) & Key('name').eq(
-                                                       player_name)))
+    def get_player_by_name(self, player_name: str, raid_team: RaidTeam) -> Optional[Player]:
+        key_condition_expression = index_expression(raid_team) & Key('name').eq(player_name)
+        query_result = self.table.query(IndexName=PlayersTable.INDEX_NAME,
+                                        KeyConditionExpression=key_condition_expression)
+        return _synthesize_player(query_result)
 
     def get_player_by_id(self, discord_id: int) -> Optional[Player]:
         return _synthesize_player(self.table.query(KeyConditionExpression=Key('discord_id').eq(str(discord_id))))
 
-    def list_players(self, guild: Guild) -> List[Player]:
-        return [player for player in _synthesize_players(
-            self.table.query(IndexName=PlayersTable.INDEX_NAME, KeyConditionExpression=index_expression(guild))) if
-                guild.id in player.guild_ids]
-
     def put_player(self, player: Player) -> None:
-        # TODO: optimization possible here, we don't always need to update all of the characters
         for character in player.characters:
             self.table.put_item(Item={
                 'discord_id': str(player.discord_id),
                 'realm#region': f'{player.realm}#{player.region}',
                 'created_at': str(player.created_at),
-                'selected_char': player.selected_char,
-                'selected_raidgroup_id': str(player.selected_raidgroup_id),
                 'name': character.name,
                 'class': character.klass.name,
                 'role': character.role.name,
                 'race': character.race.name,
-                'guild_ids': list(player.guild_ids),
+                'selected_char': player.selected_char,
                 'selected_guild_id': player.selected_guild_id,
-                'autoinvited': player.autoinvited
+                'selected_team_name': player.selected_team_name
             })
 
     def remove_character(self, character: Character):
@@ -125,27 +118,21 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
     for item in items['Items']:
         discord_id = int(item['discord_id'])
         created_at = float(item['created_at'])
-        selected_char = item.get('selected_char', None)
-        selected_raidgroup_id = int(item['selected_raidgroup_id']) if item.get('selected_raidgroup_id',
-                                                                               'None') != 'None' else None  # This isn't great
         char_name = item['name']
         klass = Class[item['class']]
         role = Role[item['role']]
         race = Race[item['race']]
         realm, region = tuple(item['realm#region'].split('#'))
-        guild_ids = set(item.get('guild_ids', set()))
-        selected_guild_id = item.get('selected_guild_id', item.get('last_guild_id', None))
-        autoinvited = item.get('autoinvited', False)
+        selected_char = item.get('selected_char')
+        selected_team_name = item.get('selected_team_name')
+        selected_guild_id = item.get('selected_guild_id')
         if discord_id not in players:
             players[discord_id] = Player(discord_id=discord_id, realm=realm, region=region, selected_char=selected_char,
-                                         characters=[], created_at=created_at,
-                                         selected_raidgroup_id=selected_raidgroup_id, guild_ids=guild_ids,
-                                         selected_guild_id=selected_guild_id, autoinvited=autoinvited)
+                                         characters=[], created_at=created_at, selected_team_name=selected_team_name,
+                                         selected_guild_id=selected_guild_id)
         player = players[discord_id]
         if realm != player.realm or region != player.region or selected_char != player.selected_char or \
-                selected_raidgroup_id != player.selected_raidgroup_id or created_at != player.created_at or \
-                guild_ids != player.guild_ids:
-            print(guild_ids, player.guild_ids)
+                selected_team_name != player.selected_team_name or created_at != player.created_at:
             raise InternalBotException("Player rows are not consistent.")
         player.characters.append(
             Character(char_name=char_name, discord_id=discord_id, klass=klass, role=role, race=race,
@@ -162,5 +149,5 @@ def _synthesize_player(items: Dict[str, Any]) -> Optional[Player]:
     return players[0]
 
 
-def index_expression(guild: Guild):
-    return Key('realm#region').eq(f'{guild.realm}#{guild.region}')
+def index_expression(raid_team: RaidTeam):
+    return Key('realm#region').eq(f'{raid_team.realm}#{raid_team.region}')

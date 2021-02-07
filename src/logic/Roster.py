@@ -8,6 +8,7 @@ from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
 from typing import Optional
 from exceptions.InternalBotException import InternalBotException
+from datetime import datetime
 
 
 class Roster:
@@ -31,25 +32,25 @@ class Roster:
         try:
             i = self.characters.index(character)
             prev_character = self.characters[i]
-            character.roster_status = prev_character.roster_status
-            character.signup_status = prev_character.signup_status
+            character.set_roster_status(prev_character.get_roster_status())
+            character.set_signup_status(prev_character.get_signup_status())
         except ValueError:
             i = len(self.characters)
             self.characters.append(character)
 
         # Automatically decline anyone who is not accepted to the roster, and declined the raid.
-        if character.roster_status != RosterStatus.ACCEPT and signup_status == SignupStatus.DECLINE:
+        if character.get_roster_status() != RosterStatus.ACCEPT and signup_status == SignupStatus.DECLINE:
             roster_status = RosterStatus.DECLINE
 
         # Automatically put anyone back to undecided if they accepted the raid after being declined to the roster
-        if character.roster_status == RosterStatus.DECLINE and signup_status != SignupStatus.DECLINE:
+        if character.get_roster_status() == RosterStatus.DECLINE and signup_status != SignupStatus.DECLINE:
             roster_status = RosterStatus.UNDECIDED
 
-        if roster_status:
-            character.roster_status = roster_status
+        if roster_status and roster_status != character.get_roster_status():
+            character.set_roster_status(roster_status)
 
-        if signup_status:
-            character.signup_status = signup_status
+        if signup_status and signup_status != character.get_signup_status():
+            character.set_signup_status(signup_status)
 
         self.characters[i] = character
         return character

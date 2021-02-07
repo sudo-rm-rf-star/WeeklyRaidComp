@@ -3,13 +3,13 @@ from datetime import datetime
 from utils.Constants import abbrev_to_full
 from exceptions.InvalidInputException import InvalidInputException
 import logging
-from persistence.RaidsResource import RaidsResource
+from persistence.RaidEventsResource import RaidEventsResource
 
 
 class RaidController(AbstractController):
     def __init__(self, *args, **kwargs):
         super(RaidController, self).__init__(*args, **kwargs)
-        self.raids_resource = RaidsResource()
+        self.raids_resource = RaidEventsResource()
 
     def view_directory(self):
         return 'raid'
@@ -27,7 +27,7 @@ class RaidController(AbstractController):
 
     def show(self, team_id, name, timestamp):
         dt = datetime.fromtimestamp(timestamp)
-        raid = self.raids_table.get_raid_event(self.guild_id, team_id, name, dt)
+        raid = self.raids_table.get_raid(self.guild_id, team_id, name, dt)
         return self.view('show', raid=raid, player=self.player)
 
     def store(self, form):
@@ -70,7 +70,7 @@ class RaidController(AbstractController):
             else:
                 if form_name and form_team_id:
                     try:
-                        raid_event = self.raids_resource.create_raid(name=form['name'], raid_datetime=raid_datetime,
+                        raid_event = self.raids_resource.create_raid(raid_name=form['name'], raid_datetime=raid_datetime,
                                                                      guild_id=self.guild_id, group_id=form['team_id'])
                     except InvalidInputException as e:
                         errors.append(e.message)

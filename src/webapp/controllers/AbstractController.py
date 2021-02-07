@@ -1,26 +1,16 @@
 from logic.Player import Player
-from logic.Guild import Guild
-from persistence.tables.RaidEventsTable import RaidEventsTable
-from persistence.tables.PlayersTable import PlayersTable
-from persistence.tables.GuildsTable import GuildsTable
+from logic.RaidTeam import RaidTeam
 from flask import render_template, redirect, url_for
 from flask_discord import DiscordOAuth2Session
-from events.EventQueue import EventQueue
+import discord
 
 
 class AbstractController:
-    def __init__(self, *args, session: DiscordOAuth2Session, player: Player, guild: Guild,
-                 raids_table: RaidEventsTable, players_table: PlayersTable, guilds_table: GuildsTable,
-                 event_queue: EventQueue):
+    def __init__(self, *args, session: DiscordOAuth2Session, user: discord.User, player: Player, raidteam: RaidTeam):
         self.session = session
         self.player = player
-        self.guild = guild
-        self.raids_table = raids_table
-        self.players_table = players_table
-        self.guilds_table = guilds_table
-        self.event_queue = event_queue
-        self.guild_id = self.guild.id
-        self.group_id = self.player.selected_raidgroup_id if self.player else None
+        self.user = user
+        self.raidteam = raidteam
 
     def view_directory(self):
         return ''

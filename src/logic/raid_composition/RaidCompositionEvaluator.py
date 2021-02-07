@@ -151,7 +151,7 @@ class RaidCompositionEvaluator:
         }
         total_score = 0
         for status, score in score_per_status.items():
-            total_score += score ** sum([1 for char in self.characters if char.signup_status == status])
+            total_score += score ** sum([1 for char in self.characters if char.get_signup_status() == status])
 
         return total_score / len(score_per_status.keys())
 
@@ -164,7 +164,7 @@ class RaidCompositionEvaluator:
             RosterStatus.UNDECIDED: 0.5
         }
         for status, score in score_per_status.items():
-            total_score += score ** sum([1 for char in self.characters if char.roster_status == status])
+            total_score += score ** sum([1 for char in self.characters if char.get_roster_status() == status])
 
         return total_score / len(score_per_status.keys())
 

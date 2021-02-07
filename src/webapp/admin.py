@@ -89,7 +89,7 @@ def create_admin_blueprint(app):
         discord_session.revoke()
         return redirect(url_for('.home'))
 
-    @admin.route("/discord/redirect")
+    @admin.route("/dokbot/redirect")
     def callback():
         discord_session.callback()
         return redirect(url_for(".home"))

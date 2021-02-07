@@ -38,8 +38,8 @@
                     {% for character in characters %}
                     <a class="block py-0.5 px-2 {{character.klass.name.lower()}} hover-bold"
                        href="{{url_for('.player', discord_id=character.discord_id)}}">
-                        {% if character.roster_status.name != 'DECLINE' and character.signup_status.name != 'ACCEPT' %}
-                        {{signup_emoji[character.signup_status.name.capitalize()]}}
+                        {% if character.get_roster_status().name != 'DECLINE' and character.get_signup_status().name != 'ACCEPT' %}
+                        {{signup_emoji[character.get_signup_status().name.capitalize()]}}
                         {% endif %}
                         {{character.name}}
                     </a>

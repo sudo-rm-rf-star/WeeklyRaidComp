@@ -30,6 +30,10 @@ class DynamoDBTable(Generic[T]):
         response = self.table.scan()
         return [self._to_object(item) for item in response['Items']]
 
+    def query(self, **kwargs) -> List[T]:
+        response = self.table.query(**kwargs)
+        return [self._to_object(item) for item in response['Items']]
+
     def put_item(self, t: T) -> None:
         self.table.put_item(Item=self._to_item(t))
 
@@ -51,7 +55,7 @@ class DynamoDBTable(Generic[T]):
     def _get_table(self, table_name: str):
         try:
             table = self.create_table(table_name)
-            table.meta.discord_client.get_waiter('table_exists').wait(TableName=table_name)
+            table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
         except ClientError as e:
             if e.response['Error']['Code'] != 'ResourceInUseException':
                 raise e

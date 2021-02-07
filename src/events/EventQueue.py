@@ -34,4 +34,5 @@ class EventQueue(metaclass=Singleton):
             except Exception as e:
                 await event_handler.process_failed(e, event)
             finally:
-                message.delete()
+                if message:
+                    message.delete()
