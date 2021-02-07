@@ -84,7 +84,8 @@ class RaidMessage(DiscordMessage):
 
         fields = []
         for roster_status in [RosterStatus.ACCEPT, RosterStatus.UNDECIDED, RosterStatus.EXTRA]:
-            characters = [char for char in characters_by_status[roster_status]]
+            characters = [char for char in characters_by_status[roster_status] if
+                          not (char.get_roster_status() == RosterStatus.UNDECIDED and char.get_signup_status() == SignupStatus.UNDECIDED)]
             if len(characters) > 0:
                 fields.append(self._get_title_for_roster_status(characters, roster_status))
                 field_count = 0
@@ -101,6 +102,11 @@ class RaidMessage(DiscordMessage):
                     field_count += 1
 
         declined_characters = [char.name for char in characters_by_status[RosterStatus.DECLINE]]
+        invited_but_not_signed_characters = [char.name for char in characters_by_status[RosterStatus.UNDECIDED]
+                                             if char.get_signup_status() == SignupStatus.UNDECIDED]
+        if len(invited_but_not_signed_characters) > 0:
+            value = f'**Invited**: {", ".join(invited_but_not_signed_characters)}'
+            fields.append(self._field(value, inline=False))
         if len(declined_characters) > 0:
             value = f'**Declined**: {", ".join(declined_characters)}'
             fields.append(self._field(value, inline=False))
