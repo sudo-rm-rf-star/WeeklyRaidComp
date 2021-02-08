@@ -24,6 +24,7 @@ LOOP_INTERVAL_SECS = 10
 
 # TODO: discord.ext.tasks -> event queue loo
 # TODO: discord.ext.commands -> bot commands framework
+# TODO https://pypi.org/project/discord-argparse/
 
 def run() -> None:
     os.environ['TZ'] = 'Europe/Brussels'
