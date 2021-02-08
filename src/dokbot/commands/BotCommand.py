@@ -98,7 +98,8 @@ class BotCommand:
 
     async def log(self, content: str):
         if self.raid_team:
-            await get_channel(self.discord_guild, self.raid_team.logs_channel)
+            logs_channel = await get_channel(self.discord_guild, self.raid_team.logs_channel)
+            await logs_channel.send(content)
         Log.info(content)
 
     def post(self, content: str):

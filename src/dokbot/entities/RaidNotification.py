@@ -5,13 +5,15 @@ from dokbot.entities.GuildMember import GuildMember
 import discord
 import utils.Logger as Log
 from typing import Optional
+from logic.RaidTeam import RaidTeam
 
 
 class RaidNotification(DiscordMessage):
-    def __init__(self, client: discord.Client, guild: discord.Guild, raid_event: RaidEvent):
+    def __init__(self, client: discord.Client, guild: discord.Guild, raid_event: RaidEvent, raidteam: RaidTeam):
         self.client = client
         self.raid_event = raid_event
-        content = f"You have been invited for {raid_event}. Please sign by clicking one of the reaction boxes."
+        content = f"You have been invited for {raid_event} for {raidteam}. " \
+                  f"Please sign by clicking one of the reaction boxes."
         super(RaidNotification, self).__init__(client, guild, content=content)
 
     async def send_to(self, recipient: GuildMember) -> Optional[discord.Message]:

@@ -20,11 +20,11 @@ class RaidCommand(BotCommand):
         self.respond(f'Raid {raid_event} has been successfully created.')
         return raid_event
 
-    async def send_raid_notification(self, raid_event: RaidEvent, raiders: List[GuildMember]) -> None:
+    async def send_raid_notification(self, raid_event: RaidEvent, raid_team, raiders: List[GuildMember]) -> None:
         Log.info(f'Sending {len(raiders)} invitations for {raid_event}')
         for raider in raiders:
             if not raid_event.has_user_signed(raider.id) or len(raiders) == 1:
-                msg = await RaidNotification(self.client, self.discord_guild, raid_event).send_to(raider)
+                msg = await RaidNotification(self.client, self.discord_guild, raid_event, raid_team).send_to(raider)
                 if msg:
                     self.messages_resource.create_personal_message(message_id=msg.id, guild_id=self.discord_guild.id,
                                                                    user_id=raider.id, raid_name=raid_event.name,
