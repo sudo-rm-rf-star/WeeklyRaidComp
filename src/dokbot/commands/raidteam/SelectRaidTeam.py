@@ -1,5 +1,5 @@
 from dokbot.commands.raidteam.RaidTeamCommand import RaidTeamCommand
-from dokbot.utils.RaidTeamSelectionInteraction import RaidTeamSelectionInteraction
+from dokbot.interactions.RaidTeamSelectionInteraction import RaidTeamSelectionInteraction
 
 
 class SelectRaidTeam(RaidTeamCommand):

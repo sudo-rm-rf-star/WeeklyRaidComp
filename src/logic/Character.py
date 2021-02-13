@@ -10,14 +10,14 @@ from typing import List, Tuple
 
 
 class Character:
-    def __init__(self, *, char_name: str, klass: Class, role: Role, race: Race, discord_id: int,
+    def __init__(self, *, char_name: str, klass: Class, role: Role, spec: str, discord_id: int,
                  created_at: Optional[float] = None,
                  roster_statuses: Optional[List[Tuple[RosterStatus, int]]] = None,
                  signup_statuses: Optional[List[Tuple[SignupStatus, int]]] = None):
         self.name = char_name
         self.klass = klass
         self.role = role
-        self.race = race
+        self.spec = spec
         self.discord_id = discord_id
         self.roster_statuses = roster_statuses if roster_statuses else []
         self.signup_statuses = signup_statuses if signup_statuses else []
@@ -49,7 +49,7 @@ class Character:
         return Character(char_name=item['name'],
                          klass=Class[item['class']],
                          role=Role[item['role']],
-                         race=Race[item['race']],
+                         spec=item.get('spec', None),
                          discord_id=item.get('discord_id', None),
                          signup_statuses=[(SignupStatus[signup_status], timestamp) for
                                           signup_status, timestamp in item.get('signup_statuses', [])],
@@ -63,7 +63,7 @@ class Character:
             'discord_id': self.discord_id,
             'class': self.klass.name,
             'role': self.role.name,
-            'race': self.race.name,
+            'race': self.spec,
             'roster_statuses': [(roster_status.name, timestamp) for roster_status, timestamp in self.roster_statuses],
             'signup_statuses': [(signup_status.name, timestamp) for signup_status, timestamp in self.signup_statuses],
             'created_at': int(self.created_at if self.created_at else datetime.now().timestamp())

@@ -1,7 +1,7 @@
 from exceptions.MissingImplementationException import MissingImplementationException
 import discord
 from .Event import Event
-from dokbot.DiscordGuild import DiscordGuild, create_helper
+from dokbot.DiscordGuild import DiscordGuild
 from persistence.tables.TableFactory import TableFactory
 from utils.Constants import MAINTAINER_ID
 import utils.Logger as Log
@@ -23,4 +23,4 @@ class EventHandler:
     async def get_discord_guild(self, guild_id: int, team_name: str) -> DiscordGuild:
         teams_table = TableFactory().get_raid_teams_table()
         raid_team = teams_table.get_raidteam(guild_id=guild_id, team_name=team_name)
-        return await create_helper(self.discord_client, raid_team)
+        return await DiscordGuild.create_helper(self.discord_client, raid_team)

@@ -36,7 +36,7 @@ class PlayersTable(DynamoDBTable[Player]):
                 'name': character.name,
                 'class': character.klass.name,
                 'role': character.role.name,
-                'race': character.race.name,
+                'spec': character.spec,
                 'selected_char': player.selected_char,
                 'selected_guild_id': player.selected_guild_id,
                 'selected_team_name': player.selected_team_name
@@ -121,7 +121,7 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         char_name = item['name']
         klass = Class[item['class']]
         role = Role[item['role']]
-        race = Race[item['race']]
+        spec = item.get('spec')
         realm, region = tuple(item['realm#region'].split('#'))
         selected_char = item.get('selected_char')
         selected_team_name = item.get('selected_team_name')
@@ -135,7 +135,7 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
                 selected_team_name != player.selected_team_name or created_at != player.created_at:
             raise InternalBotException("Player rows are not consistent.")
         player.characters.append(
-            Character(char_name=char_name, discord_id=discord_id, klass=klass, role=role, race=race,
+            Character(char_name=char_name, discord_id=discord_id, klass=klass, role=role, spec=spec,
                       created_at=created_at))
     return list(players.values())
 

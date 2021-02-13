@@ -1,12 +1,12 @@
 from exceptions.MissingImplementationException import MissingImplementationException
 from dokbot.utils.CommandUtils import check_authority
-from dokbot.utils.RaidTeamSelectionInteraction import RaidTeamSelectionInteraction
+from dokbot.interactions.RaidTeamSelectionInteraction import RaidTeamSelectionInteraction
 from dokbot.entities.GuildMember import GuildMember
 from utils.Constants import DATETIMESEC_FORMAT
 from dokbot.DiscordUtils import get_channel
 from discord import Message, TextChannel
 from datetime import datetime
-from typing import Optional, List, Any, Type, Set
+from typing import Optional, List, Any, Type
 from persistence.MessagesResource import MessagesResource
 from persistence.RaidEventsResource import RaidEventsResource
 from persistence.PlayersResource import PlayersResource
@@ -20,7 +20,7 @@ import asyncio
 import discord
 from dokbot.utils.ArgParser import ArgParser
 from exceptions.InvalidInputException import InvalidInputException
-from dokbot.utils.PlayerInteraction import _interact, InteractionMessage
+from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
 import utils.Logger as Log
 
 # Safety measure to avoid infinite loops
@@ -139,6 +139,6 @@ class BotCommand:
         for raider in await self.get_raiders():
             await raider.send(content)
 
-    async def interact(self, message_type: Type[InteractionMessage], *args, **kwargs) -> Any:
+    async def interact(self, message_type: Type[TextInteractionMessage], *args, **kwargs) -> Any:
         return await message_type.interact(member=self.member, client=self.client, guild=self.discord_guild, *args, **kwargs)
 

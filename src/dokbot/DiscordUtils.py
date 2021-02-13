@@ -9,6 +9,7 @@ from logic.Character import Character
 from logic.MessageRef import MessageRef
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
+from utils.Constants import BASE_GUILD_ID
 
 
 async def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
@@ -31,10 +32,18 @@ async def get_channel_by_id(guild: discord.Guild, channel_id: int) -> discord.Te
     return discord.utils.get(channels, id=channel_id)
 
 
-def get_emoji(client: discord.Client, emoji_name: str) -> discord.Emoji:
+async def get_emoji(client: discord.Client, emoji_name: str) -> discord.Emoji:
     emoji = discord.utils.get(client.emojis, name=emoji_name)
     if emoji is None:
-        raise InternalBotException(f'{emoji_name} does not exist.')
+        base_guild: discord.Guild = await client.fetch_guild(BASE_GUILD_ID)
+        file_name = f"static/emojis/{emoji_name}.png"
+        try:
+            with open(file_name, "rb") as image:
+                return await base_guild.create_custom_emoji(name=emoji_name, image=image.read())
+        except FileNotFoundError:
+            raise InternalBotException(f'Could not find {file_name}')
+
+
     return emoji
 
 

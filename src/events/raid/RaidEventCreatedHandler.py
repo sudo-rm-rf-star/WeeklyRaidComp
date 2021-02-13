@@ -20,9 +20,7 @@ class RaidEventCreatedHandler(RaidEventHandler):
         raid_event = self.get_raid(guild_id=event.guild_id, team_name=event.team_name, raid_name=event.raid_name,
                                    raid_datetime=event.raid_datetime)
         raid_team = self.get_raidteam(guild_id=event.guild_id, team_name=event.team_name)
-
         discord_guild = await self.get_discord_guild(event.guild_id, event.team_name)
-
         await self.send_raid_message(discord_guild, raid_event)
         await self.send_raid_notifications(discord_guild, raid_team, raid_event)
         self.raids_resource.update_raid(raid_event)
@@ -30,7 +28,7 @@ class RaidEventCreatedHandler(RaidEventHandler):
     async def send_raid_message(self, discord_guild: DiscordGuild, raid_event: RaidEvent):
         channel = await discord_guild.get_events_channel()
 
-        msg = await RaidMessage(self.discord_client, discord_guild.discord_guild, raid_event).send_to(channel)
+        msg = await RaidMessage.send_message(self.discord_client, discord_guild.guild, raid_event, channel)
         message_ref = MessageRef(message_id=msg.id, guild_id=discord_guild.id, channel_id=channel.id,
                                  raid_name=raid_event.name, raid_datetime=raid_event.datetime,
                                  team_name=raid_event.name)
@@ -45,7 +43,7 @@ class RaidEventCreatedHandler(RaidEventHandler):
         players_resource = PlayersResource()
 
         for discord_id, raider in raiders.items():
-            raid_notification = RaidNotification(client=self.discord_client, guild=discord_guild.discord_guild,
+            raid_notification = RaidNotification(client=self.discord_client, guild=discord_guild.guild,
                                                  raid_event=raid_event, raidteam=raid_team)
             msg = await raid_notification.send_to(raider)
             if msg:

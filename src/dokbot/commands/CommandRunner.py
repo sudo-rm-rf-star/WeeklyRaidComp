@@ -1,15 +1,8 @@
 import discord
 from typing import Optional, List, Dict, Type, Set
 from dokbot.commands.BotCommand import BotCommand
-from dokbot.commands.character.AddCharacter import AddCharacter
-from dokbot.commands.character.ListCharacter import ListCharacter
-from dokbot.commands.character.SelectCharacter import SelectCharacter
-from dokbot.commands.character.RemoveCharacter import RemoveCharacter
-from dokbot.commands.player.AnnounceCommand import AnnounceCommand
-from dokbot.commands.player.RegisterPlayerCommand import RegisterPlayerCommand
-from dokbot.commands.player.ListAllPlayersCommand import ListAllPlayersCommand
-from dokbot.commands.player.ListSelectedPlayersCommand import ListSelectedPlayersCommand
-from dokbot.commands.character.SignupCharacterCommand import SignupCharacterCommand
+from dokbot.commands.raidteam.AnnounceCommand import AnnounceCommand
+from dokbot.commands.raidteam.ShowRaidTeamCommand import ShowRaidTeamCommand
 from dokbot.commands.raid.CreateOpenRaid import CreateOpenRaid
 from dokbot.commands.raid.CreateClosedRaid import CreateClosedRaid
 from dokbot.commands.raid.EditRaidEvent import EditRaidEvent
@@ -23,7 +16,7 @@ from dokbot.commands.roster.AcceptPlayerCommand import AcceptPlayerCommand
 from dokbot.commands.roster.BenchPlayerCommand import BenchPlayerCommand
 from dokbot.commands.roster.DeclinePlayerCommand import DeclinePlayerCommand
 from dokbot.commands.roster.CreateRosterCommand import CreateRosterCommand
-from dokbot.utils.RegistrationHelper import register
+from dokbot.actions.Register import register
 from dokbot.utils.ArgParser import ArgParser
 from logic.RaidTeam import RaidTeam
 from dokbot.DiscordUtils import get_member_by_id
@@ -35,11 +28,9 @@ from persistence.MessagesResource import MessagesResource
 from persistence.PlayersResource import PlayersResource
 from persistence.RaidTeamsResource import RaidTeamsResource
 
-COMMANDS = {AddCharacter, ListCharacter, SelectCharacter, AnnounceCommand, RegisterPlayerCommand,
-            SignupCharacterCommand, RemoveRaidCommand, SelectRaidTeam, AcceptPlayerCommand, BenchPlayerCommand,
-            DeclinePlayerCommand, CreateRosterCommand, RaidEventInvite, RaidEventRemind, ListAllPlayersCommand,
-            CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ListSelectedPlayersCommand, RemoveCharacter,
-            OpenRaidEvent, ShowRaidEvent}
+COMMANDS = {AnnounceCommand, RemoveRaidCommand, SelectRaidTeam, AcceptPlayerCommand, BenchPlayerCommand,
+            DeclinePlayerCommand, CreateRosterCommand, RaidEventInvite, RaidEventRemind,
+            CreateClosedRaid, CreateOpenRaid, EditRaidEvent, ShowRaidTeamCommand, OpenRaidEvent, ShowRaidEvent}
 
 
 class CommandRunner:
