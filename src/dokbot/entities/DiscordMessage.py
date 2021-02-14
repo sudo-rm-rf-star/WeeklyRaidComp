@@ -11,6 +11,7 @@ import utils.Logger as Log
 from exceptions.InvalidInputException import InvalidInputException
 from typing import Dict, Tuple, List
 import math
+import asyncio
 
 EMPTY_FIELD = '\u200e'
 MAX_FIELDS = 24
@@ -48,10 +49,13 @@ class DiscordMessage:
                 Log.warn(
                     f'Failed to send following message to {recipient}: content {self.content}, embed: {self.embed.to_dict()}')
                 raise e
+        asyncio.create_task(self.add_emojis(messages))
+        return messages
+
+    async def add_emojis(self, messages):
         for message in messages:
             for emoji in self.emojis:
                 await message.add_reaction(await get_emoji(self.discord_client, emoji))
-        return messages
 
     async def _update_message(self, message_ref: MessageRef) -> Optional[discord.Message]:
         message = await get_message(self.discord_guild, message_ref)
