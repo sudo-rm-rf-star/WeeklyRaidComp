@@ -108,7 +108,7 @@ async def create_character_roster(client: discord.Client, characters: List[Chara
 
 
 # Create a nx3 roster where every column is a role with max 12 characters.If there are more, new rows are added.
-def _create_character_matrix(chars_per_role: Dict[Role, List[Character]], roles: List[Role]) -> list[list]:
+def _create_character_matrix(chars_per_role: Dict[Role, List[Character]], roles: List[Role]):
     n_rows = math.ceil(max([len(chars) for chars in chars_per_role.values()]) / MAX_CHARACTERS_PER_ROLE)
     n_cols = len(roles)
     roster = [[[] for _ in range(n_cols)] for _ in range(n_rows)]
