@@ -3,6 +3,7 @@ from exceptions.InvalidInputException import InvalidInputException
 from dokbot.entities.DiscordMessage import DiscordMessage
 from typing import Generic, TypeVar, Union, Any
 import discord
+from discord.ext.commands import Context
 from dokbot.entities.GuildMember import GuildMember
 from exceptions.CancelInteractionException import CancelInteractionException
 from typing import Optional
@@ -11,19 +12,18 @@ TRIES = 3
 
 
 class TextInteractionMessage(DiscordMessage):
-    def __init__(self, client: discord.Client, guild: discord.Guild, content: str, *args, **kwargs):
-        self.client = client
-        super(TextInteractionMessage, self).__init__(client, guild, content, *args, **kwargs)
+    def __init__(self, ctx: Context, content: str, *args, **kwargs):
+        super(TextInteractionMessage, self).__init__(ctx=ctx, content=content, *args, **kwargs)
         # These variables will be filled once the message is sent
         self.channel_id = None
         self.recipient_id = None
 
     @classmethod
-    async def interact(cls, member: GuildMember, client: discord.Client, guild: discord.Guild, *args, **kwargs) -> Any:
-        return await _interact(member=member, message=cls(client=client, guild=guild, member=member, *args, **kwargs))
+    async def interact(cls, ctx: Context, *args, **kwargs) -> Any:
+        return await _interact(member=ctx.author, message=cls(ctx=ctx, *args, **kwargs))
 
     async def get_response(self) -> Optional[str]:
-        msg = await self.client.wait_for('message', check=lambda response: _check_if_response(self, response))
+        msg = await self.ctx.bot.wait_for('message', check=lambda response: _check_if_response(self, response))
         content = msg.content
         if content.strip() == '!skip':
             return None

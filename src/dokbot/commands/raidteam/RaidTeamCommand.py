@@ -1,6 +1,6 @@
-from dokbot.commands.BotCommand import BotCommand
+from dokbot.commands.AbstractCog import AbstractCog
 
 
-class RaidTeamCommand(BotCommand):
+class RaidTeamCommand(AbstractCog):
     @classmethod
     def name(cls) -> str: return "raidteam"

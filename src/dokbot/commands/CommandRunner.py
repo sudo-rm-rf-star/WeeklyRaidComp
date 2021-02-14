@@ -1,6 +1,6 @@
 import discord
 from typing import Optional, List, Dict, Type, Set
-from dokbot.commands.BotCommand import BotCommand
+from dokbot.commands.AbstractCog import AbstractCog
 from dokbot.commands.raidteam.AnnounceCommand import AnnounceCommand
 from dokbot.commands.raidteam.ShowRaidTeamCommand import ShowRaidTeamCommand
 from dokbot.commands.raid.CreateOpenRaid import CreateOpenRaid
@@ -70,13 +70,13 @@ class CommandRunner:
                     await command.call(**kwargs)
 
     async def run_command_for_reaction_event(self, raw_reaction: discord.RawReactionActionEvent,
-                                             command_type: Type[BotCommand]):
+                                             command_type: Type[AbstractCog]):
         command = await self._create_command(command_type, raw_reaction=raw_reaction)
         if command:
             await command.call()
 
-    async def _create_command(self, command_type: Type[BotCommand], message: Optional[discord.Message] = None,
-                              raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> Optional[BotCommand]:
+    async def _create_command(self, command_type: Type[AbstractCog], message: Optional[discord.Message] = None,
+                              raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> Optional[AbstractCog]:
         # This code urgently requires refactoring and has grown quite complex over time...
 
         if raw_reaction:
@@ -119,7 +119,7 @@ class CommandRunner:
                             channel=channel)
 
 
-def _to_command_dict(commands: Set[Type[BotCommand]]) -> Dict[str, Dict[str, Type[BotCommand]]]:
+def _to_command_dict(commands: Set[Type[AbstractCog]]) -> Dict[str, Dict[str, Type[AbstractCog]]]:
     dct = defaultdict(dict)
     for command in commands:
         assert dct.get(command.name(), {}).get(command.sub_name(), None) is None
@@ -135,8 +135,8 @@ def _to_command_dict(commands: Set[Type[BotCommand]]) -> Dict[str, Dict[str, Typ
     return dict(dct)
 
 
-def generate_help_page_command(name: str, subcommands: List[Type[BotCommand]]):
-    class HelpCommand(BotCommand):
+def generate_help_page_command(name: str, subcommands: List[Type[AbstractCog]]):
+    class HelpCommand(AbstractCog):
         @classmethod
         def name(cls) -> str: return name
 

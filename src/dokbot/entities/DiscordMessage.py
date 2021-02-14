@@ -7,6 +7,7 @@ from logic.enums.Role import Role
 from logic.enums.SignupStatus import SignupStatus
 from logic.MessageRef import MessageRef
 import discord
+from discord.ext.commands import Context
 import utils.Logger as Log
 from exceptions.InvalidInputException import InvalidInputException
 from typing import Dict, Tuple, List
@@ -18,10 +19,8 @@ MAX_CHARACTERS_PER_ROLE = 12  # Any field has a max amount of 1024 characters
 
 
 class DiscordMessage:
-    def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, content: str = None,
-                 embed: discord.Embed = None, emojis: List[str] = None, *args, **kwargs):
-        self.discord_client = discord_client
-        self.discord_guild = discord_guild
+    def __init__(self, ctx: Context, content: str = None, embed: discord.Embed = None, emojis: List[str] = None):
+        self.ctx: Context = ctx
         self.content = content
         self.embed = embed
         self.emojis = emojis if emojis else []
@@ -50,11 +49,11 @@ class DiscordMessage:
                 raise e
         for message in messages:
             for emoji in self.emojis:
-                await message.add_reaction(await get_emoji(self.discord_client, emoji))
+                await message.add_reaction(await get_emoji(self.ctx.bot, emoji))
         return messages
 
     async def _update_message(self, message_ref: MessageRef) -> Optional[discord.Message]:
-        message = await get_message(self.discord_guild, message_ref)
+        message = await get_message(self.ctx.guild, message_ref)
         if message:
             if self.embed is not None:
                 await message.edit(embed=self.embed)
