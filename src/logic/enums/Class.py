@@ -17,7 +17,7 @@ class Class(Enum):
     def __init__(self, specs: List[str]):
         self.specs = specs
 
-    def get_role(self, spec: str):
+    def get_role(self, spec: str):dsfa
         return {x: y for x, y in self.specs}[spec]
 
     def __lt__(self, other):
