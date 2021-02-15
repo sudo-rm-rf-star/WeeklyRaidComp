@@ -38,7 +38,7 @@ async def signup_character(client: discord.Client, reaction_event: discord.RawRe
 
     if signup_choice == SignupStatus.UNDECIDED:
         help_response = "\n".join(
-            [f"{get_emoji(client, SIGNUP_STATUS_EMOJI[signup_state])} {help_str}" for
+            [f"{await get_emoji(client, SIGNUP_STATUS_EMOJI[signup_state])} {help_str}" for
              signup_state, help_str in SIGNUP_STATUS_HELP.items()])
         respond(help_response)
         return

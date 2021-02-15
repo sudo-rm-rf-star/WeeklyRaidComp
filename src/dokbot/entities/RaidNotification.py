@@ -1,32 +1,15 @@
 from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 from logic.RaidEvent import RaidEvent
-from dokbot.entities.DiscordMessage import DiscordMessage
-from dokbot.entities.GuildMember import GuildMember
+from dokbot.interactions.EmojiInteractionMessage import EmojiInteractionMessage
 import discord
-import utils.Logger as Log
-from typing import Optional
 from logic.RaidTeam import RaidTeam
 
 
-class RaidNotification(DiscordMessage):
+class RaidNotification(EmojiInteractionMessage):
     def __init__(self, client: discord.Client, guild: discord.Guild, raid_event: RaidEvent, raidteam: RaidTeam):
         self.client = client
         self.raid_event = raid_event
         content = f"You have been invited for {raid_event} for {raidteam}. " \
                   f"Please sign by clicking one of the reaction boxes."
-        super(RaidNotification, self).__init__(client, guild, content=content)
-
-    async def send_to(self, recipient: GuildMember) -> Optional[discord.Message]:
-        Log.info(f'Inviting {recipient} to {self.raid_event}')
-        msgs = await super(RaidNotification, self).send_to(recipient)
-        if len(msgs) == 1:
-            message = msgs[0]
-            for emoji in [emoji_name for status, emoji_name in SIGNUP_STATUS_EMOJI.items()]:
-                try:
-                    await message.add_reaction(emoji=self._get_emoji(emoji))
-                except discord.NotFound:
-                    Log.error(f'Could not find {emoji} when sending to {recipient}')
-            return message
-        else:
-            Log.error(f'Could not send message to {recipient}')
-            return None
+        emojis = SIGNUP_STATUS_EMOJI.values()
+        super(RaidNotification, self).__init__(client, guild, content=content, emojis=emojis)

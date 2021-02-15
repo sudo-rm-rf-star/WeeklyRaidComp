@@ -39,7 +39,7 @@ ROLE_CLASS_EMOJI = {
     },
     Role.HEALER: {
         Class.PRIEST: 'Priest',
-        Class.PALADIN: 'HolyPaladin',
+        Class.PALADIN: 'Holy_Paladin',
         Class.DRUID: 'RestoDruid'
     }
 }

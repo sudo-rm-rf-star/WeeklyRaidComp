@@ -64,10 +64,10 @@ class GetSpecMessage(EmojiInteractionMessage):
     def __init__(self, client: discord.Client, guild: discord.Guild, klass: Class, *args, **kwargs):
         self.klass = klass
         content = "Please select the spec of your character"
-        icons = [f'{spec[0]}{klass.name.capitalize()}' for spec in klass.specs]
+        icons = [f'{spec[0]}_{klass.name.capitalize()}' for spec in klass.specs]
         super().__init__(client, guild, content=content, emojis=icons, *args, **kwargs)
 
     async def get_response(self):
         spec = await super(GetSpecMessage, self).get_response()
-        spec = spec.rstrip(self.klass.name.capitalize())
+        spec = spec.split('_')[0]
         return spec
