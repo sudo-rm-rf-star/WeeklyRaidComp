@@ -1,16 +1,16 @@
 from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
 from exceptions.InvalidInputException import InvalidInputException
-import discord
+from discord.ext.commands import Context
+from dokbot.entities.DiscordMessage import field, DiscordMessage
 from typing import List
+from discord import Embed
 
 
 class OptionInteraction(TextInteractionMessage):
-    def __init__(self, client: discord.Client, guild: discord.Guild, content: str, options: List[str], *args, **kwargs):
-        self.guild = guild
+    def __init__(self, ctx: Context, content: str, options: List[str], *args, **kwargs):
         self.options = options
-        self.options_str = "\n".join([f'{i+1}: {option}' for i, option in enumerate(options)])
-        content = f'{content}\n{self.options_str}'
-        super().__init__(client=client, guild=guild, content=content, *args, **kwargs)
+        embed = self._get_embed(content=content, options=options)
+        super().__init__(ctx=ctx, embed=embed, *args, **kwargs)
 
     async def get_response(self) -> str:
         response = await super(OptionInteraction, self).get_response()
@@ -20,4 +20,12 @@ class OptionInteraction(TextInteractionMessage):
         except (ValueError, TypeError, IndexError):
             if response in self.options:
                 return response
-            raise InvalidInputException(f'Please choose on of:\n{self.options_str}')
+            raise InvalidInputException(f'Please choose one of the given options.')
+
+    def _get_embed(self, content: str, options: List[str]):
+        embed = {'title': content,
+                 'fields': [field('\n'.join([f'{i+1}:\t{option}' for i, option in enumerate(options)]), inline=False)],
+                 'color': 2171428,
+                 'type': 'rich'}
+        return Embed.from_dict(embed)
+

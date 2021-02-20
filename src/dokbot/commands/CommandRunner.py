@@ -1,6 +1,5 @@
 import discord
 from typing import Optional, List, Dict, Type, Set
-from dokbot.commands.AbstractCog import AbstractCog
 from dokbot.commands.raidteam.AnnounceCommand import AnnounceCommand
 from dokbot.commands.raidteam.ShowRaidTeamCommand import ShowRaidTeamCommand
 from dokbot.commands.raid.CreateOpenRaid import CreateOpenRaid
@@ -70,13 +69,13 @@ class CommandRunner:
                     await command.call(**kwargs)
 
     async def run_command_for_reaction_event(self, raw_reaction: discord.RawReactionActionEvent,
-                                             command_type: Type[AbstractCog]):
+                                             command_type: Type[CogMixin]):
         command = await self._create_command(command_type, raw_reaction=raw_reaction)
         if command:
             await command.call()
 
-    async def _create_command(self, command_type: Type[AbstractCog], message: Optional[discord.Message] = None,
-                              raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> Optional[AbstractCog]:
+    async def _create_command(self, command_type: Type[CogMixin], message: Optional[discord.Message] = None,
+                              raw_reaction: Optional[discord.RawReactionActionEvent] = None) -> Optional[CogMixin]:
         # This code urgently requires refactoring and has grown quite complex over time...
 
         if raw_reaction:
@@ -119,7 +118,7 @@ class CommandRunner:
                             channel=channel)
 
 
-def _to_command_dict(commands: Set[Type[AbstractCog]]) -> Dict[str, Dict[str, Type[AbstractCog]]]:
+def _to_command_dict(commands: Set[Type[CogMixin]]) -> Dict[str, Dict[str, Type[CogMixin]]]:
     dct = defaultdict(dict)
     for command in commands:
         assert dct.get(command.name(), {}).get(command.sub_name(), None) is None
@@ -135,8 +134,8 @@ def _to_command_dict(commands: Set[Type[AbstractCog]]) -> Dict[str, Dict[str, Ty
     return dict(dct)
 
 
-def generate_help_page_command(name: str, subcommands: List[Type[AbstractCog]]):
-    class HelpCommand(AbstractCog):
+def generate_help_page_command(name: str, subcommands: List[Type[CogMixin]]):
+    class HelpCommand(CogMixin):
         @classmethod
         def name(cls) -> str: return name
 

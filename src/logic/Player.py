@@ -5,14 +5,14 @@ from datetime import datetime
 
 
 class Player:
-    def __init__(self, *, discord_id: int, characters: List[Character], selected_char: Optional[str] = None,
+    def __init__(self, *, discord_id: int, characters: List[Character] = None, selected_char: Optional[str] = None,
                  created_at: Optional[float] = None, selected_guild_id: Optional[int] = None,
                  selected_team_name: Optional[str] = None, region: Optional[str] = None, realm: Optional[str] = None):
         self.discord_id = discord_id
         self.realm = realm
         self.region = region
-        self.characters = characters
         self.selected_char = selected_char
+        self.characters = characters if characters else []
         self.created_at = created_at if created_at else datetime.now().timestamp()
         self.selected_team_name = None if not selected_team_name else selected_team_name
         self.selected_guild_id = None if not selected_guild_id else selected_guild_id

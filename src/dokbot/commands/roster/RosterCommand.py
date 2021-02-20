@@ -1,4 +1,4 @@
-from dokbot.commands.AbstractCog import AbstractCog
+from dokbot.commands.CogMixin import CogMixin
 from logic.Character import Character
 from logic.RaidEvent import RaidEvent
 from logic.enums.RosterStatus import RosterStatus
@@ -14,7 +14,7 @@ VERBS = {
 }
 
 
-class RosterCommand(AbstractCog):
+class RosterCommand(CogMixin):
     @classmethod
     def name(cls) -> str:
         return "roster"

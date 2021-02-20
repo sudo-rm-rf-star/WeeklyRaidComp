@@ -1,8 +1,8 @@
-from dokbot.commands.raid.RaidCommand import RaidCommand
+from dokbot.commands.raid.RaidCog import RaidCog
 from datetime import datetime
 
 
-class RemoveRaidCommand(RaidCommand):
+class RemoveRaidCommand(RaidCog):
     @classmethod
     def sub_name(cls) -> str:
         return "remove"

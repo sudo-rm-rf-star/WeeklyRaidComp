@@ -26,6 +26,29 @@ class DiscordMessage:
         self.embed = embed
         self.emojis = emojis if emojis else []
 
+    @classmethod
+    async def get_embed(cls, ctx: Context, **kwargs) -> Optional[discord.Embed]:
+        return None
+
+    @classmethod
+    async def make(cls, ctx: Context, **kwargs):
+        embed = await cls.get_embed(ctx)
+        return cls(ctx=ctx, embed=embed, **kwargs)
+
+    @classmethod
+    async def send(cls, ctx: Context, recipient, **kwargs):
+        discord_message = await cls.make(ctx=ctx, **kwargs)
+        if discord_message:
+            return await discord_message.send_to(recipient)
+
+    @classmethod
+    async def reply_to_author(cls, ctx: Context, **kwargs):
+        return await cls.send(ctx=ctx, recipient=ctx.author, **kwargs)
+
+    @classmethod
+    async def reply_in_channel(cls, ctx: Context, **kwargs):
+        return await cls.send(ctx=ctx, recipient=ctx.channel, **kwargs)
+
     async def send_to(self, recipient: Union[GuildMember, discord.TextChannel]) -> List[discord.Message]:
         messages = []
         if recipient is None:

@@ -1,4 +1,3 @@
-from dokbot.commands.AbstractCog import AbstractCog
 from dokbot.entities.RaidNotification import RaidNotification
 from typing import List
 from dokbot.entities.GuildMember import GuildMember
@@ -6,23 +5,62 @@ from logic.RaidEvent import RaidEvent
 import utils.Logger as Log
 from logic.enums.SignupStatus import SignupStatus
 from datetime import datetime
-from discord.ext import commands, Context
+from discord.ext.commands import command, Cog, group, Context
+from dokbot.DokBot import DokBot
+from dokbot.entities.RaidTeamControlPanel import RaidTeamControlPanel
+from dokbot.entities.enums.RaidTeamControlAction import RaidTeamControlAction
 from persistence.RaidEventsResource import RaidEventsResource
 from exceptions.InvalidInputException import InvalidInputException
+import discord
 
 
-class RaidCommand(AbstractCog):
-    def __init__(self):
-        super().__init__()
+class RaidCog(Cog, name='Raids'):
+    def __init__(self, bot: DokBot):
+        self.bot = bot
         self.raids_resource = RaidEventsResource()
 
-    @commands.command()
-    async def create_raid(self, ctx: Context, raid_name: str, raid_datetime: datetime):
+    @group()
+    async def raid(self, ctx: Context, name: str = None):
+        f"""
+        Organize and manage your raids for raid team.
+        """
+        await RaidTeamControlPanel.reply_in_channel(ctx, name=name)
+
+    @Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        if payload.user_id == self.bot.user.id:
+            return
+
+        if payload.emoji.name not in RaidTeamControlAction.names():
+            return
+
+        action = RaidTeamControlAction[payload.emoji.name]
+        message = await self.bot.message(payload.channel_id, payload.message_id)
+        if not message.embeds or len(message.embeds) != 1:
+            return
+
+        if message.embeds[0].title != RaidTeamControlPanel.title():
+            return
+
+        member = await self.bot.fetch_user(payload.user_id)
+        await message.remove_reaction(payload.emoji, member)
+        if action == RaidTeamControlAction.AddRaid:
+            print("Creating new raid.")
+        else:
+            return
+
+    @raid.command()
+    async def create(self, ctx: Context, raid_name: str, raid_datetime: datetime):
+        """
+        Create a new raid event.
+        <raid_name> Name of the raid
+        <raid_datetime> Datetime of the raid
+        """
         if raid_datetime < datetime.now():
             raise InvalidInputException('Raid event must be in future')
         raid_event = self.raids_resource.create_raid(raid_name=raid_name, raid_datetime=raid_datetime,
-                                                     guild_id=self.raid_team.guild_id, team_name=self.raid_team.name)
-        self.reply(ctx, f'Raid {raid_event} has been successfully created.')
+                                                     guild_id=ctx.raid_team.guild_id, team_name=ctx.raid_team.name)
+        self.bot.reply(ctx, f'Raid {raid_event} has been successfully created.')
         return raid_event
     #
     # async def create_raid(self, raid_name: str, raid_datetime: datetime, is_open: bool):

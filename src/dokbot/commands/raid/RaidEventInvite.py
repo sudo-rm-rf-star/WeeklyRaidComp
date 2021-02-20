@@ -1,10 +1,10 @@
-from dokbot.commands.raid.RaidCommand import RaidCommand
+from dokbot.commands.raid.RaidCog import RaidCog
 from dokbot.DiscordUtils import get_member, get_member_by_id
 from datetime import datetime
 from persistence.RaidEventsResource import RaidEventsResource
 
 
-class RaidEventInvite(RaidCommand):
+class RaidEventInvite(RaidCog):
     @classmethod
     def sub_name(cls) -> str: return "invite"
 
