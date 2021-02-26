@@ -9,7 +9,7 @@ class Class(Enum):
     MAGE = [("Arcane", Role.RANGED), ("Fire", Role.RANGED), ("Frost", Role.RANGED)]
     ROGUE = [("Assassination", Role.MELEE), ("Combat", Role.MELEE), ("Subtlety", Role.MELEE)]
     DRUID = [("Balance", Role.RANGED), ("Feral", Role.MELEE), ("Bear", Role.TANK), ("Restoration", Role.HEALER)]
-    HUNTER = ["Beast Mastery", ("Marksmanship", Role.RANGED), ("Survival", Role.RANGED)]
+    HUNTER = [("Beast Mastery", Role.RANGED), ("Marksmanship", Role.RANGED), ("Survival", Role.RANGED)]
     PALADIN = [("Holy", Role.HEALER), ("Protection", Role.TANK), ("Retribution", Role.MELEE)]
     WARRIOR = [("Arms", Role.MELEE), ("Fury", Role.MELEE), ("Protection", Role.TANK)]
     SHAMAN = [("Elemental", Role.RANGED), ("Enhancement", Role.MELEE), ("Restoration", Role.HEALER)]
