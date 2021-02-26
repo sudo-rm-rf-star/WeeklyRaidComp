@@ -1,11 +1,10 @@
 import discord
 
-from dokbot.commands.raid.RaidCog import RaidCog
+from dokbot.commands.raidteam.RaidTeamCog import RaidTeamCog
 from logic.enums.SignupStatus import SignupStatus
-from logic.enums.RosterStatus import RosterStatus
 
 
-class RaidEventRemind(RaidCog):
+class RaidEventRemind(RaidTeamCog):
     @classmethod
     def sub_name(cls) -> str: return "remind"
 

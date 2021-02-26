@@ -1,13 +1,6 @@
 # BotSetup.py
-from exceptions.BotException import BotException
-from exceptions.InternalBotException import InternalBotException
 from websockets.exceptions import InvalidStatusCode
-from dokbot.commands.raid.RaidCog import RaidCog
-from dokbot.actions.SignupCharacter import signup_character
-from utils.Constants import MAINTAINER_ID
-from utils.EmojiNames import EMOJI_SIGNUP_STATUS
-from events.EventQueue import EventQueue
-from events.EventHandlerFactory import EventHandlerFactory
+from dokbot.commands.raidteam.RaidTeamCog import RaidTeamCog
 from dotenv import load_dotenv
 from datetime import datetime
 from .DokBot import DokBot
@@ -45,7 +38,7 @@ def run() -> None:
     assert token, "Could not find any dokbot bot token"
 
     bot = DokBot(command_prefix='>')
-    bot.add_cog(RaidCog(bot))
+    bot.add_cog(RaidTeamCog(bot))
 
     @bot.event
     async def on_ready():

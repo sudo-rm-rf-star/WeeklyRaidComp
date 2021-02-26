@@ -2,7 +2,7 @@ from .RaidEventHandler import RaidEventHandler
 from .RaidEventCreated import RaidEventCreated
 from dokbot.entities.RaidMessage import RaidMessage
 from dokbot.entities.RaidNotification import RaidNotification
-from dokbot.entities.GuildMember import GuildMember
+from dokbot.entities.discord.Member import discord.Member
 from dokbot.DiscordGuild import DiscordGuild
 from logic.enums.SignupStatus import SignupStatus
 from logic.MessageRef import MessageRef

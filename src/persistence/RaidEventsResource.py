@@ -9,7 +9,7 @@ from logic.RaidEvent import RaidEvent
 from typing import Optional
 from logic.MessageRef import MessageRef
 from exceptions.InvalidInputException import InvalidInputException
-from utils.Constants import abbrev_to_full
+from utils.Constants import short_raid_names
 
 
 class RaidEventsResource(metaclass=Singleton):
@@ -24,7 +24,7 @@ class RaidEventsResource(metaclass=Singleton):
         return raid_event
 
     def get_raid(self, raid_name: str, raid_datetime: Optional[datetime], guild_id: int, team_name: str) -> RaidEvent:
-        full_raid_name = abbrev_to_full[raid_name]
+        full_raid_name = short_raid_names[raid_name]
         if raid_datetime is None:
             since = datetime.now()
             until = datetime.now() + timedelta(weeks=4)

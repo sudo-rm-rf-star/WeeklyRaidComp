@@ -2,11 +2,11 @@ from persistence.tables.TableFactory import TableFactory
 from persistence.tables.PlayersTable import PlayersTable
 from logic.Player import Player
 from typing import Optional
-from dokbot.entities.GuildMember import GuildMember
 from exceptions.InvalidInputException import InvalidInputException
 from logic.Character import Character
 from logic.RaidTeam import RaidTeam
 from utils.Singleton import Singleton
+import discord
 
 
 class PlayersResource(metaclass=Singleton):
@@ -33,7 +33,7 @@ class PlayersResource(metaclass=Singleton):
         player.selected_char = char_name
         self.update_player(player)
 
-    def select_raidteam(self, guild_member: GuildMember, raidgroup: RaidTeam):
+    def select_raidteam(self, guild_member: discord.Member, raidgroup: RaidTeam):
         player = self.get_player_by_id(guild_member.id)
         player.selected_team_name = raidgroup.name
         self.update_player(player)

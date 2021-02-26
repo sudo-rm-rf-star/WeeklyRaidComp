@@ -5,7 +5,7 @@ from logic.enums.Race import Race
 from logic.Player import Player
 from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
 from dokbot.interactions.EmojiInteractionMessage import EmojiInteractionMessage
-from dokbot.entities.GuildMember import GuildMember
+from dokbot.entities.discord.Member import discord.Member
 from persistence.PlayersResource import PlayersResource
 import asyncio
 import discord
@@ -16,7 +16,7 @@ from typing import Tuple, Optional
 TRIES = 3
 
 
-async def register(client: discord.Client, guild: discord.Guild, member: GuildMember,
+async def register(client: discord.Client, guild: discord.Guild, member: discord.Member,
                    allow_multiple_chars: bool = False) -> Tuple[Player, Optional[Character]]:
     players_resource = PlayersResource()
     player = players_resource.get_player_by_id(member.id)
@@ -53,7 +53,7 @@ class GetClassMessage(EmojiInteractionMessage):
     def __init__(self, client: discord.Client, guild: discord.Guild, *args, **kwargs):
         content = "Please select the class of your character"
         icons = [klass.name.capitalize() for klass in list(Class)]
-        super().__init__(client, guild, content=content, emojis=icons, *args, **kwargs)
+        super().__init__(client, guild, content=content, reactions=icons, *args, **kwargs)
 
     async def get_response(self):
         klass = await super(GetClassMessage, self).get_response()
@@ -65,7 +65,7 @@ class GetSpecMessage(EmojiInteractionMessage):
         self.klass = klass
         content = "Please select the spec of your character"
         icons = [f'{spec[0]}_{klass.name.capitalize()}' for spec in klass.specs]
-        super().__init__(client, guild, content=content, emojis=icons, *args, **kwargs)
+        super().__init__(client, guild, content=content, reactions=icons, *args, **kwargs)
 
     async def get_response(self):
         spec = await super(GetSpecMessage, self).get_response()

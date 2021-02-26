@@ -13,9 +13,8 @@ DATETIMESEC_FORMAT = '%d-%m-%Y %H:%M:%S'
 FILE_DATETIME_FORMAT = DATETIME_FORMAT.replace(' ', '_').replace(':', '')
 USE_SIGNUP_HISTORY = False
 VERBOSE = False
-SUPPORTED_RAIDS = ['mc', 'bwl', 'zg', 'aq20', 'aq', 'naxx']
 
-abbrev_raid_name = {
+raid_names = {
     'Molten Core': 'mc',
     'Blackwing Lair': 'bwl',
     "Zul'Gurub": 'zg',
@@ -25,4 +24,4 @@ abbrev_raid_name = {
     'Naxxramas': 'naxx'
 }
 
-abbrev_to_full = {v: k for k, v in abbrev_raid_name.items()}
+short_raid_names = {v: k for k, v in raid_names.items()}

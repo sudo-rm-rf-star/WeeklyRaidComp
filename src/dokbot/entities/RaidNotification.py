@@ -12,4 +12,4 @@ class RaidNotification(EmojiInteractionMessage):
         content = f"You have been invited for {raid_event} for {raidteam}. " \
                   f"Please sign by clicking one of the reaction boxes."
         emojis = SIGNUP_STATUS_EMOJI.values()
-        super(RaidNotification, self).__init__(client, guild, content=content, emojis=emojis)
+        super(RaidNotification, self).__init__(client, guild, content=content, reactions=emojis)

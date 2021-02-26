@@ -1,6 +1,5 @@
 from utils.Constants import BOT_NAME
 from persistence.RaidTeamsResource import RaidTeamsResource
-from dokbot.entities.GuildMember import GuildMember
 from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
 from dokbot.interactions.OptionInteraction import OptionInteraction
 from dokbot.interactions.DiscordRoleInteraction import DiscordRoleInteraction
@@ -25,7 +24,7 @@ questions
 '''
 
 
-async def create_raidteam(client: discord.Client, discord_guild: discord.Guild, member: GuildMember,
+async def create_raidteam(client: discord.Client, discord_guild: discord.Guild, member: discord.Member,
                           first: bool) -> RaidTeam:
     if first:
         await member.send(INTRODUCTORY_MESSAGE)

@@ -2,7 +2,6 @@ from typing import List
 from typing import Optional
 
 import discord
-from dokbot.entities.GuildMember import GuildMember
 from exceptions.InternalBotException import InternalBotException
 from exceptions.MissingImplementationException import MissingImplementationException
 from logic.Character import Character
@@ -47,16 +46,15 @@ async def get_emoji(client: discord.Client, emoji_name: str) -> discord.Emoji:
     return emoji
 
 
-async def get_member(guild: discord.Guild, user_name: str) -> Optional[GuildMember]:
+async def get_member(guild: discord.Guild, user_name: str) -> Optional[discord.Member]:
     async for member in guild.fetch_members(limit=None):
         if member.display_name == user_name or member.name == user_name:
             return member
     return None
 
 
-async def get_member_by_id(guild: discord.Guild, user_id: int) -> GuildMember:
-    member = await guild.fetch_member(user_id)
-    return GuildMember(member, guild.id)
+async def get_member_by_id(guild: discord.Guild, user_id: int) -> discord.Member:
+    return await guild.fetch_member(user_id)
 
 
 async def get_role(guild: discord.Guild, role_name: str) -> discord.Role:
@@ -76,9 +74,9 @@ def get_channels_non_async(guild: discord.Guild) -> List[discord.TextChannel]:
     return guild.text_channels
 
 
-async def get_members_for_role(guild: discord.Guild, role_name: str) -> List[GuildMember]:
+async def get_members_for_role(guild: discord.Guild, role_name: str) -> List[discord.Member]:
     role = await get_role(guild, role_name)
-    return [GuildMember(member, guild.id) for member in role.members]
+    return role.members
 
 
 async def get_message(guild: discord.Guild, message_ref: MessageRef) -> Optional[discord.Message]:
@@ -92,7 +90,7 @@ async def get_message(guild: discord.Guild, message_ref: MessageRef) -> Optional
         raise MissingImplementationException()
 
 
-async def set_roster_status(guild: discord.Guild, member: GuildMember, character: Character):
+async def set_roster_status(guild: discord.Guild, member: discord.Member, character: Character):
     roster_status = character.get_roster_status()
     signup_status = character.get_signup_status()
     roster_role = await get_role(guild, "Roster")

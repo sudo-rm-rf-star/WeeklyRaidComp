@@ -2,7 +2,6 @@ from dokbot.interactions.OptionInteraction import OptionInteraction
 from dokbot.DiscordUtils import get_channel, get_channels_non_async
 from exceptions.InvalidInputException import InvalidInputException
 from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
-from dokbot.entities.GuildMember import GuildMember
 import discord
 
 
@@ -10,7 +9,7 @@ ADD_CHANNEL = 'Add a new text channel.'
 
 
 class DiscordChannelInteraction(OptionInteraction):
-    def __init__(self, guild: discord.Guild, member: GuildMember, content: str, *args, **kwargs):
+    def __init__(self, guild: discord.Guild, member: discord.Member, content: str, *args, **kwargs):
         self.member = member
         options = [role.name for role in get_channels_non_async(guild)] + [ADD_CHANNEL]
         super().__init__(guild=guild, options=options, content=content, *args, **kwargs)

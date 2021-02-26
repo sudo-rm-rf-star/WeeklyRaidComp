@@ -14,28 +14,28 @@ from utils.Constants import DATETIMESEC_FORMAT
 from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI
 from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 from dokbot.DiscordUtils import get_emoji
+from dokbot.entities.enums.RaidControlAction import RaidControlAction
+from dokbot.DokBotContext import DokBotContext
 
 
 class RaidMessage(DiscordMessage):
-    def __init__(self, discord_client: discord.Client, discord_guild: discord.Guild, raid_event: RaidEvent, embed: discord.Embed = None):
+    def __init__(self, ctx: DokBotContext, raid_event: RaidEvent, embed: discord.Embed = None):
         self.raid_event = raid_event
-        super().__init__(discord_client, discord_guild, embed=embed)
+        super().__init__(ctx=ctx, embed=embed, reactions=[action.name for action in RaidControlAction])
 
     @staticmethod
-    async def create_message(discord_client: discord.Client, discord_guild: discord.Guild, raid_event: RaidEvent):
-        embed = await raid_to_embed(client=discord_client, raid_event=raid_event)
-        return RaidMessage(discord_client=discord_client, discord_guild=discord_guild, raid_event=raid_event, embed=embed)
+    async def create_message(ctx: DokBotContext, raid_event: RaidEvent):
+        embed = await raid_to_embed(ctx=ctx, raid_event=raid_event)
+        return RaidMessage(ctx=ctx, raid_event=raid_event, embed=embed)
 
     @staticmethod
-    async def send_message(discord_client: discord.Client, discord_guild: discord.Guild, raid_event: RaidEvent, recipient):
-        raid_msg = await RaidMessage.create_message(discord_client=discord_client, discord_guild=discord_guild,
-                                                    raid_event=raid_event)
+    async def send_message(ctx: DokBotContext, raid_event: RaidEvent, recipient):
+        raid_msg = await RaidMessage.create_message(ctx=ctx, raid_event=raid_event)
         return await raid_msg.send_to(recipient)
 
     @staticmethod
-    async def sync_message(discord_client: discord.Client, discord_guild: discord.Guild, raid_event: RaidEvent):
-        raid_msg = await RaidMessage.create_message(discord_client=discord_client, discord_guild=discord_guild,
-                                                    raid_event=raid_event)
+    async def sync_message(ctx: DokBotContext, raid_event: RaidEvent):
+        raid_msg = await RaidMessage.create_message(ctx=ctx, raid_event=raid_event)
         return raid_msg.sync()
 
     async def send_to(self, recipient: Union[discord.User, discord.TextChannel]) -> discord.Message:
@@ -60,8 +60,8 @@ class RaidMessage(DiscordMessage):
             if not self.raid_event.is_open:
                 await message.clear_reactions()
             else:
-                emojis = [await get_emoji(self.discord_client, emoji_name) for status, emoji_name in SIGNUP_STATUS_EMOJI.items() if
-                          status != SignupStatus.UNDECIDED]
+                emojis = [await self.ctx.bot.get_emoji(emoji_name) for status, emoji_name in SIGNUP_STATUS_EMOJI.items()
+                          if status != SignupStatus.UNDECIDED]
                 if set(emojis) != set(reaction.emoji for reaction in message.reactions):
                     await message.clear_reactions()
                     for emoji in emojis:
@@ -70,10 +70,10 @@ class RaidMessage(DiscordMessage):
             pass
 
 
-async def raid_to_embed(client: discord.Client, raid_event: RaidEvent) -> Embed:
+async def raid_to_embed(ctx: DokBotContext, raid_event: RaidEvent) -> Embed:
     embed = {'title': _get_title(raid_event=raid_event),
-             'description': await _get_description(client=client, raid_event=raid_event),
-             'fields': await _get_fields(client=client, raid_event=raid_event),
+             'description': await _get_description(ctx=ctx, raid_event=raid_event),
+             'fields': await _get_fields(ctx=ctx, raid_event=raid_event),
              'footer': get_footer(raid_event=raid_event),
              'color': 2171428,
              'type': 'rich'}
@@ -94,7 +94,7 @@ def get_footer(raid_event: RaidEvent) -> Optional[Dict[str, str]]:
                     f'Last updated at: {raid_event.updated_at.strftime(DATETIMESEC_FORMAT)}'}
 
 
-async def _get_fields(client: discord.Client, raid_event: RaidEvent) -> List[Dict[str, str]]:
+async def _get_fields(ctx: DokBotContext, raid_event: RaidEvent) -> List[Dict[str, str]]:
     raid_team = raid_event.roster.get_team()
     characters_by_status = {roster_status: [] for roster_status in RosterStatus}
     for character in raid_team:
@@ -102,10 +102,11 @@ async def _get_fields(client: discord.Client, raid_event: RaidEvent) -> List[Dic
 
     fields = []
     for roster_status in [RosterStatus.ACCEPT, RosterStatus.UNDECIDED, RosterStatus.EXTRA]:
-        characters = [char for char in characters_by_status[roster_status] if not (char.get_roster_status() == RosterStatus.UNDECIDED and char.get_signup_status() == SignupStatus.UNDECIDED)]
+        characters = [char for char in characters_by_status[roster_status] if not (
+                    char.get_roster_status() == RosterStatus.UNDECIDED and char.get_signup_status() == SignupStatus.UNDECIDED)]
         if len(characters) > 0:
             fields.append(_get_title_for_roster_status(characters, roster_status))
-            fields.extend(await DiscordMessage.show_characters(client=client, characters=characters))
+            fields.extend(await DiscordMessage.show_characters(ctx=ctx, characters=characters))
 
     declined_characters = [char.name for char in characters_by_status[RosterStatus.DECLINE]]
     invited_but_not_signed_characters = [char.name for char in characters_by_status[RosterStatus.UNDECIDED]
@@ -119,6 +120,17 @@ async def _get_fields(client: discord.Client, raid_event: RaidEvent) -> List[Dic
     if len(declined_characters) > 0:
         value = f'**Declined**: {", ".join(declined_characters)}'
         fields.append(field(value, inline=False))
+
+    fields.extend(await _get_control_fields(ctx))
+    return fields
+
+
+async def _get_control_fields(ctx: DokBotContext):
+    fields = []
+    for action in RaidControlAction:
+        emoji = await ctx.bot.emoji(action.name)
+        entry = "{0} {1}".format(emoji, action.value)
+        fields.append(field(entry))
     return fields
 
 

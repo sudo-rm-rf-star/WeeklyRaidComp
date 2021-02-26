@@ -1,16 +1,15 @@
-from dokbot.entities.GuildMember import GuildMember
-from typing import Union, List, Optional
-from dokbot.DiscordUtils import get_emoji, get_message
+from typing import Union, Optional
+from dokbot.DiscordUtils import get_message
 from utils.EmojiNames import ROLE_EMOJI, ROLE_CLASS_EMOJI, SIGNUP_STATUS_EMOJI
 from logic.Character import Character
 from logic.enums.Role import Role
 from logic.enums.SignupStatus import SignupStatus
 from logic.MessageRef import MessageRef
 import discord
-from discord.ext.commands import Context
+from dokbot.DokBotContext import DokBotContext
 import utils.Logger as Log
 from exceptions.InvalidInputException import InvalidInputException
-from typing import Dict, Tuple, List
+from typing import Dict, List
 import math
 import asyncio
 
@@ -20,36 +19,41 @@ MAX_CHARACTERS_PER_ROLE = 12  # Any field has a max amount of 1024 characters
 
 
 class DiscordMessage:
-    def __init__(self, ctx: Context, content: str = None, embed: discord.Embed = None, emojis: List[str] = None):
-        self.ctx: Context = ctx
+    def __init__(self, ctx: DokBotContext,
+                 content: str = None,
+                 embed: discord.Embed = None,
+                 reactions: List[str] = None):
+        self.ctx = ctx
+        self.bot = ctx.bot
+        self.guild = ctx.guild
         self.content = content
         self.embed = embed
-        self.emojis = emojis if emojis else []
+        self.emojis = reactions if reactions else []
 
     @classmethod
-    async def get_embed(cls, ctx: Context, **kwargs) -> Optional[discord.Embed]:
+    async def get_embed(cls, ctx: DokBotContext, **kwargs) -> Optional[discord.Embed]:
         return None
 
     @classmethod
-    async def make(cls, ctx: Context, **kwargs):
+    async def make(cls, ctx: DokBotContext, **kwargs):
         embed = await cls.get_embed(ctx)
         return cls(ctx=ctx, embed=embed, **kwargs)
 
     @classmethod
-    async def send(cls, ctx: Context, recipient, **kwargs):
+    async def send(cls, ctx: DokBotContext, recipient, **kwargs):
         discord_message = await cls.make(ctx=ctx, **kwargs)
         if discord_message:
             return await discord_message.send_to(recipient)
 
     @classmethod
-    async def reply_to_author(cls, ctx: Context, **kwargs):
+    async def reply_to_author(cls, ctx: DokBotContext, **kwargs):
         return await cls.send(ctx=ctx, recipient=ctx.author, **kwargs)
 
     @classmethod
-    async def reply_in_channel(cls, ctx: Context, **kwargs):
+    async def reply_in_channel(cls, ctx: DokBotContext, **kwargs):
         return await cls.send(ctx=ctx, recipient=ctx.channel, **kwargs)
 
-    async def send_to(self, recipient: Union[GuildMember, discord.TextChannel]) -> List[discord.Message]:
+    async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> List[discord.Message]:
         messages = []
         if recipient is None:
             raise InvalidInputException(f'Recipient is empty.')
@@ -77,7 +81,7 @@ class DiscordMessage:
     async def add_emojis(self, messages):
         for message in messages:
             for emoji in self.emojis:
-                await message.add_reaction(await get_emoji(self.ctx.bot, emoji))
+                await message.add_reaction(await self.ctx.bot.emoji(emoji))
 
     async def _update_message(self, message_ref: MessageRef) -> Optional[discord.Message]:
         message = await get_message(self.ctx.guild, message_ref)
@@ -89,22 +93,22 @@ class DiscordMessage:
         return message
 
     @classmethod
-    async def show_characters(cls, client: discord.Client, characters: List[Character]):
+    async def show_characters(cls, ctx: DokBotContext, characters: List[Character]):
         fields = []
-        fields.extend(await create_character_roster(client, characters, [Role.TANK, Role.HEALER]))
-        fields.extend(await create_character_roster(client, characters, [Role.MELEE, Role.RANGED]))
+        fields.extend(await create_character_roster(ctx, characters, [Role.TANK, Role.HEALER]))
+        fields.extend(await create_character_roster(ctx, characters, [Role.MELEE, Role.RANGED]))
         return fields
 
 
-async def show_characters_with_role(client: discord.Client, characters: List[Character], role: Role) -> List[Dict[str, str]]:
+async def show_characters_with_role(ctx: DokBotContext, characters: List[Character], role: Role) -> List[Dict[str, str]]:
     chars_for_role = sorted([char for char in characters if char.role == role], key=lambda char: str(char.klass))
     i = 0
     fields = []
     while i < len(chars_for_role):
         chars = chars_for_role[i:i + MAX_CHARACTERS_PER_ROLE]
-        player_lines = '\n'.join([await _get_character_line(client, char) for char in chars])
+        player_lines = '\n'.join([await _get_character_line(ctx, char) for char in chars])
         if i == 0:
-            value = f'{role_emoji(client, role)} **__{role.name.capitalize()}__** ({len(chars_for_role)}):\n{player_lines}'
+            value = f'{role_emoji(ctx, role)} **__{role.name.capitalize()}__** ({len(chars_for_role)}):\n{player_lines}'
             fields.append(field(value, inline=True))
         else:
             value = player_lines
@@ -113,7 +117,7 @@ async def show_characters_with_role(client: discord.Client, characters: List[Cha
     return fields
 
 
-async def create_character_roster(client: discord.Client, characters: List[Character], roles: List[Role]):
+async def create_character_roster(ctx: DokBotContext, characters: List[Character], roles: List[Role]):
     chars_per_role = {
         role: sorted([char for char in characters if char.role == role], key=lambda char: str(char.klass)) for role
         in roles}
@@ -122,10 +126,10 @@ async def create_character_roster(client: discord.Client, characters: List[Chara
     for i, row in enumerate(matrix):
         for characters in row:
             if (len(characters)) > 0:
-                value = '\n'.join([await _get_character_line(client, char) for char in characters])
+                value = '\n'.join([await _get_character_line(ctx, char) for char in characters])
                 if i == 0:
                     role = characters[0].role
-                    value = f'{await role_emoji(client, role)} **__{role.name.capitalize()}__** ({len(chars_per_role[role])}):\n{value}'
+                    value = f'{await role_emoji(ctx, role)} **__{role.name.capitalize()}__** ({len(chars_per_role[role])}):\n{value}'
                 fields.append(field(value, inline=True))
             else:
                 fields.append(empty_field())
@@ -145,11 +149,11 @@ def _create_character_matrix(chars_per_role: Dict[Role, List[Character]], roles:
     return roster
 
 
-async def _get_character_line(client: discord.Client, character: Character) -> str:
+async def _get_character_line(ctx: DokBotContext, character: Character) -> str:
     signup_choice = character.get_signup_status()
     signup_choice_indicator = '' if signup_choice in [SignupStatus.ACCEPT,
-                                                      SignupStatus.UNDECIDED] else await signup_choice_emoji(client, signup_choice)
-    return f'{await role_class_emoji(client, character)} {character.name} {signup_choice_indicator}'
+                                                      SignupStatus.UNDECIDED] else await signup_choice_emoji(ctx, signup_choice)
+    return f'{await role_class_emoji(ctx, character)} {character.name} {signup_choice_indicator}'
 
 
 def field(content: str, inline: bool = True):
@@ -160,13 +164,13 @@ def empty_field(inline: bool = True):
     return field(EMPTY_FIELD, inline)
 
 
-async def role_emoji(client: discord.Client, role: Role) -> discord.Emoji:
-    return await get_emoji(client, ROLE_EMOJI[role])
+async def role_emoji(ctx: DokBotContext, role: Role) -> discord.Emoji:
+    return await ctx.bot.get_emoji(ROLE_EMOJI[role])
 
 
-async def role_class_emoji(client: discord.Client, character: Character) -> discord.Emoji:
-    return await get_emoji(client, ROLE_CLASS_EMOJI[character.role][character.klass])
+async def role_class_emoji(ctx: DokBotContext, character: Character) -> discord.Emoji:
+    return await ctx.bot.get_emoji(ROLE_CLASS_EMOJI[character.role][character.klass])
 
 
-async def signup_choice_emoji(client: discord.Client, signup_choice: SignupStatus) -> discord.Emoji:
-    return await get_emoji(client, SIGNUP_STATUS_EMOJI[signup_choice])
+async def signup_choice_emoji(ctx: DokBotContext, signup_choice: SignupStatus) -> discord.Emoji:
+    return await ctx.bot.get_emoji(SIGNUP_STATUS_EMOJI[signup_choice])

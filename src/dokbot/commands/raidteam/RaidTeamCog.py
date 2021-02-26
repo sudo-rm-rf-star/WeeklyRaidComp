@@ -1,28 +1,24 @@
-from dokbot.entities.RaidNotification import RaidNotification
-from typing import List
-from dokbot.entities.GuildMember import GuildMember
-from logic.RaidEvent import RaidEvent
-import utils.Logger as Log
-from logic.enums.SignupStatus import SignupStatus
 from datetime import datetime
-from discord.ext.commands import command, Cog, group, Context
+from discord.ext.commands import Cog, group, Context
 from dokbot.DokBot import DokBot
 from dokbot.entities.RaidTeamControlPanel import RaidTeamControlPanel
 from dokbot.entities.enums.RaidTeamControlAction import RaidTeamControlAction
 from persistence.RaidEventsResource import RaidEventsResource
 from exceptions.InvalidInputException import InvalidInputException
+from .RaidTeamContext import RaidTeamContext
 import discord
+from dokbot.actions.CreateRaid import create_raid
 
 
-class RaidCog(Cog, name='Raids'):
+class RaidTeamCog(Cog, name='Raid team'):
     def __init__(self, bot: DokBot):
         self.bot = bot
         self.raids_resource = RaidEventsResource()
 
     @group()
-    async def raid(self, ctx: Context, name: str = None):
+    async def team(self, ctx: Context, name: str = None):
         f"""
-        Organize and manage your raids for raid team.
+        Organize and manage your raids for raiding team.
         """
         await RaidTeamControlPanel.reply_in_channel(ctx, name=name)
 
@@ -39,33 +35,23 @@ class RaidCog(Cog, name='Raids'):
         if not message.embeds or len(message.embeds) != 1:
             return
 
-        if message.embeds[0].title != RaidTeamControlPanel.title():
+        team_name = message.embeds[0].title.split(' ')[0]
+        if not team_name:
             return
 
-        member = await self.bot.fetch_user(payload.user_id)
-        await message.remove_reaction(payload.emoji, member)
+        user = await self.bot.fetch_user(payload.user_id)
+        await message.remove_reaction(payload.emoji, user)
+        guild = await self.bot.fetch_guild(payload.guild_id)
+        channel = await self.bot.fetch_channel(payload.channel_id)
+        context = RaidTeamContext(bot=self.bot, guild=guild, author=user, channel=channel, team_name=team_name)
         if action == RaidTeamControlAction.AddRaid:
-            print("Creating new raid.")
-        else:
+            await create_raid(ctx=context)
+        elif:
+            await
+        else :
             return
-
-    @raid.command()
-    async def create(self, ctx: Context, raid_name: str, raid_datetime: datetime):
-        """
-        Create a new raid event.
-        <raid_name> Name of the raid
-        <raid_datetime> Datetime of the raid
-        """
-        if raid_datetime < datetime.now():
-            raise InvalidInputException('Raid event must be in future')
-        raid_event = self.raids_resource.create_raid(raid_name=raid_name, raid_datetime=raid_datetime,
-                                                     guild_id=ctx.raid_team.guild_id, team_name=ctx.raid_team.name)
-        self.bot.reply(ctx, f'Raid {raid_event} has been successfully created.')
-        return raid_event
     #
-    # async def create_raid(self, raid_name: str, raid_datetime: datetime, is_open: bool):
-    #
-    # async def send_raid_notification(self, raid_event: RaidEvent, raid_team, raiders: List[GuildMember]) -> None:
+    # async def send_raid_notification(self, raid_event: RaidEvent, raid_team, raiders: List[discord.Member]) -> None:
     #     Log.info(f'Sending {len(raiders)} invitations for {raid_event}')
     #     for raider in raiders:
     #         if not raid_event.has_user_signed(raider.id) or len(raiders) == 1:
@@ -82,12 +68,12 @@ class RaidCog(Cog, name='Raids'):
     # async def get_tentative_players(self, raid_event: RaidEvent):
     #     return [raider for raider in await self.get_raiders() if raid_event.has_user_signed_as(raider.id, SignupStatus.TENTATIVE)]
     #
-    # async def get_raiders(self) -> List[GuildMember]:
+    # async def get_raiders(self) -> List[discord.Member]:
     #     raiders = []
     #     try:
     #         async for member in self.discord_guild.fetch_members(limit=None):
     #             if member and any(role.name == self.raid_team.raider_rank for role in member.roles):
-    #                 raiders.append(GuildMember(member, self.discord_guild.id))
+    #                 raiders.append(discord.Member(member, self.discord_guild.id))
     #     except discord.Forbidden as e:
     #         self.respond(f'There are non-transient problems with Discord permissions...')
     #         raise e

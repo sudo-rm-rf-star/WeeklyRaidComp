@@ -3,7 +3,7 @@ from logic.Character import Character
 from dokbot.interactions.OptionInteraction import OptionInteraction
 from exceptions.InvalidInputException import InvalidInputException
 from dokbot.actions.Register import register
-from dokbot.entities.GuildMember import GuildMember
+from dokbot.entities.discord.Member import discord.Member
 import discord
 from typing import Tuple
 
@@ -11,7 +11,7 @@ ADD_CHAR = 'Add a new character.'
 
 
 class CharacterSelectionInteraction(OptionInteraction):
-    def __init__(self, client: discord.Client, guild: discord.Guild, member: GuildMember, player: Player, *args, **kwargs):
+    def __init__(self, client: discord.Client, guild: discord.Guild, member: discord.Member, player: Player, *args, **kwargs):
         self.guild = guild
         self.player = player
         self.member = member

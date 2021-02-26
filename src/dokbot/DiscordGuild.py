@@ -20,7 +20,7 @@ class DiscordGuild:
     def set_raid_team(self, raid_team: RaidTeam):
         self.raid_team = raid_team
 
-    async def get_member_by_id(self, user_id: int) -> GuildMember:
+    async def get_member_by_id(self, user_id: int) -> discord.Member:
         return await get_member_by_id(self.guild, user_id)
 
     async def get_events_channel(self) -> discord.TextChannel:
@@ -29,12 +29,12 @@ class DiscordGuild:
     async def get_message(self, message_ref: MessageRef) -> Optional[discord.Message]:
         return await get_message(self.guild, message_ref)
 
-    async def get_raiders(self) -> List[GuildMember]:
+    async def get_raiders(self) -> List[discord.Member]:
         raiders = []
         try:
             async for member in self.guild.fetch_members(limit=None):
                 if member and any(role.name == self.raid_team.raider_rank for role in member.roles):
-                    raiders.append(GuildMember(member, self.guild.id))
+                    raiders.append(discord.Member(member, self.guild.id))
         except discord.Forbidden as e:
             raise InternalBotException(f'There are non-transient problems with Discord permissions...\n{e}')
         return raiders

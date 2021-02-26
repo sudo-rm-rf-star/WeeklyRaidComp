@@ -1,7 +1,7 @@
-from dokbot.commands.raid.RaidCog import RaidCog
+from dokbot.commands.raidteam.RaidTeamCog import RaidTeamCog
 
 
-class OpenRaidEvent(RaidCog):
+class OpenRaidEvent(RaidTeamCog):
     @classmethod
     def sub_name(cls) -> str: return "open"
 
