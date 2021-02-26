@@ -28,7 +28,9 @@ class RaidEventsResource(metaclass=Singleton):
         if raid_datetime is None:
             since = datetime.now()
             until = datetime.now() + timedelta(weeks=4)
-            raid_events = self.table.list_raid_events(raid_team_name=team_name, since=since, until=until)
+            raid_events = [raid_event for raid_event in
+                           self.table.list_raid_events(raid_team_name=team_name, since=since, until=until)
+                           if raid_event.name == raid_name]
             if len(raid_events) == 0:
                 raise InvalidInputException(f'There are no raids in the upcoming four weeks for {full_raid_name}')
             raid_event = min(raid_events, key=lambda raid: raid.get_datetime())
