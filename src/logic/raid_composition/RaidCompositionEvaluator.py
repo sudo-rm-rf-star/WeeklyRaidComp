@@ -180,7 +180,7 @@ class RaidCompositionEvaluator:
             return self.characters_per_class[klass]
         return len(self.filter_characters(role=role, klass=klass, race=race))
 
-    def filter_characters(self, role: Role = None, klass: Class = None, race: Race = None) -> List[Character]:
+    def filter_characters(self, role: Role = None, klass: Class = None) -> List[Character]:
         return [char for char in self.characters
                 if (role is None or char.role == role)
                 and (klass is None or char.klass == klass)]
