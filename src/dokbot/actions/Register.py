@@ -1,7 +1,5 @@
 from logic.enums.Class import Class
 from logic.Character import Character
-from logic.enums.Role import Role
-from logic.enums.Race import Race
 from logic.Player import Player
 from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
 from dokbot.interactions.EmojiInteractionMessage import EmojiInteractionMessage

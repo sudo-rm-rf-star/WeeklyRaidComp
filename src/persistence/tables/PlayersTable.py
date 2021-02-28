@@ -5,7 +5,6 @@ from persistence.tables.DynamoDBTable import DynamoDBTable
 from typing import List, Optional
 from logic.enums.Role import Role
 from logic.enums.Class import Class
-from logic.enums.Race import Race
 from logic.Character import Character
 from exceptions.InternalBotException import InternalBotException
 from logic.RaidTeam import RaidTeam
