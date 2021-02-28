@@ -172,8 +172,8 @@ class RaidCompositionEvaluator:
         """ Score specific to a given raid """
         return 1
 
-    def contains_character(self, role: Role = None, klass: Class = None, race: Race = None) -> bool:
-        return self.count_character(role=role, klass=klass, race=race) > 0
+    def contains_character(self, role: Role = None, klass: Class = None) -> bool:
+        return self.count_character(role=role, klass=klass) > 0
 
     def count_character(self, role: Role = None, klass: Class = None, race: Race = None) -> int:
         if klass is not None and role is None and race is None:
@@ -183,5 +183,4 @@ class RaidCompositionEvaluator:
     def filter_characters(self, role: Role = None, klass: Class = None, race: Race = None) -> List[Character]:
         return [char for char in self.characters
                 if (role is None or char.role == role)
-                and (klass is None or char.klass == klass)
-                and (race is None or char.race == race)]
+                and (klass is None or char.klass == klass)]
