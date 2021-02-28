@@ -6,6 +6,7 @@ from dokbot.entities.enums.RaidTeamControlAction import RaidTeamControlAction
 from persistence.RaidEventsResource import RaidEventsResource
 from exceptions.InvalidInputException import InvalidInputException
 from .RaidTeamContext import RaidTeamContext
+from dokbot.DokBotContext import DokBotContext
 import discord
 from dokbot.actions.CreateRaid import create_raid
 
@@ -20,6 +21,7 @@ class RaidTeamCog(Cog, name='Raid team'):
         f"""
         Organize and manage your raids for raiding team.
         """
+        ctx = DokBotContext.from_context(ctx)
         await RaidTeamControlPanel.reply_in_channel(ctx, name=name)
 
     @Cog.listener()
@@ -46,8 +48,8 @@ class RaidTeamCog(Cog, name='Raid team'):
         context = RaidTeamContext(bot=self.bot, guild=guild, author=user, channel=channel, team_name=team_name)
         if action == RaidTeamControlAction.AddRaid:
             await create_raid(ctx=context)
-        elif:
-            await
+        elif action == RaidTeamControlAction.ShowRaid:
+            await show_raid(ctx=context)
         else :
             return
     #

@@ -24,7 +24,7 @@ questions
 '''
 
 
-async def create_raidteam(client: discord.Client, discord_guild: discord.Guild, member: discord.Member,
+async def create_raidteam(client: discord.Client, discord_guild: discord.Guild, member: discord.User,
                           first: bool) -> RaidTeam:
     if first:
         await member.send(INTRODUCTORY_MESSAGE)

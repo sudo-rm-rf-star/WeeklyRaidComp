@@ -24,4 +24,4 @@ raid_names = {
     'Naxxramas': 'naxx'
 }
 
-short_raid_names = {v: k for k, v in raid_names.items()}
+full_raid_name = {v: k for k, v in raid_names.items()}

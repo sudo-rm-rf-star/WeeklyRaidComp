@@ -23,7 +23,7 @@ class OptionInteraction(TextInteractionMessage):
         except (ValueError, TypeError, IndexError):
             if response in self.options:
                 return response
-            raise InvalidInputException(f'Please choose one of the given options.')
+            raise InvalidInputException(f'Please choose one of the given options (select a number).')
 
     def _get_embed(self, content: str, options: List[str]):
         embed = {'title': content,

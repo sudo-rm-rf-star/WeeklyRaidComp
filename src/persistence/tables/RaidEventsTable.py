@@ -6,6 +6,7 @@ from logic.RaidEvent import RaidEvent
 from persistence.tables.DynamoDBTable import DynamoDBTable
 from datetime import datetime
 from exceptions.InvalidInputException import InvalidInputException
+import os
 
 
 class RaidEventsTable(DynamoDBTable[RaidEvent]):
@@ -27,7 +28,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
         return super(RaidEventsTable, self).get_item(guild_id=guild_id, team_name=team_name, raid_name=raid_name,
                                                      raid_datetime=raid_datetime)
 
-    def list_raid_events(self, raid_team_name: str,
+    def list_raid_events(self, guild_id: int, raid_team_name: str,
                          since: Optional[Union[float, datetime]] = 0,
                          until: Optional[Union[float, datetime]] = None) -> List[RaidEvent]:
         if until and isinstance(until, datetime):
@@ -35,10 +36,11 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
         if since and isinstance(since, datetime):
             since = since.timestamp()
 
+        key_condition = Key('guild_id#team_name').eq(f'{guild_id}#{raid_team_name}')
         if until:
-            key_condition = Key('team_name').eq(raid_team_name) & Key('timestamp').between(int(since), int(until))
+            key_condition &= Key('timestamp').between(int(since), int(until))
         else:
-            key_condition = Key('team_name').eq(raid_team_name) & Key('timestamp').gte(int(since))
+            key_condition &= Key('timestamp').gte(int(since))
 
         items = self.table.query(IndexName=RaidEventsTable.INDEX_NAME,
                                  KeyConditionExpression=key_condition)['Items']
@@ -105,7 +107,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
                     'IndexName': RaidEventsTable.INDEX_NAME,
                     'KeySchema': [
                         {
-                            'AttributeName': 'team_name',
+                            'AttributeName': 'guild_id#team_name',
                             'KeyType': 'HASH'
                         },
                         {

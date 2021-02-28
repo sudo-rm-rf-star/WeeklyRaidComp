@@ -4,7 +4,7 @@ from logic.enums.RosterStatus import RosterStatus
 from logic.enums.Class import Class
 from logic.enums.Role import Role
 from logic.Roster import Roster
-from utils.Constants import short_raid_names
+from utils.Constants import full_raid_name
 from datetime import datetime, date
 from typing import List, Dict, Any, Optional
 from logic.Character import Character
@@ -81,7 +81,7 @@ class RaidEvent:
         return SignupStatus.UNDECIDED
 
     def get_name(self, abbrev: bool = False) -> str:
-        return self.name if abbrev else short_raid_names[self.name]
+        return self.name if abbrev else full_raid_name[self.name]
 
     def get_datetime(self) -> datetime:
         return self.datetime

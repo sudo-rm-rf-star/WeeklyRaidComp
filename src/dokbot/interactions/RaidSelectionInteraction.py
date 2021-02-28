@@ -3,23 +3,26 @@ from logic.RaidTeam import RaidTeam
 from exceptions.InvalidInputException import InvalidInputException
 from dokbot.interactions.OptionInteraction import OptionInteraction
 from dokbot.actions.CreateRaidTeam import create_raidteam
-from persistence.RaidTeamsResource import RaidTeamsResource
+from persistence.RaidEventsResource import RaidEventsResource
 from persistence.PlayersResource import PlayersResource
-from dokbot.DokBotContext import DokBotContext
+from dokbot.commands.raidteam.RaidTeamContext import RaidTeamContext
+from utils.Constants import full_raid_name
 
 ADD_RAID_TEAM = 'Add a new raid team.'
 
 
-class RaidTeamSelectionInteraction(OptionInteraction):
-    def __init__(self, ctx: DokBotContext, *args, **kwargs):
-        self.raid_team_resource = RaidTeamsResource()
-        self.raid_teams = self.raid_team_resource.list_raidteams(ctx.guild.id)
-        options = [raid_team.name for raid_team in self.raid_teams] + [ADD_RAID_TEAM]
-        message = "Please choose the raidteam you want to manage or add a new one?"
+class RaidSelectionInteraction(OptionInteraction):
+    def __init__(self, ctx: RaidTeamContext, *args, **kwargs):
+        self.raids_resource = RaidEventsResource()
+        days = 30
+        self.raids = self.raids_resource.list_raids_within_days(guild_id=ctx.guild_id, team_name=ctx.team_name, days=30)
+        options = [f'{full_raid_name[raid.name]} at {raid.datetime.strftime("%A, %d. %B %Y %H:%M")}'
+                   for raid in self.raids]
+        message = f"All raids within {days} days for {ctx.team_name}:"
         super().__init__(ctx=ctx, options=options, content=message, *args, **kwargs)
 
     async def get_response(self) -> RaidTeam:
-        response = await super(RaidTeamSelectionInteraction, self).get_response()
+        response = await super(RaidSelectionInteraction, self).get_response()
 
         players_resource = PlayersResource()
         player = players_resource.get_player_by_id(self.ctx.author.id)

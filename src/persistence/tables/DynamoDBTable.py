@@ -2,6 +2,7 @@ from exceptions.InternalBotException import InternalBotException
 from botocore.exceptions import ClientError
 from typing import Optional, Dict, Any, Generic, TypeVar, List
 import utils.Logger as Log
+import os
 
 T = TypeVar('T')
 
@@ -50,9 +51,17 @@ class DynamoDBTable(Generic[T]):
         raise NotImplementedError()
 
     def create_table(self, table_name) -> Any:
-        return self.ddb.create_table(TableName=table_name, **self._table_kwargs())
+        table_kwargs = self._table_kwargs()
+        if os.getenv("APP_ENV") == "development":
+            table_kwargs['ProvisionedThroughput']["ReadCapacityUnits"] = 1
+            table_kwargs['ProvisionedThroughput']["WriteCapacityUnits"] = 1
+
+        return self.ddb.create_table(TableName=table_name, **table_kwargs)
 
     def _get_table(self, table_name: str):
+        if os.getenv("APP_ENV") == "development":
+            table_name += "-dev"
+
         try:
             table = self.create_table(table_name)
             table.meta.client.get_waiter('table_exists').wait(TableName=table_name)

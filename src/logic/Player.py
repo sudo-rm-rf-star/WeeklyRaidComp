@@ -24,7 +24,6 @@ class Player:
         for character in self.characters:
             if character.name == name:
                 return character
-        raise InternalBotException("No character was selected")
 
     def set_selected_char(self, character_name: str):
         self.selected_char = character_name
