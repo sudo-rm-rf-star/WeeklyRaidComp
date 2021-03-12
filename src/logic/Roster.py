@@ -60,6 +60,8 @@ class Roster:
         self.characters = [character for character in self.characters if character.discord_id != player.discord_id]
 
     def get_signed_character(self, player: Player) -> Optional[Character]:
+        if not player:
+            return None
         players = [char for char in self.characters if char.discord_id == player.discord_id]
         if len(players) == 0:
             return None
