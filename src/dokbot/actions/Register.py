@@ -23,6 +23,10 @@ async def register(client: discord.Client, guild: discord.Guild, member: GuildMe
         return player, None
 
     char_name = await GetNameMesage.interact(member=member, client=client, guild=guild)
+    while char_name in [char.name for char in player.characters]:
+        member.send(f'You already have a character named {char_name}')
+        char_name = await GetNameMesage.interact(member=member, client=client, guild=guild)
+
     klass = await GetClassMessage.interact(member=member, client=client, guild=guild)
     spec = await GetSpecMessage.interact(member=member, client=client, guild=guild, klass=klass)
     role = klass.get_role(spec)
