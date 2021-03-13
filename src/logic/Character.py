@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Dict, Optional, Any
 
 from logic.enums.Class import Class
-from logic.enums.Race import Race
 from logic.enums.Role import Role
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
@@ -63,7 +62,7 @@ class Character:
             'discord_id': self.discord_id,
             'class': self.klass.name,
             'role': self.role.name,
-            'race': self.spec,
+            'spec': self.spec,
             'roster_statuses': [(roster_status.name, timestamp) for roster_status, timestamp in self.roster_statuses],
             'signup_statuses': [(signup_status.name, timestamp) for signup_status, timestamp in self.signup_statuses],
             'created_at': int(self.created_at if self.created_at else datetime.now().timestamp())

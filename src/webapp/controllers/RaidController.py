@@ -1,6 +1,6 @@
 from .AbstractController import AbstractController
 from datetime import datetime
-from utils.Constants import full_raid_name
+from utils.Constants import full_raid_names
 from exceptions.InvalidInputException import InvalidInputException
 import logging
 from persistence.RaidEventsResource import RaidEventsResource
@@ -21,7 +21,7 @@ class RaidController(AbstractController):
         return self.view('index', raids=raids)
 
     def create(self, errors=None):
-        raid_options = list(full_raid_name.items())
+        raid_options = list(full_raid_names.items())
         team_options = [(raid_group.id, raid_group.name) for raid_group in self.guild.raid_groups]
         return self.view('create', raid_options=raid_options, team_options=team_options, errors=errors)
 

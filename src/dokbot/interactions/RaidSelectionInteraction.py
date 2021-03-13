@@ -6,7 +6,7 @@ from dokbot.actions.CreateRaidTeam import create_raidteam
 from persistence.RaidEventsResource import RaidEventsResource
 from persistence.PlayersResource import PlayersResource
 from dokbot.commands.raidteam.RaidTeamContext import RaidTeamContext
-from utils.Constants import full_raid_name
+from utils.Constants import full_raid_names
 
 ADD_RAID_TEAM = 'Add a new raid team.'
 
@@ -16,7 +16,7 @@ class RaidSelectionInteraction(OptionInteraction):
         self.raids_resource = RaidEventsResource()
         days = 30
         self.raids = self.raids_resource.list_raids_within_days(guild_id=ctx.guild_id, team_name=ctx.team_name, days=30)
-        options = [f'{full_raid_name[raid.name]} at {raid.datetime.strftime("%A, %d. %B %Y %H:%M")}'
+        options = [f'{full_raid_names[raid.name]} at {raid.datetime.strftime("%A, %d. %B %Y %H:%M")}'
                    for raid in self.raids]
         message = f"All raids within {days} days for {ctx.team_name}:"
         super().__init__(ctx=ctx, options=options, content=message, *args, **kwargs)

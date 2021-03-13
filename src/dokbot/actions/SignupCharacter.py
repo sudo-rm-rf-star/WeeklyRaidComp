@@ -3,6 +3,7 @@ from datetime import datetime
 from logic.enums.SignupStatus import SignupStatus
 from dokbot.interactions.CharacterSelectionInteraction import CharacterSelectionInteraction
 from dokbot.DiscordUtils import get_emoji
+from dokbot.actions.Register import register
 from utils.EmojiNames import SIGNUP_STATUS_HELP, SIGNUP_STATUS_EMOJI
 from persistence.RaidEventsResource import RaidEventsResource
 from persistence.RaidTeamsResource import RaidTeamsResource
@@ -50,9 +51,11 @@ async def signup_character(client: discord.Client, reaction_event: discord.RawRe
         player, character = await CharacterSelectionInteraction.interact(member=member, client=client,
                                                                          guild=discord_guild,
                                                                          player=player)
-        player = player  # Player has possibly been updated
         player.set_selected_char(character.name)
         players_resource.update_player(player)
+
+    if not player:
+        player, character = await register(client, guild=discord_guild, member=member)
 
     # Add player to raid_event
     character = raid_event.add_to_signees(player, signup_choice)

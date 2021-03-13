@@ -3,7 +3,6 @@ from typing import List
 
 from logic.Character import Character
 from logic.enums.Class import Class
-from logic.enums.Race import Race
 from logic.enums.Role import Role
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
@@ -172,16 +171,15 @@ class RaidCompositionEvaluator:
         """ Score specific to a given raid """
         return 1
 
-    def contains_character(self, role: Role = None, klass: Class = None, race: Race = None) -> bool:
-        return self.count_character(role=role, klass=klass, race=race) > 0
+    def contains_character(self, role: Role = None, klass: Class = None) -> bool:
+        return self.count_character(role=role, klass=klass) > 0
 
-    def count_character(self, role: Role = None, klass: Class = None, race: Race = None) -> int:
-        if klass is not None and role is None and race is None:
+    def count_character(self, role: Role = None, klass: Class = None) -> int:
+        if klass is not None and role is None:
             return self.characters_per_class[klass]
-        return len(self.filter_characters(role=role, klass=klass, race=race))
+        return len(self.filter_characters(role=role, klass=klass))
 
-    def filter_characters(self, role: Role = None, klass: Class = None, race: Race = None) -> List[Character]:
+    def filter_characters(self, role: Role = None, klass: Class = None) -> List[Character]:
         return [char for char in self.characters
                 if (role is None or char.role == role)
-                and (klass is None or char.klass == klass)
-                and (race is None or char.race == race)]
+                and (klass is None or char.klass == klass)]
