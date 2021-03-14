@@ -5,6 +5,10 @@ import utils.Logger as Log
 import os
 
 T = TypeVar('T')
+DEV_THROUGHPUT = {
+    "ReadCapacityUnits": 1,
+    "WriteCapacityUnits": 1
+}
 
 
 class DynamoDBTable(Generic[T]):
@@ -53,8 +57,9 @@ class DynamoDBTable(Generic[T]):
     def create_table(self, table_name) -> Any:
         table_kwargs = self._table_kwargs()
         if os.getenv("APP_ENV") == "development":
-            table_kwargs['ProvisionedThroughput']["ReadCapacityUnits"] = 1
-            table_kwargs['ProvisionedThroughput']["WriteCapacityUnits"] = 1
+            table_kwargs['ProvisionedThroughput'] = DEV_THROUGHPUT
+            for gsi in table_kwargs["GlobalSecondaryIndexes"]:
+                gsi['ProvisionedThroughput'] = DEV_THROUGHPUT
 
         return self.ddb.create_table(TableName=table_name, **table_kwargs)
 

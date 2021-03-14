@@ -3,7 +3,7 @@ from logic.Character import Character
 from logic.Player import Player
 from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
 from dokbot.interactions.EmojiInteractionMessage import EmojiInteractionMessage
-from dokbot.entities.discord.Member import discord.Member
+from dokbot.DokBotContext import DokBotContext
 from persistence.PlayersResource import PlayersResource
 import asyncio
 import discord
@@ -14,17 +14,16 @@ from typing import Tuple, Optional
 TRIES = 3
 
 
-async def register(client: discord.Client, guild: discord.Guild, member: discord.Member,
-                   allow_multiple_chars: bool = False) -> Tuple[Player, Optional[Character]]:
+async def register(ctx: DokBotContext) -> Tuple[Player, Optional[Character]]:
     players_resource = PlayersResource()
     player = players_resource.get_player_by_id(member.id)
     if player and len(player.characters) >= 1 and not allow_multiple_chars:
-        member.send(f'You have already signed up: {player}')
+        await member.send(f'You have already signed up: {player}')
         return player, None
 
     char_name = await GetNameMesage.interact(member=member, client=client, guild=guild)
     while char_name in [char.name for char in player.characters]:
-        member.send(f'You already have a character named {char_name}')
+        await member.send(f'You already have a character named {char_name}')
         char_name = await GetNameMesage.interact(member=member, client=client, guild=guild)
 
     klass = await GetClassMessage.interact(member=member, client=client, guild=guild)

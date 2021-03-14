@@ -1,5 +1,6 @@
 from .RaidEventHandler import RaidEventHandler
 from .RaidEventUpdated import RaidEventUpdated
+from dokbot.entities.RaidMessage import RaidMessage
 
 
 class RaidEventUpdatedHandler(RaidEventHandler):
@@ -11,4 +12,5 @@ class RaidEventUpdatedHandler(RaidEventHandler):
                                    raid_datetime=event.raid_datetime)
 
         discord_guild = await self.get_discord_guild(event.guild_id, event.team_name)
+        await RaidMessage.sync_message(self.client, self.guild, raid_event)
         await discord_guild.sync_raid_message(raid_event)

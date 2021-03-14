@@ -6,7 +6,6 @@ from logic.RaidEvent import RaidEvent
 from persistence.tables.DynamoDBTable import DynamoDBTable
 from datetime import datetime
 from exceptions.InvalidInputException import InvalidInputException
-import os
 
 
 class RaidEventsTable(DynamoDBTable[RaidEvent]):
@@ -94,7 +93,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
                     'AttributeType': 'N'
                 },
                 {
-                    'AttributeName': 'team_name',
+                    'AttributeName': 'guild_id#team_name',
                     'AttributeType': 'S'
                 }
             ],

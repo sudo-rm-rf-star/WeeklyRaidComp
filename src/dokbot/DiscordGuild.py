@@ -2,7 +2,6 @@ from dokbot.DiscordUtils import *
 from logic.RaidTeam import RaidTeam
 from logic.RaidEvent import RaidEvent
 from exceptions.InternalBotException import InternalBotException
-from dokbot.entities.RaidMessage import RaidMessage
 from utils.Constants import DATETIMESEC_FORMAT
 from typing import Union
 from datetime import datetime
@@ -42,9 +41,6 @@ class DiscordGuild:
     async def send_message_to_raiders(self, content: str):
         for raider in await self.get_raiders():
             await raider.send(content)
-
-    async def sync_raid_message(self, raid_event: RaidEvent):
-        await RaidMessage.sync_message(self.client, self.guild, raid_event)
 
     def respond(self, content: str, member: discord.Member,
                 action: Union[discord.Message, discord.RawReactionActionEvent]):

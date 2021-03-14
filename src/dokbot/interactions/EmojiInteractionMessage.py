@@ -2,17 +2,16 @@ from exceptions.InternalBotException import InternalBotException
 from typing import List
 from dokbot.entities.DiscordMessage import DiscordMessage
 from typing import Union, Any
-import discord
-from dokbot.entities.discord.Member import discord.Member
 from typing import Optional
+import discord
 
 TRIES = 3
 
 
 class EmojiInteractionMessage(DiscordMessage):
-    def __init__(self, client: discord.Client, guild: discord.Guild, content: str, reactions: List[str], *args, **kwargs):
+    def __init__(self, client: discord.Client, content: str, reactions: List[str], *args, **kwargs):
         self.client = client
-        super(EmojiInteractionMessage, self).__init__(client, guild, content=content, reactions=reactions, *args, **kwargs)
+        super(EmojiInteractionMessage, self).__init__(client, content=content, reactions=reactions, *args, **kwargs)
         # These variables will be filled once the message is sent
         self.channel_id = None
         self.recipient_id = None
