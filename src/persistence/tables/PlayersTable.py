@@ -122,6 +122,11 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         role = Role[item['role']]
         spec = item.get('spec')
         realm, region = tuple(item['realm#region'].split('#'))
+        # BUGFIXES UNTIL NEXT VERSION
+        if not realm:
+            realm = "Earthshaker"
+        if not region:
+            region = "EU"
         selected_char = item.get('selected_char')
         selected_team_name = item.get('selected_team_name')
         selected_guild_id = item.get('selected_guild_id')
