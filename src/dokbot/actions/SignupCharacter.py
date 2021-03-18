@@ -46,7 +46,7 @@ async def signup_character(client: discord.Client, reaction_event: discord.RawRe
 
     players_resource = PlayersResource()
     player = players_resource.get_player_by_id(member.id)
-    if signup_choice == SignupStatus.SWITCH_CHAR:
+    if player and signup_choice == SignupStatus.SWITCH_CHAR:
         signup_choice = raid_event.get_signup_choice(player)  # Save previous signup state
         player, character = await CharacterSelectionInteraction.interact(member=member, client=client,
                                                                          guild=discord_guild,

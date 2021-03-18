@@ -22,10 +22,7 @@ async def register(client: discord.Client, guild: discord.Guild, member: GuildMe
         member.send(f'You have already signed up: {player}')
         return player, None
 
-    char_name = await GetNameMesage.interact(member=member, client=client, guild=guild)
-    while char_name in [char.name for char in player.characters]:
-        member.send(f'You already have a character named {char_name}')
-        char_name = await GetNameMesage.interact(member=member, client=client, guild=guild)
+    char_name = await GetNameMesage.interact(member=member, player=player, client=client, guild=guild)
 
     klass = await GetClassMessage.interact(member=member, client=client, guild=guild)
     spec = await GetSpecMessage.interact(member=member, client=client, guild=guild, klass=klass)
@@ -40,7 +37,8 @@ async def register(client: discord.Client, guild: discord.Guild, member: GuildMe
 
 
 class GetNameMesage(TextInteractionMessage):
-    def __init__(self, client: discord.Client, guild: discord.Guild, *args, **kwargs):
+    def __init__(self, client: discord.Client, guild: discord.Guild, player: Player, *args, **kwargs):
+        self.player = player
         content = "Please respond with your character name"
         super(GetNameMesage, self).__init__(client, guild, content, *args, **kwargs)
 
@@ -48,6 +46,8 @@ class GetNameMesage(TextInteractionMessage):
         name = (await super(GetNameMesage, self).get_response()).strip().capitalize()
         if re.search(r"\s", name):
             raise InvalidInputException(f'Please use your character name')
+        if self.player and name in [char.name for char in self.player.characters]:
+            raise InvalidInputException(f"You've already chosen this name")
         return name
 
 
