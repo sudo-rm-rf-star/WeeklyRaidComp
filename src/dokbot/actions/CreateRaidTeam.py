@@ -4,8 +4,8 @@ from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
 from dokbot.interactions.OptionInteraction import OptionInteraction
 from dokbot.interactions.DiscordRoleInteraction import DiscordRoleInteraction
 from dokbot.interactions.DiscordChannelInteraction import DiscordChannelInteraction
+from dokbot.DokBotContext import DokBotContext
 from logic.RaidTeam import RaidTeam
-import discord
 
 INTRODUCTORY_MESSAGE = f'''
 Thanks for giving {BOT_NAME} a chance! I hope I'll prove useful for your guild. Let me give a brief introduction 
@@ -24,35 +24,32 @@ questions
 '''
 
 
-async def create_raidteam(client: discord.Client, discord_guild: discord.Guild, member: discord.User,
+async def create_raidteam(ctx: DokBotContext,
                           first: bool) -> RaidTeam:
     if first:
-        await member.send(INTRODUCTORY_MESSAGE)
+        await ctx.author.send(INTRODUCTORY_MESSAGE)
     msg = "Please fill in the name for your raid team."
-    team_name = await TextInteractionMessage.interact(client=client, guild=discord_guild, member=member, content=msg)
+    team_name = await TextInteractionMessage.interact(ctx=ctx, content=msg)
     msg = "Please fill in the realm of your team."
-    realm = await TextInteractionMessage.interact(client=client, guild=discord_guild, member=member, content=msg)
+    realm = await TextInteractionMessage.interact(ctx=ctx, content=msg)
     msg = "Please fill in the region of your team."
     options = ["EU"]
-    region = await OptionInteraction.interact(client=client, guild=discord_guild, member=member, content=msg,
-                                              options=options)
+    region = await OptionInteraction.interact(ctx=ctx, content=msg, options=options)
     msg = "Please choose a Discord text channel to post all of the raid events for this raid group."
-    events_channel = await DiscordChannelInteraction.interact(client=client, guild=discord_guild, content=msg,
-                                                              member=member)
+    events_channel = await DiscordChannelInteraction.interact(ctx=ctx, content=msg)
     msg = "Please select a Discord TextChannel to post all of the logs for this bot. This will contain additional " \
           "information on any interaction with this bot."
-    logs_channel = await DiscordChannelInteraction.interact(client=client, guild=discord_guild, content=msg,
-                                                            member=member)
+    logs_channel = await DiscordChannelInteraction.interact(ctx=ctx, content=msg)
 
     msg = "Please choose a Discord role for your raiders. Players with this role will be automatically invited to any " \
           "of your raids."
-    raider_rank = await DiscordRoleInteraction.interact(client=client, guild=discord_guild, member=member, content=msg)
+    raider_rank = await DiscordRoleInteraction.interact(ctx=ctx, content=msg)
     msg = "Please choose the Discord role to manage this raid team. Players with this role can for example create new raids and " \
           "execute other DokBot commands."
-    manager_rank = await DiscordRoleInteraction.interact(client=client, guild=discord_guild, member=member, content=msg)
-    raid_team = RaidTeam(guild_id=discord_guild.id, team_name=team_name, raider_rank=raider_rank, realm=realm,
+    manager_rank = await DiscordRoleInteraction.interact(ctx=ctx, content=msg)
+    raid_team = RaidTeam(guild_id=ctx.guild_id, team_name=team_name, raider_rank=raider_rank, realm=realm,
                          region=region, officer_rank=manager_rank, events_channel=events_channel,
                          logs_channel=logs_channel)
     RaidTeamsResource().create_raidteam(raid_team)
-    await member.send(f"Your raid team {raid_team} has succesfully been created!")
+    await ctx.author.send(f"Your raid team {raid_team} has succesfully been created!")
     return raid_team

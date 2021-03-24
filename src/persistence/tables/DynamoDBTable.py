@@ -58,7 +58,7 @@ class DynamoDBTable(Generic[T]):
         table_kwargs = self._table_kwargs()
         if os.getenv("APP_ENV") == "development":
             table_kwargs['ProvisionedThroughput'] = DEV_THROUGHPUT
-            for gsi in table_kwargs["GlobalSecondaryIndexes"]:
+            for gsi in table_kwargs.get("GlobalSecondaryIndexes", []):
                 gsi['ProvisionedThroughput'] = DEV_THROUGHPUT
 
         return self.ddb.create_table(TableName=table_name, **table_kwargs)

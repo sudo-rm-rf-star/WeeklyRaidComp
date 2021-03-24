@@ -13,7 +13,7 @@ ADD_RAID_TEAM = 'Add a new raid team.'
 class RaidTeamSelectionInteraction(OptionInteraction):
     def __init__(self, ctx: DokBotContext, *args, **kwargs):
         self.raid_team_resource = RaidTeamsResource()
-        self.raid_teams = self.raid_team_resource.list_raidteams(ctx.guild.id)
+        self.raid_teams = self.raid_team_resource.list_raidteams(ctx.guild_id)
         options = [raid_team.name for raid_team in self.raid_teams] + [ADD_RAID_TEAM]
         message = "Please choose the raidteam you want to manage or add a new one?"
         super().__init__(ctx=ctx, options=options, content=message, *args, **kwargs)
@@ -27,7 +27,7 @@ class RaidTeamSelectionInteraction(OptionInteraction):
             player = Player(discord_id=self.ctx.author.id, characters=[])
 
         if response == ADD_RAID_TEAM:
-            return await create_raidteam(self.ctx.bot, self.ctx.guild, self.ctx.author, first=len(self.raid_teams) == 0)
+            return await create_raidteam(ctx=self.ctx, first=len(self.raid_teams) == 0)
         for raid_team in self.raid_teams:
             if response == raid_team.name:
                 player.selected_team_name = raid_team.name

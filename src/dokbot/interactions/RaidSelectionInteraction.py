@@ -30,7 +30,7 @@ class RaidSelectionInteraction(OptionInteraction):
             player = Player(discord_id=self.ctx.author.id, characters=[])
 
         if response == ADD_RAID_TEAM:
-            return await create_raidteam(self.ctx.bot, self.ctx.guild, self.ctx.author, first=len(self.raid_teams) == 0)
+            return await create_raidteam(ctx=self.ctx, first=len(self.raid_teams) == 0)
         for raid_team in self.raid_teams:
             if response == raid_team.name:
                 player.selected_team_name = raid_team.name

@@ -13,9 +13,11 @@ async def create_raid(ctx: RaidTeamContext):
     raid_name = await GetRaidNameMesage.interact(ctx)
     raid_date = await GetDateMessage.interact(ctx)
     raid_datetime = await GetDateTimeMessage.interact(ctx, date=raid_date)
-    raid = RaidEventsResource().create_raid(raid_name=raid_name, raid_datetime=raid_datetime, guild_id=ctx.guild_id,
-                                            team_name=ctx.team_name)
-    await ctx.reply(f'Raid {raid} has been successfully created.')
+    try:
+        raid = RaidEventsResource().create_raid(raid_name=raid_name, raid_datetime=raid_datetime, guild_id=ctx.guild_id, team_name=ctx.team_name)
+        await ctx.reply(f'Raid {raid} has been successfully created.')
+    except InvalidInputException as e:
+        await ctx.reply(e.message)
 
 
 class GetRaidNameMesage(OptionInteraction):

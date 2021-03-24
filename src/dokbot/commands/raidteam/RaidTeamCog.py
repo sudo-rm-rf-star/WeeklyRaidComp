@@ -1,14 +1,13 @@
-from datetime import datetime
 from discord.ext.commands import Cog, group, Context
 from dokbot.DokBot import DokBot
 from dokbot.entities.RaidTeamControlPanel import RaidTeamControlPanel
 from dokbot.entities.enums.RaidTeamControlAction import RaidTeamControlAction
 from persistence.RaidEventsResource import RaidEventsResource
-from exceptions.InvalidInputException import InvalidInputException
 from .RaidTeamContext import RaidTeamContext
 from dokbot.DokBotContext import DokBotContext
 import discord
 from dokbot.actions.CreateRaid import create_raid
+from dokbot.actions.ShowRaid import show_raid
 
 
 class RaidTeamCog(Cog, name='Raid team'):
@@ -37,7 +36,7 @@ class RaidTeamCog(Cog, name='Raid team'):
         if not message.embeds or len(message.embeds) != 1:
             return
 
-        team_name = message.embeds[0].title.split(' ')[0]
+        team_name = message.embeds[0].title.split(' ')[0].strip('<>')
         if not team_name:
             return
 
@@ -50,19 +49,8 @@ class RaidTeamCog(Cog, name='Raid team'):
             await create_raid(ctx=context)
         elif action == RaidTeamControlAction.ShowRaid:
             await show_raid(ctx=context)
-        else :
+        else:
             return
-    #
-    # async def send_raid_notification(self, raid_event: RaidEvent, raid_team, raiders: List[discord.Member]) -> None:
-    #     Log.info(f'Sending {len(raiders)} invitations for {raid_event}')
-    #     for raider in raiders:
-    #         if not raid_event.has_user_signed(raider.id) or len(raiders) == 1:
-    #             msg = await RaidNotification(self.client, self.discord_guild, raid_event, raid_team).send_to(raider)
-    #             if msg:
-    #                 self.messages_resource.create_personal_message(message_id=msg.id, guild_id=self.discord_guild.id,
-    #                                                                user_id=raider.id, raid_name=raid_event.name,
-    #                                                                raid_datetime=raid_event.datetime,
-    #                                                                team_name=raid_event.team_name)
     #
     # async def get_unsigned_players(self, raid_event: RaidEvent):
     #     return [raider for raider in await self.get_raiders() if not raid_event.has_user_signed(raider.id)]

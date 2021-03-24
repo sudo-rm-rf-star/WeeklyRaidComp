@@ -2,14 +2,14 @@ from typing import Dict, Any
 
 
 class RaidTeam:
-    def __init__(self, team_name: str, guild_id: int, realm: str, region: str, officer_rank: str,
-                 raider_rank: str, events_channel: str, logs_channel: str):
+    def __init__(self, team_name: str, guild_id: int, realm: str, region: str, manager_ids: list, raider_ids: list,
+                 events_channel: str, logs_channel: str):
         self.name = team_name
         self.guild_id = guild_id
         self.realm = realm
         self.region = region
-        self.raider_rank = raider_rank
-        self.officer_rank = officer_rank
+        self.manager_ids = manager_ids
+        self.raider_ids = raider_ids
         self.events_channel = events_channel
         self.logs_channel = logs_channel
 
@@ -22,8 +22,8 @@ class RaidTeam:
             'guild_id': str(self.guild_id),
             'realm': self.realm,
             'region': self.region,
-            'officer_rank': self.officer_rank,
-            'raider_rank': self.raider_rank,
+            'manager_ids': self.manager_ids,
+            'raider_ids': self.raider_ids,
             'logs_channel': self.logs_channel,
             'events_channel': self.events_channel
         }
@@ -35,8 +35,8 @@ class RaidTeam:
             guild_id=int(item['guild_id']),
             region=item['region'],
             realm=item['realm'],
-            raider_rank=item['raider_rank'],
-            officer_rank=item['officer_rank'],
+            raider_ids=list(item['raider_ids']),
+            manager_ids=list(item['manager_ids']),
             events_channel=item['events_channel'],
             logs_channel=item['logs_channel']
         )

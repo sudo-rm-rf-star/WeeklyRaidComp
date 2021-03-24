@@ -1,6 +1,7 @@
 from exceptions.InternalBotException import InternalBotException
 from typing import List
 from dokbot.entities.DiscordMessage import DiscordMessage
+from dokbot.DokBotContext import DokBotContext
 from typing import Union, Any
 from typing import Optional
 import discord
@@ -9,9 +10,8 @@ TRIES = 3
 
 
 class EmojiInteractionMessage(DiscordMessage):
-    def __init__(self, client: discord.Client, content: str, reactions: List[str], *args, **kwargs):
-        self.client = client
-        super(EmojiInteractionMessage, self).__init__(client, content=content, reactions=reactions, *args, **kwargs)
+    def __init__(self, ctx: DokBotContext, content: str, reactions: List[str], *args, **kwargs):
+        super(EmojiInteractionMessage, self).__init__(ctx=ctx, content=content, reactions=reactions, *args, **kwargs)
         # These variables will be filled once the message is sent
         self.channel_id = None
         self.recipient_id = None
@@ -25,7 +25,7 @@ class EmojiInteractionMessage(DiscordMessage):
     async def get_response(self) -> Optional[str]:
         def check(reaction, user):
             return user.id == self.recipient_id and reaction.emoji.name in self.emojis
-        (reaction, user) = await self.client.wait_for('reaction_add', check=check)
+        (reaction, user) = await self.ctx.bot.wait_for('reaction_add', check=check)
         return reaction.emoji.name
 
     async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> discord.Message:

@@ -2,17 +2,18 @@ from .EventHandler import EventHandler
 from .Event import Event
 from pydoc import locate
 from exceptions.InternalBotException import InternalBotException
+from dokbot.DokBot import DokBot
 
 
 class EventHandlerFactory:
-    def __init__(self, discord_client):
-        self.discord_client = discord_client
+    def __init__(self, bot: DokBot):
+        self.bot = bot
 
-    def create_event_handler(self, event: Event) -> EventHandler:
+    async def create_event_handler(self, event: Event) -> EventHandler:
         event_name = type(event).__name__
         name = fullname(event).replace(event_name, event_name + "Handler")
         try:
-            return locate(name)(discord_client=self.discord_client)
+            return locate(name)(bot=self.bot)
         except TypeError as e:
             raise InternalBotException(f"Could not initialize handler {name} for {type(event)} because of {e}")
 

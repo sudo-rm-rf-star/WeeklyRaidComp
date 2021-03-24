@@ -1,28 +1,17 @@
 # BotSetup.py
 from websockets.exceptions import InvalidStatusCode
 from dokbot.commands.raidteam.RaidTeamCog import RaidTeamCog
+from events.EventCog import EventCog
 from dotenv import load_dotenv
 from datetime import datetime
 from .DokBot import DokBot
 
 import utils.Logger as Log
-import discord
 import logging
 import os
 import sys
 import traceback
 
-maintainer = None
-LOOP_INTERVAL_SECS = 10
-
-
-# TODO: discord.ext.tasks -> event queue loo
-# TODO: discord.ext.commands -> bot commands framework
-# TODO https://pypi.org/project/discord-argparse/
-description = '''A bot to aid raid leaders in organizing raids for Classic World of Warcraft.'''
-
-intents = discord.Intents.default()
-intents.members = True
 
 def run() -> None:
     os.environ['TZ'] = 'Europe/Brussels'
@@ -39,6 +28,7 @@ def run() -> None:
 
     bot = DokBot(command_prefix='>')
     bot.add_cog(RaidTeamCog(bot))
+    bot.add_cog(EventCog(bot))
 
     @bot.event
     async def on_ready():

@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Union
 import discord
 from discord import Embed
 
-from dokbot.entities.DiscordMessage import DiscordMessage, field, empty_field
+from dokbot.entities.DiscordMessage import DiscordMessage, field
 from exceptions.InternalBotException import InternalBotException
 from logic.Character import Character
 from logic.RaidEvent import RaidEvent
@@ -15,27 +15,39 @@ from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI
 from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 from dokbot.DiscordUtils import get_emoji
 from dokbot.entities.enums.RaidControlAction import RaidControlAction
-from dokbot.DokBotContext import DokBotContext
+from dokbot.commands.raid.RaidContext import RaidContext
+from persistence.MessagesResource import MessagesResource
+from logic.MessageRef import MessageRef
 
 
 class RaidMessage(DiscordMessage):
-    def __init__(self, ctx: DokBotContext, raid_event: RaidEvent, embed: discord.Embed = None):
-        self.raid_event = raid_event
+    def __init__(self, ctx: RaidContext, embed: discord.Embed = None):
         super().__init__(ctx=ctx, embed=embed, reactions=[action.name for action in RaidControlAction])
 
     @staticmethod
-    async def create_message(ctx: DokBotContext, raid_event: RaidEvent):
-        embed = await raid_to_embed(ctx=ctx, raid_event=raid_event)
-        return RaidMessage(ctx=ctx, raid_event=raid_event, embed=embed)
+    async def create_message(ctx: RaidContext):
+        embed = await raid_to_embed(ctx=ctx)
+        return RaidMessage(ctx=ctx, embed=embed)
 
     @staticmethod
-    async def send_message(ctx: DokBotContext, raid_event: RaidEvent, recipient):
-        raid_msg = await RaidMessage.create_message(ctx=ctx, raid_event=raid_event)
-        return await raid_msg.send_to(recipient)
+    async def send_message(ctx: RaidContext, recipient=None):
+        if not recipient:
+            recipient = await ctx.get_events_channel()
+        msg = await (await RaidMessage.create_message(ctx=ctx)).send_to(recipient)
+
+        raid_event = ctx.raid_event
+        message_ref = MessageRef(message_id=msg.id, guild_id=ctx.guild_id, channel_id=recipient.id,
+                                 raid_name=raid_event.name, raid_datetime=raid_event.datetime,
+                                 team_name=raid_event.name)
+        MessagesResource().create_channel_message(message_id=msg.id, guild_id=ctx.guild_id,
+                                                  channel_id=msg.channel.id, raid_name=raid_event.name,
+                                                  raid_datetime=raid_event.datetime, team_name=raid_event.name)
+        raid_event.message_refs.append(message_ref)
+        return msg
 
     @staticmethod
-    async def sync_message(ctx: DokBotContext, raid_event: RaidEvent):
-        raid_msg = await RaidMessage.create_message(ctx=ctx, raid_event=raid_event)
+    async def sync_message(ctx: RaidContext):
+        raid_msg = await RaidMessage.create_message(ctx=ctx)
         return raid_msg.sync()
 
     async def send_to(self, recipient: Union[discord.User, discord.TextChannel]) -> discord.Message:
@@ -50,14 +62,14 @@ class RaidMessage(DiscordMessage):
 
     async def _sync(self):
         """Updates the existing RaidMessages"""
-        for message_ref in self.raid_event.message_refs:
+        for message_ref in self.ctx.raid_event.message_refs:
             message = await self._update_message(message_ref)
             if message:
                 await self.add_reactions(message)
 
     async def add_reactions(self, message: discord.Message) -> None:
         try:
-            if not self.raid_event.is_open:
+            if not self.ctx.raid_event.is_open:
                 await message.clear_reactions()
             else:
                 emojis = [await self.ctx.bot.get_emoji(emoji_name) for status, emoji_name in SIGNUP_STATUS_EMOJI.items()
@@ -70,11 +82,11 @@ class RaidMessage(DiscordMessage):
             pass
 
 
-async def raid_to_embed(ctx: DokBotContext, raid_event: RaidEvent) -> Embed:
-    embed = {'title': _get_title(raid_event=raid_event),
-             'description': await _get_description(ctx=ctx, raid_event=raid_event),
-             'fields': await _get_fields(ctx=ctx, raid_event=raid_event),
-             'footer': get_footer(raid_event=raid_event),
+async def raid_to_embed(ctx: RaidContext) -> Embed:
+    embed = {'title': _get_title(raid_event=ctx.raid_event),
+             'description': await _get_description(ctx=ctx),
+             'fields': await _get_fields(ctx=ctx),
+             'footer': get_footer(raid_event=ctx.raid_event),
              'color': 2171428,
              'type': 'rich'}
     return Embed.from_dict(embed)
@@ -84,9 +96,9 @@ def _get_title(raid_event: RaidEvent) -> str:
     return f'{raid_event.get_name()}'
 
 
-async def _get_description(client: discord.Client, raid_event: RaidEvent) -> str:
-    return f'{await get_emoji(client, CALENDAR_EMOJI)} {raid_event.get_date()} ({raid_event.get_weekday().capitalize()})\n' \
-           f'{await get_emoji(client, CLOCK_EMOJI)} {raid_event.get_time()}\n'
+async def _get_description(ctx: RaidContext) -> str:
+    return f'{await get_emoji(ctx.bot, CALENDAR_EMOJI)} {ctx.raid_event.get_date()} ({ctx.raid_event.get_weekday().capitalize()})\n' \
+           f'{await get_emoji(ctx.bot, CLOCK_EMOJI)} {ctx.raid_event.get_time()}\n'
 
 
 def get_footer(raid_event: RaidEvent) -> Optional[Dict[str, str]]:
@@ -94,8 +106,8 @@ def get_footer(raid_event: RaidEvent) -> Optional[Dict[str, str]]:
                     f'Last updated at: {raid_event.updated_at.strftime(DATETIMESEC_FORMAT)}'}
 
 
-async def _get_fields(ctx: DokBotContext, raid_event: RaidEvent) -> List[Dict[str, str]]:
-    raid_team = raid_event.roster.get_team()
+async def _get_fields(ctx: RaidContext) -> List[Dict[str, str]]:
+    raid_team = ctx.raid_event.roster.get_team()
     characters_by_status = {roster_status: [] for roster_status in RosterStatus}
     for character in raid_team:
         characters_by_status[character.get_roster_status()].append(character)
@@ -125,7 +137,7 @@ async def _get_fields(ctx: DokBotContext, raid_event: RaidEvent) -> List[Dict[st
     return fields
 
 
-async def _get_control_fields(ctx: DokBotContext):
+async def _get_control_fields(ctx: RaidContext):
     fields = []
     for action in RaidControlAction:
         emoji = await ctx.bot.emoji(action.name)

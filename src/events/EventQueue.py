@@ -28,7 +28,7 @@ class EventQueue(metaclass=Singleton):
         for message in messages:
             event = Event.from_message(eval(message.body)["event"])
             Log.info(f"Received event {event}")
-            event_handler = event_handler_factory.create_event_handler(event)
+            event_handler = await event_handler_factory.create_event_handler(event)
             try:
                 await event_handler.process(event)
             except Exception as e:

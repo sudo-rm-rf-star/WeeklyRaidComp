@@ -28,13 +28,13 @@ class RaidTeamControlPanel(DiscordMessage):
 
     @staticmethod
     def title(raid_team: RaidTeam):
-        return f"{raid_team} Control Panel"
+        return f"<{raid_team}> What would you like to do?"
 
     @classmethod
     async def get_embed(cls, ctx: DokBotContext, **kwargs) -> Embed:
         raid_team = kwargs['raid_team']
         embed = {'title': cls.title(raid_team),
-                 'description': f"Manage and organize raids for your raid team.\n"
+                 'description': f"Manage and organize raids for your raid team: {raid_team}\n"
                                 f"Generate this message again with `>raid {raid_team}`",
                  'fields': await _get_fields(ctx=ctx),
                  'color': 2171428,
