@@ -2,10 +2,10 @@ from logic.Player import Player
 from logic.RaidTeam import RaidTeam
 from exceptions.InvalidInputException import InvalidInputException
 from dokbot.interactions.OptionInteraction import OptionInteraction
-from dokbot.actions.CreateRaidTeam import create_raidteam
+from dokbot.raidteam_actions.CreateRaidTeam import create_raidteam
 from persistence.RaidEventsResource import RaidEventsResource
 from persistence.PlayersResource import PlayersResource
-from dokbot.commands.raidteam.RaidTeamContext import RaidTeamContext
+from dokbot.RaidTeamContext import RaidTeamContext
 from utils.Constants import full_raid_names
 
 ADD_RAID_TEAM = 'Add a new raid team.'

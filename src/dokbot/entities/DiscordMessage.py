@@ -1,5 +1,6 @@
-from typing import Union, Optional
-from dokbot.DiscordUtils import get_message
+from exceptions.InternalBotException import InternalBotException
+from typing import Optional
+from dokbot.utils.DiscordUtils import get_message
 from utils.EmojiNames import ROLE_EMOJI, ROLE_CLASS_EMOJI, SIGNUP_STATUS_EMOJI
 from logic.Character import Character
 from logic.enums.Role import Role
@@ -36,7 +37,7 @@ class DiscordMessage:
 
     @classmethod
     async def make(cls, ctx: DokBotContext, **kwargs):
-        embed = await cls.get_embed(ctx)
+        embed = await cls.get_embed(ctx, **kwargs)
         return cls(ctx=ctx, embed=embed, **kwargs)
 
     @classmethod
@@ -53,12 +54,12 @@ class DiscordMessage:
     async def reply_in_channel(cls, ctx: DokBotContext, **kwargs):
         return await cls.send(ctx=ctx, recipient=ctx.channel, **kwargs)
 
-    async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> List[discord.Message]:
+    async def send_to(self, recipient) -> List[discord.Message]:
         messages = []
         if recipient is None:
             raise InvalidInputException(f'Recipient is empty.')
         try:
-            if self.embed is not None:
+            if self.embed:
                 embed = self.embed.to_dict()
                 fields = embed['fields']
                 embed['fields'] = fields[:MAX_FIELDS]
@@ -66,8 +67,10 @@ class DiscordMessage:
                 for i in range(MAX_FIELDS, len(fields), MAX_FIELDS):
                     messages.append(
                         await recipient.send(embed=discord.Embed.from_dict({'fields': fields[i:i + MAX_FIELDS]})))
-            if self.content:
+            elif self.content:
                 messages.append(await recipient.send(content=self.content))
+            else:
+                raise InternalBotException('You need to set either embed or content.')
         except discord.Forbidden:
             Log.error(f'Could not send message to {recipient}')
         except discord.HTTPException as e:
@@ -80,17 +83,24 @@ class DiscordMessage:
 
     async def add_emojis(self, messages):
         for message in messages:
-            for emoji in self.emojis:
+            current_emojis = set([reaction.emoji.name for reaction in message.reactions])
+            missing_emojis = set(self.emojis).difference(current_emojis)
+
+            for emoji in missing_emojis:
                 await message.add_reaction(await self.ctx.bot.emoji(emoji))
 
-    async def _update_message(self, message_ref: MessageRef) -> Optional[discord.Message]:
+    async def update_by_ref(self, message_ref: MessageRef) -> Optional[discord.Message]:
         message = await get_message(self.ctx.guild, message_ref)
-        if message:
+        return await self.update(message)
+
+    async def update(self, discord_message: discord.Message) -> Optional[discord.Message]:
+        if discord_message:
             if self.embed is not None:
-                await message.edit(embed=self.embed)
+                await discord_message.edit(embed=self.embed)
             if self.content is not None:
-                await message.edit(content=self.content)
-        return message
+                await discord_message.edit(content=self.content)
+            asyncio.create_task(self.add_emojis([discord_message]))
+        return discord_message
 
     @classmethod
     async def show_characters(cls, ctx: DokBotContext, characters: List[Character]):

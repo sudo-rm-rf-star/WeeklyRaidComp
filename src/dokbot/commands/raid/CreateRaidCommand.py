@@ -1,9 +1,9 @@
-from dokbot.commands.raidteam.RaidTeamCog import RaidTeamCog
+from dokbot.DokBotCog import DokBotCog
 from exceptions.InvalidInputException import InvalidInputException
 from datetime import datetime
 
 
-class CreateRaidCommand(RaidTeamCog):
+class CreateRaidCommand(DokBotCog):
     @classmethod
     def argformat(cls) -> str: return "raid_name raid_datetime"
 

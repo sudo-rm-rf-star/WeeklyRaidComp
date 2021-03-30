@@ -1,11 +1,12 @@
-from discord.ext.commands import Bot, CheckFailure, check
+from discord.ext.commands import Bot, CheckFailure
 import discord
-from dokbot.DiscordUtils import get_emoji
+from dokbot.utils.DiscordUtils import get_emoji
 
 
 class DokBot(Bot):
     def __init__(self, command_prefix, **options):
         super().__init__(command_prefix, **options)
+        self.channels = {}
         self.check(guild_only)
 
     async def emoji(self, emoji_name: str) -> discord.Emoji:
@@ -15,6 +16,11 @@ class DokBot(Bot):
         channel = await self.fetch_channel(channel_id)
         return await channel.fetch_message(message_id)
 
+    async def fetch_channel(self, channel_id):
+        if channel_id not in self.channels:
+            self.channels[channel_id] = await super(DokBot, self).fetch_channel(channel_id)
+        return self.channels[channel_id]
+
 
 class NoPrivateMessages(CheckFailure):
     pass
@@ -22,6 +28,6 @@ class NoPrivateMessages(CheckFailure):
 
 async def guild_only(ctx):
     if ctx.guild is None:
-        await ctx.reply('Hey no DMs!')
+        await ctx.reply("I'm not the chatty type, sorry...")
         return False
     return True

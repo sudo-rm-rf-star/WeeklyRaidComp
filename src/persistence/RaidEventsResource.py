@@ -11,12 +11,13 @@ from logic.MessageRef import MessageRef
 from exceptions.InvalidInputException import InvalidInputException
 from utils.Constants import full_raid_names
 from typing import List
+from dokbot.DokBotContext import DokBotContext
 
 
 class RaidEventsResource(metaclass=Singleton):
-    def __init__(self):
+    def __init__(self, ctx: DokBotContext = None):
         self.table = TableFactory().get_raid_events_table()
-        self.queue = EventQueue()
+        self.queue = EventQueue(ctx)
 
     def create_raid(self, raid_name: str, raid_datetime: datetime, guild_id: int, team_name: str):
         raid_event = RaidEvent(name=raid_name, raid_datetime=raid_datetime, guild_id=guild_id, team_name=team_name)

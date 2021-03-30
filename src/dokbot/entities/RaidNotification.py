@@ -1,9 +1,7 @@
 from utils.EmojiNames import SIGNUP_STATUS_EMOJI
-from logic.RaidEvent import RaidEvent
 from dokbot.interactions.EmojiInteractionMessage import EmojiInteractionMessage
-import discord
-from logic.RaidTeam import RaidTeam
-from dokbot.commands.raid.RaidContext import RaidContext
+from dokbot.RaidContext import RaidContext
+from persistence.MessagesResource import MessagesResource
 
 
 class RaidNotification(EmojiInteractionMessage):
@@ -15,11 +13,11 @@ class RaidNotification(EmojiInteractionMessage):
 
     @staticmethod
     async def send_messages(ctx: RaidContext) -> None:
-        for raider in raiders:
-            if not raid_event.has_user_signed(raider.id) or len(raiders) == 1:
-                msg = await RaidNotification(self.client, self.discord_guild, raid_event, raid_team).send_to(raider)
+        for raider_id in ctx.raid_team.raider_ids:
+            if not ctx.raid_event.has_user_signed(raider_id):
+                raider = await ctx.bot.fetch_user(raider_id)
+                msg = await RaidNotification(ctx).send_to(raider)
                 if msg:
-                    self.messages_resource.create_personal_message(message_id=msg.id, guild_id=self.discord_guild.id,
-                                                                   user_id=raider.id, raid_name=raid_event.name,
-                                                                   raid_datetime=raid_event.datetime,
-                                                                   team_name=raid_event.team_name)
+                    MessagesResource().create_personal_message(message_id=msg.id, guild_id=ctx.guild_id,
+                                                               user_id=raider_id, raid_name=ctx.raid_name,
+                                                               raid_datetime=ctx.raid_datetime, team_name=ctx.team_name)

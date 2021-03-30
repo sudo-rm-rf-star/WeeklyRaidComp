@@ -2,8 +2,7 @@ from logic.Player import Player
 from logic.Character import Character
 from dokbot.interactions.OptionInteraction import OptionInteraction
 from exceptions.InvalidInputException import InvalidInputException
-from dokbot.actions.Register import register
-from dokbot.entities.discord.Member import discord.Member
+from dokbot.player_actions.Register import register
 import discord
 from typing import Tuple
 

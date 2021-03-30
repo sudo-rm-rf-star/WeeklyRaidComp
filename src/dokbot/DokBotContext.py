@@ -1,11 +1,10 @@
 from .DokBot import DokBot
 from discord.ext.commands import Context
 import discord
-from .DiscordGuild import DiscordGuild
 
 
 class DokBotContext:
-    def __init__(self, bot: DokBot, guild: DiscordGuild, author: discord.User, channel: discord.TextChannel):
+    def __init__(self, bot: DokBot, guild: discord.Guild, author: discord.User, channel: discord.TextChannel):
         self.bot = bot
         self.guild = guild
         self.author = author

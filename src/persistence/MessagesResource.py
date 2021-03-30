@@ -13,13 +13,14 @@ class MessagesResource:
         return self.messages_table.get_message(message_id)
 
     def create_channel_message(self, message_id: int, guild_id: int, channel_id: int, raid_name: str,
-                               raid_datetime: datetime, team_name: str):
+                               raid_datetime: datetime, team_name: str, **kwargs):
         return self.messages_table.create_channel_message(message_id=message_id, guild_id=guild_id,
                                                           channel_id=channel_id, raid_name=raid_name,
-                                                          raid_datetime=raid_datetime, team_name=team_name)
+                                                          raid_datetime=raid_datetime, team_name=team_name,
+                                                          **kwargs)
 
     def create_personal_message(self, message_id: int, guild_id: int, user_id: int, raid_name: str,
-                                raid_datetime: datetime, team_name: str):
+                                raid_datetime: datetime, team_name: str, **kwargs):
         return self.messages_table.create_personal_message(message_id=message_id, guild_id=guild_id, user_id=user_id,
                                                            raid_name=raid_name, raid_datetime=raid_datetime,
-                                                           team_name=team_name)
+                                                           team_name=team_name, **kwargs)

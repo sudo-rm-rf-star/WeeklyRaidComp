@@ -63,6 +63,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
     def _to_item(self, raid_event: RaidEvent) -> Dict[str, Any]:
         item = raid_event.to_dict()
         item['name#guild_id#team_name'] = f'{raid_event.name}#{raid_event.guild_id}#{raid_event.team_name}'
+        item['guild_id#team_name'] = f'{raid_event.guild_id}#{raid_event.team_name}'
         return item
 
     def _to_key(self, guild_id: int, team_name: str, raid_name: str, raid_datetime: datetime) -> Dict[str, Any]:

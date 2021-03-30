@@ -5,7 +5,7 @@ from datetime import datetime
 from logic.RaidTeam import RaidTeam
 from logic.RaidEvent import RaidEvent
 from persistence.RaidTeamsResource import RaidTeamsResource
-from dokbot.commands.raid.RaidContext import RaidContext
+from dokbot.RaidContext import RaidContext
 from events.raid.AbstractRaidEvent import AbstractRaidEvent
 
 

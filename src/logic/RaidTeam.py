@@ -3,7 +3,7 @@ from typing import Dict, Any
 
 class RaidTeam:
     def __init__(self, team_name: str, guild_id: int, realm: str, region: str, manager_ids: list, raider_ids: list,
-                 events_channel: str, logs_channel: str):
+                 events_channel: str, manager_channel: str, logs_channel: str):
         self.name = team_name
         self.guild_id = guild_id
         self.realm = realm
@@ -11,6 +11,7 @@ class RaidTeam:
         self.manager_ids = manager_ids
         self.raider_ids = raider_ids
         self.events_channel = events_channel
+        self.manager_channel = manager_channel
         self.logs_channel = logs_channel
 
     def __str__(self):
@@ -25,7 +26,8 @@ class RaidTeam:
             'manager_ids': self.manager_ids,
             'raider_ids': self.raider_ids,
             'logs_channel': self.logs_channel,
-            'events_channel': self.events_channel
+            'events_channel': self.events_channel,
+            'manager_channel': self.manager_channel
         }
 
     @staticmethod
@@ -38,5 +40,6 @@ class RaidTeam:
             raider_ids=list(item['raider_ids']),
             manager_ids=list(item['manager_ids']),
             events_channel=item['events_channel'],
+            manager_channel=item['manager_channel'],
             logs_channel=item['logs_channel']
         )

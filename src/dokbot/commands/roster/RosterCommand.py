@@ -3,7 +3,7 @@ from logic.Character import Character
 from logic.RaidEvent import RaidEvent
 from logic.enums.RosterStatus import RosterStatus
 from typing import List
-from dokbot.DiscordUtils import get_member_by_id, set_roster_status
+from dokbot.utils.DiscordUtils import get_member_by_id, set_roster_status
 import asyncio
 import discord
 

@@ -1,8 +1,5 @@
 from exceptions.MissingImplementationException import MissingImplementationException
-import discord
 from .Event import Event
-from dokbot.DiscordGuild import DiscordGuild
-from persistence.tables.TableFactory import TableFactory
 from utils.Constants import MAINTAINER_ID
 import utils.Logger as Log
 import traceback

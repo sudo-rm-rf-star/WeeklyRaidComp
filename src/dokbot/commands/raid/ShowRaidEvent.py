@@ -1,7 +1,7 @@
-from dokbot.commands.raidteam.RaidTeamCog import RaidTeamCog
+from dokbot.DokBotCog import DokBotCog
 
 
-class ShowRaidEvent(RaidTeamCog):
+class ShowRaidEvent(DokBotCog):
     @classmethod
     def argformat(cls) -> str:
         return "raid_name [raid_datetime]"

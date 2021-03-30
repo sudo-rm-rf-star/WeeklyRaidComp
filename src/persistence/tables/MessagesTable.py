@@ -10,15 +10,17 @@ class MessagesTable(DynamoDBTable[MessageRef]):
     def __init__(self, ddb):
         super().__init__(ddb, MessagesTable.TABLE_NAME)
 
-    def create_channel_message(self, message_id: int, guild_id: int, channel_id: int, raid_name: str, raid_datetime: datetime, team_name: str):
+    def create_channel_message(self, message_id: int, guild_id: int, channel_id: int, raid_name: str, raid_datetime: datetime, team_name: str, **kwargs):
         message_ref = MessageRef(message_id=message_id, guild_id=guild_id, channel_id=channel_id, raid_name=raid_name,
-                                 raid_datetime=raid_datetime, team_name=team_name)
-        return self.create_message(message_ref)
+                                 raid_datetime=raid_datetime, team_name=team_name, **kwargs)
+        self.create_message(message_ref)
+        return message_ref
 
-    def create_personal_message(self, message_id: int, guild_id: int, user_id: int, raid_name: str, raid_datetime: datetime, team_name: str):
+    def create_personal_message(self, message_id: int, guild_id: int, user_id: int, raid_name: str, raid_datetime: datetime, team_name: str, **kwargs):
         message_ref = MessageRef(message_id=message_id, guild_id=guild_id, user_id=user_id, raid_name=raid_name,
-                                 raid_datetime=raid_datetime, team_name=team_name)
-        return self.create_message(message_ref)
+                                 raid_datetime=raid_datetime, team_name=team_name, **kwargs)
+        self.create_message(message_ref)
+        return message_ref
 
     def get_message(self, message_id: int) -> MessageRef:
         return super(MessagesTable, self).get_item(message_id=message_id)

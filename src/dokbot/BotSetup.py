@@ -1,6 +1,6 @@
 # BotSetup.py
 from websockets.exceptions import InvalidStatusCode
-from dokbot.commands.raidteam.RaidTeamCog import RaidTeamCog
+from dokbot.DokBotCog import DokBotCog
 from events.EventCog import EventCog
 from dotenv import load_dotenv
 from datetime import datetime
@@ -11,6 +11,7 @@ import logging
 import os
 import sys
 import traceback
+import discord
 
 
 def run() -> None:
@@ -26,8 +27,11 @@ def run() -> None:
     token = os.getenv('DISCORD_BOT_TOKEN')
     assert token, "Could not find any dokbot bot token"
 
-    bot = DokBot(command_prefix='>')
-    bot.add_cog(RaidTeamCog(bot))
+    intents = discord.Intents.default()
+    intents.members = True
+
+    bot = DokBot(command_prefix='>', intents=intents)
+    bot.add_cog(DokBotCog(bot))
     bot.add_cog(EventCog(bot))
 
     @bot.event

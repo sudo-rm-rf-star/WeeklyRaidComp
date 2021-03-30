@@ -1,9 +1,9 @@
-from dokbot.commands.raidteam.RaidTeamCog import RaidTeamCog
-from dokbot.DiscordUtils import get_member, get_member_by_id
+from dokbot.DokBotCog import DokBotCog
+from dokbot.utils.DiscordUtils import get_member, get_member_by_id
 from datetime import datetime
 
 
-class RaidEventInvite(RaidTeamCog):
+class RaidEventInvite(DokBotCog):
     @classmethod
     def sub_name(cls) -> str: return "invite"
 

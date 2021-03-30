@@ -9,6 +9,7 @@ from typing import Optional
 from dokbot.DokBot import DokBot
 from dokbot.DokBotContext import DokBotContext
 
+
 TRIES = 3
 
 
@@ -26,7 +27,9 @@ class TextInteractionMessage(DiscordMessage):
         return await _interact(recipient=ctx.channel, message=cls(ctx=ctx, *args, **kwargs))
 
     async def get_response(self) -> Optional[str]:
-        msg = await self.bot.wait_for('message', check=lambda response: _check_if_response(self, response))
+        msg = await self.bot.wait_for('message',
+                                      check=lambda response: _check_if_response(bot=self.ctx.bot, interaction_msg=self,
+                                                                                msg=response))
         content = msg.content
         if content.strip() == '!skip':
             return None
@@ -36,7 +39,7 @@ class TextInteractionMessage(DiscordMessage):
 
     async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> discord.Message:
         msgs = await super(TextInteractionMessage, self).send_to(recipient)
-        if len(msgs) > 1:
+        if len(msgs) != 1:
             raise InternalBotException("Unhandled case")
         msg = msgs[0]
         self.channel_id = msg.channel.id
@@ -44,9 +47,9 @@ class TextInteractionMessage(DiscordMessage):
         return msg
 
 
-def _check_if_response(interaction_msg: TextInteractionMessage, msg: discord.Message):
+def _check_if_response(bot: DokBot, interaction_msg: TextInteractionMessage, msg: discord.Message):
     assert interaction_msg.channel_id and interaction_msg.recipient_id, "There's no message to get a response for"
-    return interaction_msg.channel_id == msg.channel.id
+    return interaction_msg.channel_id == msg.channel.id and msg.author.id != bot.user.id
 
 
 async def _interact(recipient, message: TextInteractionMessage) -> Any:

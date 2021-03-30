@@ -17,6 +17,9 @@ class RaidTeamsTable(DynamoDBTable[RaidTeam]):
     def create_raidteam(self, raid_team: RaidTeam) -> None:
         return super(RaidTeamsTable, self).put_item(raid_team)
 
+    def update_raidteam(self, raid_team: RaidTeam) -> None:
+        return super(RaidTeamsTable, self).put_item(raid_team)
+
     def list_raidteams(self, guild_id: int) -> List[RaidTeam]:
         return self.query(KeyConditionExpression=Key('guild_id').eq(str(guild_id)))
 

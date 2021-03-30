@@ -14,7 +14,7 @@ MISSING_EMOJI = 'Missing'
 ROLE_EMOJI = {
     Role.RANGED: 'Ranged',
     Role.MELEE: 'Melee',
-    Role.TANK: 'Tank',
+    Role.TANK: 'ProtWarrior',
     Role.HEALER: 'Healer'
 }
 
@@ -29,7 +29,7 @@ ROLE_CLASS_EMOJI = {
     Role.MELEE: {
         Class.WARRIOR: 'Warrior',
         Class.ROGUE: 'Rogue',
-        Class.PALADIN: 'Retri',
+        Class.PALADIN: 'Retribution_Paladin',
         Class.DRUID: 'Feral'
     },
     Role.TANK: {

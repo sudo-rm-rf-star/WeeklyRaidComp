@@ -8,6 +8,7 @@ from logic.enums.Class import Class
 from logic.Character import Character
 from exceptions.InternalBotException import InternalBotException
 from logic.RaidTeam import RaidTeam
+from exceptions.InternalBotException import InternalBotException
 
 
 class PlayersTable(DynamoDBTable[Player]):
@@ -27,6 +28,8 @@ class PlayersTable(DynamoDBTable[Player]):
         return _synthesize_player(self.table.query(KeyConditionExpression=Key('discord_id').eq(str(discord_id))))
 
     def put_player(self, player: Player) -> None:
+        if not player.characters:
+            raise InternalBotException(f"Player {player.discord_id} does not have any characters")
         for character in player.characters:
             self.table.put_item(Item={
                 'discord_id': str(player.discord_id),
