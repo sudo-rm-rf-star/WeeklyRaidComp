@@ -53,7 +53,7 @@ def run() -> None:
     @discord_client.event
     async def on_ready() -> None:
         logging.getLogger().info(f'{discord_client.user} has connected.')
-        discord_client.loop.create_task(await listen_queue())
+        discord_client.loop.create_task(listen_queue())
 
     @discord_client.event
     async def on_message(message: discord.Message) -> None:
