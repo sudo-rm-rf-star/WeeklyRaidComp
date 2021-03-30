@@ -18,9 +18,12 @@ class PlayersTable(DynamoDBTable[Player]):
         super().__init__(ddb, PlayersTable.TABLE_NAME)
 
     def get_player_by_name(self, player_name: str, raid_team: RaidTeam) -> Optional[Player]:
-        key_condition_expression = index_expression(raid_team) & Key('name').eq(player_name)
-        query_result = self.table.query(IndexName=PlayersTable.INDEX_NAME,
-                                        KeyConditionExpression=key_condition_expression)
+        # key_condition_expression = index_expression(raid_team) & Key('name').eq(player_name)
+        key_condition_expression = Key('name').eq(player_name)
+        # query_result = self.table.query(IndexName=PlayersTable.INDEX_NAME,
+        #                                 KeyConditionExpression=key_condition_expression)
+        query_result = self.table.query(KeyConditionExpression=key_condition_expression)
+
         return _synthesize_player(query_result)
 
     def get_player_by_id(self, discord_id: int) -> Optional[Player]:

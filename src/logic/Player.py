@@ -9,8 +9,10 @@ class Player:
                  created_at: Optional[float] = None, selected_guild_id: Optional[int] = None,
                  selected_team_name: Optional[str] = None, region: Optional[str] = None, realm: Optional[str] = None):
         self.discord_id = discord_id
-        self.realm = realm
-        self.region = region
+        # self.realm = realm
+        self.realm = "Earthshaker"
+        # self.region = region
+        self.region = "EU"
         self.characters = characters
         self.selected_char = selected_char
         self.created_at = created_at if created_at else datetime.now().timestamp()
