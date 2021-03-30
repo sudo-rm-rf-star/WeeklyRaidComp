@@ -15,20 +15,16 @@ class Roster:
     def __init__(self, raid_name: str, characters: List[Character] = None):
         self.raid_name = raid_name
         self.characters = characters if characters else []
-        self.updated_since_last_check = False
 
     def get_team(self) -> List[Character]:
         return self.characters
 
     def compose(self) -> List[Character]:
         """ Creates/updates the different teams. Returns a list of updated players. """
-        self.updated_since_last_check = True
         optimizer = CompositionOptimizer(self.raid_name, self.characters)
         return optimizer.make_raid_composition()
 
     def put_character(self, character: Character, roster_status: RosterStatus = None, signup_status: SignupStatus = None):
-        self.updated_since_last_check = True
-
         try:
             i = self.characters.index(character)
             prev_character = self.characters[i]
@@ -56,11 +52,10 @@ class Roster:
         return character
 
     def remove_player(self, player: Player) -> None:
-        self.updated_since_last_check = True
         self.characters = [character for character in self.characters if character.discord_id != player.discord_id]
 
     def get_signed_character(self, player: Player) -> Optional[Character]:
-        if not player:
+        if player is None:
             return None
         players = [char for char in self.characters if char.discord_id == player.discord_id]
         if len(players) == 0:
@@ -68,12 +63,6 @@ class Roster:
         if len(players) == 1:
             return players[0]
         raise InternalBotException(f'{player} in the event more than once.')
-
-    def was_updated(self) -> bool:
-        if self.updated_since_last_check:
-            self.updated_since_last_check = False
-            return True
-        return False
 
     def to_dict(self) -> Dict[str, Any]:
         return {
