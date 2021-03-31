@@ -46,7 +46,7 @@ class RaidEventCreatedHandler(RaidEventHandler):
         for raider_id in raider_ids:
             player = players_resource.get_player_by_id(raider_id)
             if player:
-                raid_event.add_to_signees(player, SignupStatus.undecided)
+                raid_event.add_to_signees(player, SignupStatus.UNDECIDED)
         self.raids_resource.update_raid(raid_event)
 
     async def send_raid_notifications(self,
