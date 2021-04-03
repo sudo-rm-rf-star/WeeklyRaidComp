@@ -31,8 +31,8 @@ class DynamoDBTable(Generic[T]):
                 raise e
             return False
 
-    def scan(self) -> List[T]:
-        response = self.table.scan()
+    def scan(self, **kwargs) -> List[T]:
+        response = self.table.scan(**kwargs)
         return [self._to_object(item) for item in response['Items']]
 
     def query(self, **kwargs) -> List[T]:

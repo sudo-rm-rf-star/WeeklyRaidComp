@@ -19,9 +19,12 @@ class PlayersTable(DynamoDBTable[Player]):
         super().__init__(ddb, PlayersTable.TABLE_NAME)
 
     def get_player_by_name(self, player_name: str, raid_team: RaidTeam) -> Optional[Player]:
-        key_condition_expression = index_expression(raid_team) & Key('name').eq(player_name)
-        query_result = self.table.query(IndexName=PlayersTable.INDEX_NAME,
-                                        KeyConditionExpression=key_condition_expression)
+        # key_condition_expression = index_expression(raid_team) & Key('name').eq(player_name)
+        key_condition_expression = Key('name').eq(player_name)
+        # query_result = self.table.query(IndexName=PlayersTable.INDEX_NAME,
+        #                                 KeyConditionExpression=key_condition_expression)
+        query_result = self.table.scan(FilterExpression=key_condition_expression)
+
         return _synthesize_player(query_result)
 
     def get_player_by_id(self, discord_id: int) -> Optional[Player]:
@@ -40,8 +43,7 @@ class PlayersTable(DynamoDBTable[Player]):
                 'role': character.role.name,
                 'spec': character.spec,
                 'selected_char': player.selected_char,
-                'selected_guild_id': player.selected_guild_id,
-                'selected_team_name': player.selected_team_name
+                'selected_teams': player.selected_teams
             })
 
     def remove_character(self, character: Character):
@@ -126,16 +128,13 @@ def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
         spec = item.get('spec')
         realm, region = tuple(item['realm#region'].split('#'))
         selected_char = item.get('selected_char')
-        selected_team_name = item.get('selected_team_name')
-        selected_guild_id = item.get('selected_guild_id')
+        selected_teams = item.get('selected_teams', {})
         if discord_id not in players:
             players[discord_id] = Player(discord_id=discord_id, realm=realm, region=region, selected_char=selected_char,
-                                         characters=[], created_at=created_at, selected_team_name=selected_team_name,
-                                         selected_guild_id=selected_guild_id)
+                                         characters=[], created_at=created_at, selected_teams=selected_teams)
         player = players[discord_id]
-        if realm != player.realm or region != player.region or selected_char != player.selected_char or \
-                selected_team_name != player.selected_team_name or created_at != player.created_at:
-            raise InternalBotException("Player rows are not consistent.")
+        if selected_char != player.selected_char or created_at != player.created_at:
+            raise InternalBotException(f"Player rows are not consistent for {item}")
         player.characters.append(
             Character(char_name=char_name, discord_id=discord_id, klass=klass, role=role, spec=spec,
                       created_at=created_at))

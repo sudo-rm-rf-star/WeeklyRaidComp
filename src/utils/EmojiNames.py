@@ -30,7 +30,7 @@ ROLE_CLASS_EMOJI = {
         Class.WARRIOR: 'Warrior',
         Class.ROGUE: 'Rogue',
         Class.PALADIN: 'Retribution_Paladin',
-        Class.DRUID: 'Feral'
+        Class.DRUID: 'Feral_Druid'
     },
     Role.TANK: {
         Class.WARRIOR: 'ProtWarrior',

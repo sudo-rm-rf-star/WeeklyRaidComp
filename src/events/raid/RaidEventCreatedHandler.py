@@ -1,7 +1,7 @@
-from .RaidEventHandler import RaidEventHandler
-from .RaidEventCreated import RaidEventCreated
 from dokbot.entities.RaidMessage import RaidMessage
 from dokbot.entities.RaidNotification import RaidNotification
+from .RaidEventCreated import RaidEventCreated
+from .RaidEventHandler import RaidEventHandler
 
 
 class RaidEventCreatedHandler(RaidEventHandler):

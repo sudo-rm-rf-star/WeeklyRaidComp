@@ -46,7 +46,7 @@ async def signup_character(client: discord.Client, reaction_event: discord.RawRe
 
     players_resource = PlayersResource()
     player = players_resource.get_player_by_id(member.id)
-    if signup_choice == SignupStatus.SWITCH_CHAR:
+    if player and signup_choice == SignupStatus.SWITCH_CHAR:
         signup_choice = raid_event.get_signup_choice(player)  # Save previous signup state
         player, character = await CharacterSelectionInteraction.interact(member=member, client=client,
                                                                          guild=discord_guild,
@@ -58,6 +58,9 @@ async def signup_character(client: discord.Client, reaction_event: discord.RawRe
         player, character = await register(client, guild=discord_guild, member=member)
 
     # Add player to raid_event
+    # Retrieve the latest version of the raid event to avoid conflicts.
+    # Ideally this would be a transaction, but they are more expensive.
+    raid_event = RaidEventsResource().get_raid_by_message(message_ref)
     character = raid_event.add_to_signees(player, signup_choice)
     RaidEventsResource().update_raid(raid_event)
 

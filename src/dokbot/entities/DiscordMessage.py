@@ -84,10 +84,9 @@ class DiscordMessage:
     async def add_emojis(self, messages):
         for message in messages:
             current_emojis = set([reaction.emoji.name for reaction in message.reactions])
-            missing_emojis = set(self.emojis).difference(current_emojis)
-
-            for emoji in missing_emojis:
-                await message.add_reaction(await self.ctx.bot.emoji(emoji))
+            for emoji in self.emojis:
+                if emoji not in current_emojis:
+                    await message.add_reaction(await self.ctx.bot.emoji(emoji))
 
     async def update_by_ref(self, message_ref: MessageRef) -> Optional[discord.Message]:
         message = await get_message(self.ctx.guild, message_ref)
@@ -175,12 +174,12 @@ def empty_field(inline: bool = True):
 
 
 async def role_emoji(ctx: DokBotContext, role: Role) -> discord.Emoji:
-    return await ctx.bot.get_emoji(ROLE_EMOJI[role])
+    return await ctx.bot.emoji(ROLE_EMOJI[role])
 
 
 async def role_class_emoji(ctx: DokBotContext, character: Character) -> discord.Emoji:
-    return await ctx.bot.get_emoji(ROLE_CLASS_EMOJI[character.role][character.klass])
+    return await ctx.bot.emoji(ROLE_CLASS_EMOJI[character.role][character.klass])
 
 
 async def signup_choice_emoji(ctx: DokBotContext, signup_choice: SignupStatus) -> discord.Emoji:
-    return await ctx.bot.get_emoji(SIGNUP_STATUS_EMOJI[signup_choice])
+    return await ctx.bot.emoji(SIGNUP_STATUS_EMOJI[signup_choice])

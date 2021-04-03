@@ -44,6 +44,8 @@ class RaidMessage(DiscordMessage):
                                                                 channel_id=msg.channel.id, raid_name=raid_event.name,
                                                                 raid_datetime=raid_event.datetime,
                                                                 team_name=raid_event.team_name, **kwargs)
+        # Get latest version of the raid
+        RaidEventsResource().get_raid_by_message(message_ref)
         raid_event.message_refs.append(message_ref)
         RaidEventsResource().update_raid(raid_event)
 
@@ -116,7 +118,7 @@ async def _get_fields(ctx: RaidContext, for_raid_leaders: bool) -> List[Dict[str
 
 def _get_title_for_roster_status(characters: List[Character], roster_status: RosterStatus):
     title = {
-        RosterStatus.ACCEPT: "Raid Team",
+        RosterStatus.ACCEPT: "Roster",
         RosterStatus.EXTRA: "Standby",
         RosterStatus.DECLINE: "Declined",
         RosterStatus.UNDECIDED: "Signees"

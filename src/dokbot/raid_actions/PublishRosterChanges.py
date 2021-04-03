@@ -36,6 +36,6 @@ async def _set_roster_status(ctx: RaidContext, character: Character, member: dis
     signup_status = character.get_signup_status()
     roster_role = await get_role(ctx.guild, "Roster")
     if roster_status in [RosterStatus.ACCEPT, RosterStatus.EXTRA] and signup_status != SignupStatus.DECLINE:
-        await member.member.add_roles(roster_role)
+        await member.add_roles(roster_role)
     else:
-        await member.member.remove_roles(roster_role)
+        await member.remove_roles(roster_role)

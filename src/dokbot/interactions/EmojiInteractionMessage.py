@@ -23,7 +23,10 @@ class EmojiInteractionMessage(DiscordMessage):
 
     async def get_response(self) -> Optional[str]:
         def check(reaction, user):
-            return user.id == self.ctx.author.id and reaction.emoji.name in self.emojis
+            try:
+                return user.id == self.ctx.author.id and reaction.emoji.name in self.emojis
+            except:
+                return False
         (reaction, user) = await self.ctx.bot.wait_for('reaction_add', check=check)
         return reaction.emoji.name
 
