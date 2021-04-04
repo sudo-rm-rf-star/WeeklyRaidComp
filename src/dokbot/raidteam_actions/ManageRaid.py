@@ -9,7 +9,7 @@ from persistence.RaidEventsResource import RaidEventsResource
 
 
 async def manage_raid(ctx: RaidTeamContext):
-    raids = list(sorted(RaidEventsResource().list_raids_within_days(guild_id=ctx.guild_id, team_name=ctx.team_name, days=60), key=lambda raid: raid.datetime))
+    raids = list(sorted(RaidEventsResource(ctx).list_raids_within_days(guild_id=ctx.guild_id, team_name=ctx.team_name, days=60), key=lambda raid: raid.datetime))
     if len(raids) == 0:
         await ctx.channel.send("There are no raids yet. Please create one first.")
         return
@@ -21,7 +21,7 @@ async def manage_raid(ctx: RaidTeamContext):
 class SelectRaidInteraction(OptionInteraction):
     def __init__(self, ctx: RaidContext, raids: List[RaidEvent], *args, **kwargs):
         content = "Please choose the raid to manage."
-        self.options = [f"{raid.get_name()} ({raid.relative_time()})" for raid in raids]
+        self.options = [str(raid) for raid in raids]
         self.raids = raids
         super().__init__(ctx=ctx, options=self.options, content=content, *args, **kwargs)
 

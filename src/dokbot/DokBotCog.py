@@ -4,35 +4,36 @@ from discord.ext.commands import Cog, Context, command
 from dokbot.DokBot import DokBot
 from dokbot.DokBotContext import DokBotContext
 from dokbot.RaidContext import RaidContext
+from dokbot.entities.HelpMessage import HelpMessage
+from dokbot.entities.RaidTeamMessage import RaidTeamMessage
+from dokbot.player_actions.SignupCharacter import signup_character
 from dokbot.raid_actions.ActionsRaid import ActionsRaid
-from dokbot.raidteam_actions.ActionsRaidTeam import ActionsRaidTeam
-from dokbot.raidteam_actions.AddRaider import add_raider
-from dokbot.raidteam_actions.AddRaidleader import add_raidleader
-from dokbot.raidteam_actions.CreateRaid import create_raid
-from dokbot.raidteam_actions.ManageRaid import manage_raid
-from dokbot.raidteam_actions.ShowRaidTeam import show_raid_team
-from dokbot.raidteam_actions.SwitchRaidTeam import switch_raidteam
-from dokbot.raid_actions.CreateRosterManual import create_roster_manual
-from dokbot.raid_actions.CreateRosterAutomatic import create_roster_automatic
+from dokbot.raid_actions.CreateRoster import create_roster
 from dokbot.raid_actions.Invite import invite
 from dokbot.raid_actions.OpenRaid import open_raid
 from dokbot.raid_actions.RemoveRaid import remove_raid
 from dokbot.raid_actions.SendReminder import send_reminder
 from dokbot.raid_actions.UpdateRoster import update_roster
-from dokbot.entities.RaidTeamMessage import RaidTeamMessage
-from persistence.RaidEventsResource import RaidEventsResource
-from persistence.RaidTeamsResource import RaidTeamsResource
-from persistence.MessagesResource import MessagesResource
-from logic.enums.RosterStatus import RosterStatus
-from .RaidTeamContext import RaidTeamContext
-from utils.Constants import MAINTAINER_ID
+from dokbot.raidteam_actions.ActionsRaidTeam import ActionsRaidTeam
+from dokbot.raidteam_actions.AddRaider import add_raider
+from dokbot.raidteam_actions.AddRaidleader import add_raid_leader
+from dokbot.raidteam_actions.CreateRaid import create_raid
+from dokbot.raidteam_actions.ManageRaid import manage_raid
+from dokbot.raidteam_actions.ShowRaidTeam import show_raid_team
+from dokbot.raidteam_actions.SwitchRaidTeam import switch_raidteam
+from dokbot.raidteam_actions.AddRaiders import add_raiders
 from exceptions.InvalidInputException import InvalidInputException
+from logic.enums.RosterStatus import RosterStatus
+from logic.enums.SignupStatus import SignupStatus
+from persistence.MessagesResource import MessagesResource
+from persistence.RaidTeamsResource import RaidTeamsResource
+from utils.Constants import MAINTAINER_ID
+from .RaidTeamContext import RaidTeamContext
 
 
 class DokBotCog(Cog, name='DokBot'):
     def __init__(self, bot: DokBot):
         self.bot = bot
-        self.raids_resource = RaidEventsResource()
 
     @command()
     async def dokbot(self, ctx: Context):
@@ -67,25 +68,37 @@ class DokBotCog(Cog, name='DokBot'):
 
         channel = await self.bot.fetch_channel(payload.channel_id)
         user = await self.bot.fetch_user(payload.user_id)
-        await message.remove_reaction(payload.emoji, user)
-        guild = await self.bot.fetch_guild(payload.guild_id)
         action_name = payload.emoji.name
 
+        is_raid_action = action_name in ActionsRaid.names()
+        is_raid_team_action = action_name in ActionsRaidTeam.names()
+        is_signup_action = action_name in SignupStatus.names()
         try:
-            if action_name in ActionsRaidTeam.names():
+            if is_raid_team_action:
                 team_name = message.embeds[0].title.split(' ')[0].strip('<>')
                 if not team_name:
                     return
+                guild = await self.bot.fetch_guild(payload.guild_id)
                 ctx = RaidTeamContext(bot=self.bot, guild=guild, author=user, channel=channel, team_name=team_name)
                 await handle_raid_team_action(ctx=ctx, action=ActionsRaidTeam[action_name])
-            elif action_name in ActionsRaid.names():
+            elif is_signup_action or is_raid_action:
                 message_ref = MessagesResource().get_message(message.id)
                 if not message_ref:
+                    await user.send("Raid no longer exists")
                     return
+                guild = await self.bot.fetch_guild(message_ref.guild_id)
                 ctx = RaidContext(bot=self.bot, guild=guild, author=user, channel=channel,
                                   team_name=message_ref.team_name,
                                   raid_name=message_ref.raid_name, raid_datetime=message_ref.raid_datetime)
-                await handle_raid_action(ctx=ctx, action=ActionsRaid[action_name])
+                if is_raid_action:
+                    await handle_raid_action(ctx=ctx, action=ActionsRaid[action_name])
+                elif is_signup_action:
+                    if not ctx.raid_event.is_open and not isinstance(ctx.channel, discord.DMChannel):
+                        await message.remove_reaction(payload.emoji, user)
+                        await ctx.reply_to_author("An invitation is required to sign.")
+                        return
+                    await signup_character(ctx=ctx, signup_status=SignupStatus[action_name])
+
         except InvalidInputException:
             pass
         except Exception as e:
@@ -105,12 +118,16 @@ async def handle_raid_team_action(ctx: RaidTeamContext, action: ActionsRaidTeam)
         await manage_raid(ctx=ctx)
     elif action == ActionsRaidTeam.AddRaider:
         await add_raider(ctx=ctx)
+    elif action == ActionsRaidTeam.AddRaiders:
+        await add_raiders(ctx=ctx)
     elif action == ActionsRaidTeam.ShowRaidTeam:
         await show_raid_team(ctx=ctx)
     elif action == ActionsRaidTeam.AddRaidLeader:
-        await add_raidleader(ctx=ctx)
+        await add_raid_leader(ctx=ctx)
     elif action == ActionsRaidTeam.SwitchRaidTeam:
         await switch_raidteam(ctx=ctx)
+    elif action == ActionsRaidTeam.HelpRaidTeam:
+        await HelpMessage.reply_in_channel(ctx=ctx, actions=ActionsRaidTeam)
     else:
         return
 
@@ -119,24 +136,24 @@ async def handle_raid_action(ctx: RaidContext, action: ActionsRaid):
     if not await verify_authorized(ctx.author.id, ctx):
         return
 
-    if action == ActionsRaid.AddRaider:
+    if action == ActionsRaid.InviteRaider:
         await invite(ctx)
     elif action == ActionsRaid.OpenRaid:
         await open_raid(ctx)
     elif action == ActionsRaid.RemoveRaid:
         await remove_raid(ctx)
-    elif action == ActionsRaid.Accept:
-        await update_roster(ctx, RosterStatus.ACCEPT)
-    elif action == ActionsRaid.Bench:
-        await update_roster(ctx, RosterStatus.EXTRA)
-    elif action == ActionsRaid.Decline:
-        await update_roster(ctx, RosterStatus.DECLINE)
-    elif action == ActionsRaid.CreateRosterAutomatic:
-        await create_roster_automatic(ctx)
-    elif action == ActionsRaid.CreateRosterManual:
-        await create_roster_manual(ctx)
+    elif action == ActionsRaid.RosterAccept:
+        await update_roster(ctx, RosterStatus.Accept)
+    elif action == ActionsRaid.RosterBench:
+        await update_roster(ctx, RosterStatus.Extra)
+    elif action == ActionsRaid.RosterDecline:
+        await update_roster(ctx, RosterStatus.Decline)
+    elif action == ActionsRaid.CreateRoster:
+        await create_roster(ctx)
     elif action == ActionsRaid.SendReminder:
         await send_reminder(ctx)
+    elif action == ActionsRaid.HelpRaid:
+        await HelpMessage.reply_in_channel(ctx=ctx, actions=ActionsRaid)
     else:
         return
 
@@ -147,9 +164,6 @@ async def verify_and_get_message(bot: DokBot, payload: discord.RawReactionAction
 
     message = await bot.message(payload.channel_id, payload.message_id)
     if message.author.id != bot.user.id:
-        return
-
-    if not message.embeds or len(message.embeds) != 1:
         return
 
     return message

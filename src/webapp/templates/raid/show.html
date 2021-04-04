@@ -33,7 +33,7 @@
             {% if characters|length > 0 %}
                 <div class="border-2 border-gray-700 rounded-lg mr-8 my-4 overflow-hidden">
                     <p class="p-1 text-center text-white font-semibold {{bg_color}}">{{title}} - {{characters|length}}</p>
-                    {% set emojis = [('Accept', '👍'), ('Late', '🕒'), ('Tentative', '🤷'), ('Bench', '🪑'), ('Decline', '👎'), ('Undecided', '❓')] -%}
+                    {% set emojis = [('Accept', '👍'), ('Late', '🕒'), ('Tentative', '🤷'), ('Bench', '🪑'), ('Decline', '👎'), ('Unknown', '❓')] -%}
                     {% set signup_emoji = dict(emojis) -%}
                     {% for character in characters %}
                     <a class="block py-0.5 px-2 {{character.klass.name.lower()}} hover-bold"

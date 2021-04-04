@@ -26,7 +26,8 @@ class RaidContext(RaidTeamContext):
 
     def __getattr__(self, item):
         if item == 'raid_event':
-            self.raid_event = RaidEventsResource().get_raid(raid_name=self.raid_name, raid_datetime=self.raid_datetime,
-                                                            guild_id=self.guild_id, team_name=self.team_name)
+            self.raid_event = RaidEventsResource(self).get_raid(raid_name=self.raid_name,
+                                                                raid_datetime=self.raid_datetime,
+                                                                guild_id=self.guild_id, team_name=self.team_name)
             return self.raid_event
         return super(RaidContext, self).__getattr__(item)

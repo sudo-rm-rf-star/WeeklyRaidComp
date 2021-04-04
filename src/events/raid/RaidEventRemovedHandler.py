@@ -1,6 +1,7 @@
 from .RaidEventHandler import RaidEventHandler
 from .RaidEventRemoved import RaidEventRemoved
 from datetime import datetime
+from persistence.RaidEventsResource import RaidEventsResource
 
 
 class RaidEventRemovedHandler(RaidEventHandler):
@@ -8,17 +9,16 @@ class RaidEventRemovedHandler(RaidEventHandler):
         super().__init__(*args, **kwargs)
 
     async def process(self, event: RaidEventRemoved):
-        raid_event = self.get_raid(guild_id=event.guild_id, team_name=event.team_name, raid_name=event.raid_name,
-                                   raid_datetime=event.raid_datetime)
+        ctx = await self.get_context(event)
 
-        discord_guild = await self.get_discord_guild(event.guild_id, event.team_name)
-
-        for message_ref in raid_event.message_refs:
-            message = await discord_guild.get_message(message_ref)
+        for message_ref in ctx.raid_event.message_refs:
+            message = await ctx.bot.message(channel_id=message_ref.channel_id, message_id=message_ref.message_id)
             if message:
                 await message.delete()
 
-        if raid_event.get_datetime() > datetime.now():
-            await discord_guild.send_message_to_raiders(f'{raid_event} has been cancelled.')
+        if ctx.raid_event.in_future():
+            msg = f'{ctx.raid_event} has been cancelled.'
+            raiders = ctx.raid_event.get_characters()
+            await ctx.send_to_raiders(raiders, msg)
 
-        self.raids_resource.delete_raid(raid_event)
+        RaidEventsResource(ctx).delete_raid(raid_event=ctx.raid_event)

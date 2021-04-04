@@ -78,10 +78,19 @@ class RaidEvent:
         for char in self.get_signed_characters():
             if player.discord_id == char.discord_id:
                 return char.get_signup_status()
-        return SignupStatus.UNDECIDED
+        return SignupStatus.Unknown
+
+    def is_invited(self, player: Player) -> bool:
+        for char in self.get_signed_characters():
+            if player.discord_id == char.discord_id:
+                return True
+        return False
 
     def get_name(self, abbrev: bool = False) -> str:
         return self.name if abbrev else full_raid_names[self.name]
+
+    def in_future(self) -> bool:
+        return self.datetime > datetime.now()
 
     def get_datetime(self) -> datetime:
         return self.datetime
@@ -128,4 +137,4 @@ class RaidEvent:
         }
 
     def __str__(self):
-        return f'{self.get_name()} on {self.get_datetime()} ({self.get_weekday().capitalize()})'
+        return f'{self.get_name()} on {self.get_date()} {self.get_time()} ({self.get_weekday().capitalize()})'

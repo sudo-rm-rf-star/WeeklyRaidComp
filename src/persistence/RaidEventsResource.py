@@ -1,28 +1,29 @@
-from utils.Singleton import Singleton
-from .tables.TableFactory import TableFactory
+from datetime import datetime, timedelta
+from typing import List
+from typing import Optional
+
+from dokbot.DokBotContext import DokBotContext
 from events.EventQueue import EventQueue
 from events.raid.RaidEventCreated import RaidEventCreated
-from events.raid.RaidEventUpdated import RaidEventUpdated
 from events.raid.RaidEventRemoved import RaidEventRemoved
-from datetime import datetime, timedelta
-from logic.RaidEvent import RaidEvent
-from typing import Optional
-from logic.MessageRef import MessageRef
+from events.raid.RaidEventUpdated import RaidEventUpdated
 from exceptions.InvalidInputException import InvalidInputException
+from logic.MessageRef import MessageRef
+from logic.RaidEvent import RaidEvent
 from utils.Constants import full_raid_names
-from typing import List
-from dokbot.DokBotContext import DokBotContext
+from .tables.TableFactory import TableFactory
 
 
-class RaidEventsResource(metaclass=Singleton):
+class RaidEventsResource:
     def __init__(self, ctx: DokBotContext = None):
         self.table = TableFactory().get_raid_events_table()
-        self.queue = EventQueue(ctx)
+        self.queue = EventQueue()
+        self.ctx = ctx
 
     def create_raid(self, raid_name: str, raid_datetime: datetime, guild_id: int, team_name: str):
         raid_event = RaidEvent(name=raid_name, raid_datetime=raid_datetime, guild_id=guild_id, team_name=team_name)
         self.table.create_raid_event(raid_event)
-        self.queue.send_event(RaidEventCreated(raid_event))
+        self.queue.send_event(RaidEventCreated(raid_event), ctx=self.ctx)
         return raid_event
 
     def list_raids_within_days(self, guild_id: int, team_name: str, days: int) -> List[RaidEvent]:
@@ -48,15 +49,16 @@ class RaidEventsResource(metaclass=Singleton):
         return self.table.get_raid_event(raid_name=message.raid_name, raid_datetime=message.raid_datetime,
                                          team_name=message.team_name, guild_id=message.guild_id)
 
+    def synced(self, raid_event: RaidEvent) -> RaidEvent:
+        return self.table.get_raid_event(raid_name=raid_event.name, raid_datetime=raid_event.datetime,
+                                         team_name=raid_event.team_name, guild_id=raid_event.guild_id)
+
     def update_raid(self, raid_event: RaidEvent):
         self.table.update_raid_event(raid_event)
-        self.queue.send_event(RaidEventUpdated(raid_event))
+        self.queue.send_event(RaidEventUpdated(raid_event), ctx=self.ctx)
 
-    """A raid can only be removed as an event. We still need the initial raid event to ensure we can clean up the 
-    event properly. """
     def remove_raid(self, raid_event: RaidEvent) -> None:
-        self.queue.send_event(RaidEventRemoved(raid_event))
+        self.queue.send_event(RaidEventRemoved(raid_event), ctx=self.ctx)
 
-    """ This may only be called from the handler for RaidEventRemoved """
     def delete_raid(self, raid_event: RaidEvent) -> None:
         self.table.remove_raid_event(raid_event)

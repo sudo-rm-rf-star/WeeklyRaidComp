@@ -29,7 +29,7 @@
                 ('Tentative', '🤷'),
                 ('Bench', '🪑'),
                 ('Decline', '👎'),
-                ('Undecided', '❓')] %}
+                ('Unknown', '❓')] %}
                 {% set characters = raid.get_characters(signup_choice=signup_status) -%}
                 {% if characters | length > 0 %}
                 <div class="flex m-1">

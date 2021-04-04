@@ -1,5 +1,6 @@
 from dokbot.RaidContext import RaidContext
+from persistence.RaidEventsResource import RaidEventsResource
 
 
 async def remove_raid(ctx: RaidContext):
-    await ctx.reply("This command is not supported yet.")
+    RaidEventsResource(ctx).remove_raid(ctx.raid_event)

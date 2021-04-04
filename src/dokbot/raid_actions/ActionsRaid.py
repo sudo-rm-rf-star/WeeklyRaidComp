@@ -2,15 +2,15 @@ from enum import Enum
 
 
 class ActionsRaid(Enum):
-    AddRaider = "Invite a new player to the raid."
-    Accept = "Accept a player to the raid."
-    Bench = "Bench a player for the raid."
-    Decline = "Decline a player for the raid."
+    InviteRaider = "Invite a new player to the raid."
+    RosterAccept = "Accept a player to the raid."
+    RosterBench = "Bench a player for the raid."
+    RosterDecline = "Decline a player for the raid."
     OpenRaid = "Open this raid so that anyone can sign without invitation."
     SendReminder = "Send a reminder for invited players to signup."
-    CreateRosterAutomatic = "Create a roster for this raid."
-    CreateRosterManual = "Create a roster for this raid manually."
+    CreateRoster = "Create a roster for this raid."
     RemoveRaid = "Remove this raid."
+    HelpRaid = "Shows this message"
 
     @staticmethod
     def names():

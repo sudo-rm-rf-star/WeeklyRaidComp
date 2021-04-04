@@ -6,6 +6,7 @@ from dokbot.utils.DiscordUtils import get_channel
 from persistence.RaidTeamsResource import RaidTeamsResource
 from persistence.PlayersResource import PlayersResource
 from typing import List
+from logic.Character import Character
 
 
 class RaidTeamContext(DokBotContext):
@@ -31,3 +32,11 @@ class RaidTeamContext(DokBotContext):
 
     def get_raid_team_players(self) -> List[Player]:
         return list(filter(None, [PlayersResource().get_player_by_id(raider_id) for raider_id in self.raid_team.raider_ids]))
+
+    async def send_to_raiders(self, raiders: List[Character], msg: str):
+        for raider in raiders:
+            try:
+                user = await self.bot.fetch_user(raider.discord_id)
+                await user.send(msg)
+            except discord.Forbidden:
+                await self.reply(f'Could not send a reminder to {raider}')

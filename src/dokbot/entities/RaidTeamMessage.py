@@ -5,6 +5,7 @@ from logic.RaidTeam import RaidTeam
 from persistence.RaidTeamsResource import RaidTeamsResource
 from dokbot.interactions.RaidTeamSelectionInteraction import RaidTeamSelectionInteraction
 from dokbot.DokBotContext import DokBotContext
+from dokbot.raidteam_actions.ActionsRaidTeam import ActionsRaidTeam
 
 INDENT = 2
 
@@ -36,22 +37,12 @@ class RaidTeamMessage(DiscordMessage):
     async def get_embed(cls, ctx: DokBotContext, **kwargs) -> Embed:
         raid_team = kwargs['raid_team']
         embed = {'title': cls.title(raid_team),
-                 'description': f"Manage and organize raids for your raid team: {raid_team}",
-                 'fields': await _get_fields(ctx=ctx),
-                 'footer': _get_footer(raid_team),
+                 'description': await _get_description(ctx),
                  'color': 2171428,
                  'type': 'rich'}
         return Embed.from_dict(embed)
 
 
-async def _get_fields(ctx: DokBotContext):
-    fields = []
-    for action in ActionsRaidTeam:
-        emoji = await ctx.bot.emoji(action.name)
-        entry = "{0} {1}".format(emoji, action.value)
-        fields.append(field(entry, inline=False))
-    return fields
-
-
-def _get_footer(raid_team: RaidTeam):
-    return {'text': f"Generate this message again by typing: >team {raid_team}"}
+async def _get_description(ctx: DokBotContext):
+    help_emoji = await ctx.bot.emoji(ActionsRaidTeam.HelpRaidTeam.name)
+    return f"Choose one of the buttons. Click {help_emoji} if you don't know where to start."

@@ -13,7 +13,7 @@ ADD_RAID_TEAM = 'Add a new raid team.'
 
 class RaidSelectionInteraction(OptionInteraction):
     def __init__(self, ctx: RaidTeamContext, *args, **kwargs):
-        self.raids_resource = RaidEventsResource()
+        self.raids_resource = RaidEventsResource(ctx)
         days = 30
         self.raids = self.raids_resource.list_raids_within_days(guild_id=ctx.guild_id, team_name=ctx.team_name, days=30)
         options = [f'{full_raid_names[raid.name]} at {raid.datetime.strftime("%A, %d. %B %Y %H:%M")}'

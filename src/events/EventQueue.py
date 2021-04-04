@@ -14,21 +14,20 @@ QUEUE_POLLING_PERIOD_SECS = 5
 
 
 class EventQueue(metaclass=Singleton):
-    def __init__(self, ctx: DokBotContext = None):
+    def __init__(self):
         load_dotenv()
         access_key = os.getenv('AWS_ACCESS_KEY')
         secret_key = os.getenv('AWS_SECRET_KEY')
         sqs = boto3.resource('sqs', region_name='eu-west-1', aws_access_key_id=access_key,
                              aws_secret_access_key=secret_key)
         self.bot_queue = sqs.get_queue_by_name(QueueName=QUEUE_NAME)
-        self.ctx = ctx
 
-    def send_event(self, event: Event):
-        Log.info(f"Sending event {event}")
-        if self.ctx:
+    def send_event(self, event: Event, ctx: DokBotContext = None):
+        if ctx:
             # We don't actually need to send events if we are already within the bot
-            process(self.ctx, event)
+            process(ctx, event)
         else:
+            Log.info(f"Sending event {event}")
             self.bot_queue.send_message(MessageBody=str({"event": event.to_message()}))
 
     async def listen(self, event_handler_factory: EventHandlerFactory):

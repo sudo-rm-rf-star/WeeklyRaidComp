@@ -18,7 +18,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
     def validate_raid_event(self, raid_event: RaidEvent):
         if None in [raid_event.name, raid_event.get_datetime(), raid_event.team_name]:
             return InvalidInputException(f"Raid {raid_event} has empty fields.")
-        if raid_event.get_datetime() < datetime.now():
+        if not raid_event.in_future():
             raise InvalidInputException(f"Raid {raid_event} must be in future.")
         if self.get_raid_event(raid_event.guild_id, raid_event.team_name, raid_event.name, raid_event.datetime):
             raise InvalidInputException(f"Raid {raid_event} already exists.")

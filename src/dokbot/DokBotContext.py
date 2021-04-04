@@ -1,6 +1,7 @@
-from .DokBot import DokBot
-from discord.ext.commands import Context
 import discord
+from discord.ext.commands import Context
+
+from .DokBot import DokBot
 
 
 class DokBotContext:
@@ -17,3 +18,6 @@ class DokBotContext:
 
     async def reply(self, content: str):
         await self.channel.send(content=content)
+
+    async def reply_to_author(self, content: str):
+        await self.author.send(content=content)

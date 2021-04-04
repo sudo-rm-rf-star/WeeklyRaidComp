@@ -141,12 +141,12 @@ class RaidCompositionEvaluator:
 
     def signup_status_score(self) -> float:
         score_per_status = {
-            SignupStatus.ACCEPT: 1,
-            SignupStatus.UNDECIDED: 1,
-            SignupStatus.LATE: 0.75,
-            SignupStatus.TENTATIVE: 0.5,
-            SignupStatus.BENCH: 0.25,
-            SignupStatus.DECLINE: 0
+            SignupStatus.Accept: 1,
+            SignupStatus.Unknown: 1,
+            SignupStatus.Late: 0.75,
+            SignupStatus.Tentative: 0.5,
+            SignupStatus.Bench: 0.25,
+            SignupStatus.Decline: 0
         }
         total_score = 0
         for status, score in score_per_status.items():
@@ -157,10 +157,10 @@ class RaidCompositionEvaluator:
     def roster_status_score(self) -> float:
         total_score = 0
         score_per_status = {
-            RosterStatus.ACCEPT: 1,
-            RosterStatus.EXTRA: 0.75,
-            RosterStatus.DECLINE: 0,
-            RosterStatus.UNDECIDED: 0.5
+            RosterStatus.Accept: 1,
+            RosterStatus.Extra: 0.75,
+            RosterStatus.Decline: 0,
+            RosterStatus.Undecided: 0.5
         }
         for status, score in score_per_status.items():
             total_score += score ** sum([1 for char in self.characters if char.get_roster_status() == status])

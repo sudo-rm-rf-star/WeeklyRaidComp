@@ -32,16 +32,16 @@ class Character:
         if len(self.signup_statuses) > 0:
             return self.signup_statuses[-1][0]
         else:
-            return SignupStatus.UNDECIDED
+            return SignupStatus.Unknown
 
     def get_roster_status(self) -> RosterStatus:
         if len(self.roster_statuses) > 0:
             return self.roster_statuses[-1][0]
         else:
-            return RosterStatus.UNDECIDED
+            return RosterStatus.Undecided
 
     def is_declined(self) -> bool:
-        return self.get_signup_status() == SignupStatus.DECLINE and self.get_roster_status() != RosterStatus.ACCEPT
+        return self.get_signup_status() == SignupStatus.Decline and self.get_roster_status() != RosterStatus.Accept
 
     @staticmethod
     def from_dict(item: Dict[str, Any]):

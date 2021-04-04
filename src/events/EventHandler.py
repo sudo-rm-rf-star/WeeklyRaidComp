@@ -4,6 +4,7 @@ from utils.Constants import MAINTAINER_ID
 import utils.Logger as Log
 import traceback
 from dokbot.DokBot import DokBot
+from exceptions.InvalidInputException import InvalidInputException
 
 
 class EventHandler:
@@ -14,6 +15,8 @@ class EventHandler:
         raise MissingImplementationException(self)
 
     async def process_failed(self, exception: Exception, event: Event):
-        Log.error(f"Failed to process {event} because of {exception}\n{traceback.format_exc()}")
+        if isinstance(exception, InvalidInputException):
+            return
+        Log.error(f"Failed to process {event} because of {exception}")
         maintainer = await self.bot.fetch_user(MAINTAINER_ID)
-        await maintainer.send(f"Failed to process {event}")
+        await maintainer.send(f"Unexpected issue. {event}, {exception}")

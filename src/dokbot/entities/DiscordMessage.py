@@ -1,7 +1,7 @@
 from exceptions.InternalBotException import InternalBotException
 from typing import Optional
 from dokbot.utils.DiscordUtils import get_message
-from utils.EmojiNames import ROLE_EMOJI, ROLE_CLASS_EMOJI, SIGNUP_STATUS_EMOJI
+from utils.EmojiNames import ROLE_EMOJI, ROLE_CLASS_EMOJI
 from logic.Character import Character
 from logic.enums.Role import Role
 from logic.enums.SignupStatus import SignupStatus
@@ -23,7 +23,8 @@ class DiscordMessage:
     def __init__(self, ctx: DokBotContext,
                  content: str = None,
                  embed: discord.Embed = None,
-                 reactions: List[str] = None):
+                 reactions: List[str] = None,
+                 **kwargs):
         self.ctx = ctx
         self.bot = ctx.bot
         self.guild = ctx.guild
@@ -61,7 +62,7 @@ class DiscordMessage:
         try:
             if self.embed:
                 embed = self.embed.to_dict()
-                fields = embed['fields']
+                fields = embed.get('fields', [])
                 embed['fields'] = fields[:MAX_FIELDS]
                 messages.append(await recipient.send(embed=discord.Embed.from_dict(embed)))
                 for i in range(MAX_FIELDS, len(fields), MAX_FIELDS):
@@ -160,8 +161,7 @@ def _create_character_matrix(chars_per_role: Dict[Role, List[Character]], roles:
 
 async def _get_character_line(ctx: DokBotContext, character: Character) -> str:
     signup_choice = character.get_signup_status()
-    signup_choice_indicator = '' if signup_choice in [SignupStatus.ACCEPT,
-                                                      SignupStatus.UNDECIDED] else await signup_choice_emoji(ctx, signup_choice)
+    signup_choice_indicator = '' if signup_choice in [SignupStatus.Accept, SignupStatus.Unknown] else await ctx.bot.emoji(signup_choice.name)
     return f'{await role_class_emoji(ctx, character)} {character.name} {signup_choice_indicator}'
 
 
@@ -179,7 +179,3 @@ async def role_emoji(ctx: DokBotContext, role: Role) -> discord.Emoji:
 
 async def role_class_emoji(ctx: DokBotContext, character: Character) -> discord.Emoji:
     return await ctx.bot.emoji(ROLE_CLASS_EMOJI[character.role][character.klass])
-
-
-async def signup_choice_emoji(ctx: DokBotContext, signup_choice: SignupStatus) -> discord.Emoji:
-    return await ctx.bot.emoji(SIGNUP_STATUS_EMOJI[signup_choice])

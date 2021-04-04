@@ -13,7 +13,6 @@ from persistence.MessagesResource import MessagesResource
 from persistence.RaidEventsResource import RaidEventsResource
 from utils.Constants import DATETIMESEC_FORMAT
 from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI
-from utils.EmojiNames import SIGNUP_STATUS_EMOJI
 from exceptions.InternalBotException import InternalBotException
 import discord
 
@@ -27,7 +26,7 @@ class RaidMessage(DiscordMessage):
         for_raid_leaders = kwargs['for_raid_leaders']
         embed = {'title': _get_title(raid_event=ctx.raid_event),
                  'description': await _get_description(ctx=ctx),
-                 'fields': await _get_fields(ctx=ctx, for_raid_leaders=for_raid_leaders),
+                 'fields': await _get_fields(ctx=ctx),
                  'footer': get_footer(raid_event=ctx.raid_event, for_raid_leaders=for_raid_leaders),
                  'color': 2171428,
                  'type': 'rich'}
@@ -45,9 +44,9 @@ class RaidMessage(DiscordMessage):
                                                                 raid_datetime=raid_event.datetime,
                                                                 team_name=raid_event.team_name, **kwargs)
         # Get latest version of the raid
-        RaidEventsResource().get_raid_by_message(message_ref)
+        RaidEventsResource(ctx).get_raid_by_message(message_ref)
         raid_event.message_refs.append(message_ref)
-        RaidEventsResource().update_raid(raid_event)
+        RaidEventsResource(ctx).update_raid(raid_event)
 
     @classmethod
     async def send_for_raiders(cls, ctx: RaidContext, **kwargs):
@@ -85,23 +84,23 @@ def get_footer(raid_event: RaidEvent, for_raid_leaders: bool) -> Optional[Dict[s
     return {'text': text}
 
 
-async def _get_fields(ctx: RaidContext, for_raid_leaders: bool) -> List[Dict[str, str]]:
+async def _get_fields(ctx: RaidContext) -> List[Dict[str, str]]:
     raid_team = ctx.raid_event.roster.get_team()
     characters_by_status = {roster_status: [] for roster_status in RosterStatus}
     for character in raid_team:
         characters_by_status[character.get_roster_status()].append(character)
 
     fields = []
-    for roster_status in [RosterStatus.ACCEPT, RosterStatus.UNDECIDED, RosterStatus.EXTRA]:
+    for roster_status in [RosterStatus.Accept, RosterStatus.Undecided, RosterStatus.Extra]:
         characters = [char for char in characters_by_status[roster_status] if not (
-                char.get_roster_status() == RosterStatus.UNDECIDED and char.get_signup_status() == SignupStatus.UNDECIDED)]
+                char.get_roster_status() == RosterStatus.Undecided and char.get_signup_status() == SignupStatus.Unknown)]
         if len(characters) > 0:
             fields.append(_get_title_for_roster_status(characters, roster_status))
             fields.extend(await DiscordMessage.show_characters(ctx=ctx, characters=characters))
 
-    declined_characters = [char.name for char in characters_by_status[RosterStatus.DECLINE]]
-    invited_but_not_signed_characters = [char.name for char in characters_by_status[RosterStatus.UNDECIDED]
-                                         if char.get_signup_status() == SignupStatus.UNDECIDED]
+    declined_characters = [char.name for char in characters_by_status[RosterStatus.Decline]]
+    invited_but_not_signed_characters = [char.name for char in characters_by_status[RosterStatus.Undecided]
+                                         if char.get_signup_status() == SignupStatus.Unknown]
     if len(invited_but_not_signed_characters) > 20:
         value = f'**Invited**: {", ".join(invited_but_not_signed_characters[:20])}, ...'
         fields.append(field(value, inline=False))
@@ -112,34 +111,23 @@ async def _get_fields(ctx: RaidContext, for_raid_leaders: bool) -> List[Dict[str
         value = f'**Declined**: {", ".join(declined_characters)}'
         fields.append(field(value, inline=False))
 
-    fields.extend(await _get_control_fields(ctx, for_raid_leaders=for_raid_leaders))
     return fields
 
 
 def _get_title_for_roster_status(characters: List[Character], roster_status: RosterStatus):
     title = {
-        RosterStatus.ACCEPT: "Roster",
-        RosterStatus.EXTRA: "Standby",
-        RosterStatus.DECLINE: "Declined",
-        RosterStatus.UNDECIDED: "Signees"
+        RosterStatus.Accept: "Roster",
+        RosterStatus.Extra: "Standby",
+        RosterStatus.Decline: "Declined",
+        RosterStatus.Undecided: "Signees"
     }
     return field(f"**__{title[roster_status]}__** ({len(characters)})", inline=False)
 
 
-async def _get_control_fields(ctx: RaidContext, for_raid_leaders: bool):
-    fields = []
-    if for_raid_leaders:
-        for action in ActionsRaid:
-            emoji = await ctx.bot.emoji(action.name)
-            entry = "{0} {1}".format(emoji, action.value)
-            fields.append(field(entry, inline=False))
-    return fields
-
-
 def _get_emoji_names(ctx: RaidContext, for_raid_leaders: bool):
     if for_raid_leaders:
-        return [action.name for action in ActionsRaid]
+        return ActionsRaid.names()
     elif ctx.raid_event.is_open:
-        return SIGNUP_STATUS_EMOJI.values()
+        return SignupStatus.names()
     else:
         return []

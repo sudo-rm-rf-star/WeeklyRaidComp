@@ -10,16 +10,16 @@ from logic.enums.SignupStatus import SignupStatus
 from dokbot.utils.DiscordUtils import get_role
 
 VERBS = {
-    RosterStatus.ACCEPT: 'accepted',
-    RosterStatus.EXTRA: 'benched',
-    RosterStatus.DECLINE: 'declined'
+    RosterStatus.Accept: 'accepted',
+    RosterStatus.Extra: 'benched',
+    RosterStatus.Decline: 'declined'
 }
 
 
 def publish_roster_changes(ctx: RaidContext, characters: List[Character]):
     for character in characters:
         roster_choice = character.get_roster_status()
-        if roster_choice != RosterStatus.UNDECIDED:
+        if roster_choice != RosterStatus.Undecided:
             asyncio.create_task(_handle_roster_choice(ctx=ctx, character=character))
 
 
@@ -35,7 +35,7 @@ async def _set_roster_status(ctx: RaidContext, character: Character, member: dis
     roster_status = character.get_roster_status()
     signup_status = character.get_signup_status()
     roster_role = await get_role(ctx.guild, "Roster")
-    if roster_status in [RosterStatus.ACCEPT, RosterStatus.EXTRA] and signup_status != SignupStatus.DECLINE:
+    if roster_status in [RosterStatus.Accept, RosterStatus.Extra] and signup_status != SignupStatus.Decline:
         await member.add_roles(roster_role)
     else:
         await member.remove_roles(roster_role)

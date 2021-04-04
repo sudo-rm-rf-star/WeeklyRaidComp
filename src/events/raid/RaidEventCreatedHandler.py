@@ -12,4 +12,4 @@ class RaidEventCreatedHandler(RaidEventHandler):
         ctx = await self.get_context(event)
         await RaidMessage.send_for_raiders(ctx=ctx)
         await RaidMessage.send_for_raid_leaders(ctx=ctx)
-        await RaidNotification.send_messages(ctx)
+        await RaidNotification.send_to_team(ctx)

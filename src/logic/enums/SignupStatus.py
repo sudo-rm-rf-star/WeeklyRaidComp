@@ -2,16 +2,14 @@ from enum import Enum
 
 
 class SignupStatus(Enum):
-    """ The number represents the priority a person gets in the raid depending on his signup state.
-    A lower number equals a higher priority."""
-    ACCEPT = 1
-    UNDECIDED = 2
-    LATE = 3
-    BENCH = 4
-    TENTATIVE = 5
-    DECLINE = 6
-    SWITCH_CHAR = 100  # A signup option for players to switch characters
-    #  HELP = 100  # A signup option to show a help page
+    Accept = 'Accept the raid invitation. You can attend the raid.'
+    Bench = 'Accept the raid invitation, but other players can have priority on your spot.'
+    Decline = 'Decline the raid invitation. You cannot attend.'
+    Late = 'Accept the raid invitation, but you will be late.'
+    Tentative = 'Accept the raid invitation, but you are unsure if you can attend the raid. Once you are sure, you can choose a new status.'
+    SwitchChar = 'Sign with another character. If you already signed with another character, you will keep the signup status.'
+    Unknown = f'Shows this help page. More questions? Contact an officer of your guild.'
 
-    def __lt__(self, other):
-        return self.value < other.value
+    @staticmethod
+    def names():
+        return list(map(lambda c: c.name, SignupStatus))

@@ -8,8 +8,8 @@ class RaidTeam:
         self.guild_id = guild_id
         self.realm = realm
         self.region = region
-        self.manager_ids = manager_ids
-        self.raider_ids = raider_ids
+        self.manager_ids = list(set(manager_ids))
+        self.raider_ids = list(set(raider_ids))
         self.events_channel = events_channel
         self.manager_channel = manager_channel
         self.logs_channel = logs_channel

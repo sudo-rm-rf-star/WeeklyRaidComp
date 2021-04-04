@@ -35,12 +35,12 @@ class Roster:
             self.characters.append(character)
 
         # Automatically decline anyone who is not accepted to the roster, and declined the raid.
-        if character.get_roster_status() != RosterStatus.ACCEPT and signup_status == SignupStatus.DECLINE:
-            roster_status = RosterStatus.DECLINE
+        if character.get_roster_status() != RosterStatus.Accept and signup_status == SignupStatus.Decline:
+            roster_status = RosterStatus.Decline
 
         # Automatically put anyone back to undecided if they accepted the raid after being declined to the roster
-        if character.get_roster_status() == RosterStatus.DECLINE and signup_status != SignupStatus.DECLINE:
-            roster_status = RosterStatus.UNDECIDED
+        if character.get_roster_status() == RosterStatus.Decline and signup_status != SignupStatus.Decline:
+            roster_status = RosterStatus.Undecided
 
         if roster_status and roster_status != character.get_roster_status():
             character.set_roster_status(roster_status)

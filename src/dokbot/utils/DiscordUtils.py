@@ -92,7 +92,7 @@ async def set_roster_status(guild: discord.Guild, member: discord.Member, charac
     roster_roles = {status: await _roster_status_to_role(guild, status) for status in list(RosterStatus)}
     remove_roles = list(roster_roles.values())
     add_roles = [roster_roles[roster_status]]
-    if roster_status in [RosterStatus.ACCEPT, RosterStatus.EXTRA] and signup_status != SignupStatus.DECLINE:
+    if roster_status in [RosterStatus.Accept, RosterStatus.Extra] and signup_status != SignupStatus.Decline:
         add_roles.append(roster_role)
     else:
         remove_roles.append(roster_role)
