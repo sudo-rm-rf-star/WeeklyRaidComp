@@ -6,6 +6,7 @@ from dokbot.DokBotContext import DokBotContext
 from dokbot.RaidContext import RaidContext
 from dokbot.entities.HelpMessage import HelpMessage
 from dokbot.entities.RaidTeamMessage import RaidTeamMessage
+from dokbot.entities.RaidMessage import RaidMessage
 from dokbot.player_actions.SignupCharacter import signup_character
 from dokbot.raid_actions.ActionsRaid import ActionsRaid
 from dokbot.raid_actions.CreateRoster import create_roster
@@ -27,8 +28,10 @@ from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
 from persistence.MessagesResource import MessagesResource
 from persistence.RaidTeamsResource import RaidTeamsResource
+from persistence.RaidEventsResource import RaidEventsResource
 from utils.Constants import MAINTAINER_ID
 from .RaidTeamContext import RaidTeamContext
+from datetime import datetime
 
 
 class DokBotCog(Cog, name='DokBot'):
@@ -53,12 +56,13 @@ class DokBotCog(Cog, name='DokBot'):
         await RaidTeamMessage.reply_in_channel(ctx, name=name)
 
     @command()
-    async def raid(self, ctx: Context, name: str = None):
+    async def raid(self, ctx: Context, raid_name: str, raid_datetime: int, team_name: str):
         """
         Manage a raid.
         """
-        ctx = DokBotContext.from_context(ctx)
-        await RaidTeamMessage.reply_in_channel(ctx, name=name)
+        ctx = RaidContext(bot=self.bot, guild=ctx.guild, author=ctx.author, channel=ctx.channel, team_name=team_name,
+                          raid_name=raid_name, raid_datetime=datetime.fromtimestamp(raid_datetime))
+        await RaidMessage.reply_in_channel(ctx, for_raid_leaders=True)
 
     @Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
