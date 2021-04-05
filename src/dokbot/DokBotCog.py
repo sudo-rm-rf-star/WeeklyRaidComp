@@ -113,7 +113,7 @@ class DokBotCog(Cog, name='DokBot'):
 
 
 async def handle_raid_team_action(ctx: RaidTeamContext, action: ActionsRaidTeam):
-    if not await verify_authorized(ctx.author.id, ctx):
+    if not ctx.raid_team or not await verify_authorized(ctx.author.id, ctx):
         return
 
     if action == ActionsRaidTeam.AddRaid:
@@ -137,7 +137,7 @@ async def handle_raid_team_action(ctx: RaidTeamContext, action: ActionsRaidTeam)
 
 
 async def handle_raid_action(ctx: RaidContext, action: ActionsRaid):
-    if not await verify_authorized(ctx.author.id, ctx):
+    if not ctx.raid_team or await verify_authorized(ctx.author.id, ctx):
         return
 
     if action == ActionsRaid.InviteRaider:
