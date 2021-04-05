@@ -73,7 +73,6 @@ class DynamoDBTable(Generic[T]):
         except ClientError as e:
             if e.response['Error']['Code'] == 'ResourceInUseException':
                 raise InternalBotException(f'The resource is not yet available. Please try again later.')
-            raise e
         return self.ddb.Table(table_name)
 
     def to_unique_object(self, response: Dict[str, Any]) -> T:
