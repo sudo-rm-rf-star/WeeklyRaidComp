@@ -33,6 +33,7 @@ from persistence.RaidTeamsResource import RaidTeamsResource
 from utils.Constants import MAINTAINER_ID
 from .RaidTeamContext import RaidTeamContext
 import logging
+import traceback
 
 
 class DokBotCog(Cog, name='DokBot'):
@@ -109,7 +110,7 @@ class DokBotCog(Cog, name='DokBot'):
         except Exception as e:
             await channel.send("Unexpected issue! Try again later.")
             maintainer = await self.bot.fetch_user(MAINTAINER_ID)
-            error_msg = f"Unexpected issue. {user.name}, {user.display_name}, {action_name}, {e}"
+            error_msg = f"Unexpected issue. {user.name}, {user}, {action_name}, {e}\n{traceback.format_exc()}"
             logging.getLogger().error(error_msg)
             await maintainer.send(f"Unexpected issue. {user.name}, {user.display_name}, {action_name}, {e}")
             raise e
