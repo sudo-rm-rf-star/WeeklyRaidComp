@@ -2,7 +2,6 @@ import discord
 from logic.Player import Player
 from dokbot.DokBot import DokBot
 from dokbot.DokBotContext import DokBotContext
-from dokbot.utils.DiscordUtils import get_channel
 from persistence.RaidTeamsResource import RaidTeamsResource
 from persistence.PlayersResource import PlayersResource
 from typing import List
@@ -25,10 +24,13 @@ class RaidTeamContext(DokBotContext):
             return self.raid_team
 
     async def get_events_channel(self) -> discord.TextChannel:
-        return await get_channel(guild=self.guild, channel_name=self.raid_team.events_channel)
+        return await self.bot.fetch_channel(self.raid_team.events_channel)
+
+    async def get_signup_history_channel(self) -> discord.TextChannel:
+        return await self.bot.fetch_channel(self.raid_team.signup_history_channel)
 
     async def get_managers_channel(self) -> discord.TextChannel:
-        return await get_channel(guild=self.guild, channel_name=self.raid_team.manager_channel)
+        return await self.bot.fetch_channel(self.raid_team.manager_channel)
 
     def get_raid_team_players(self) -> List[Player]:
         return list(filter(None, [PlayersResource().get_player_by_id(raider_id) for raider_id in self.raid_team.raider_ids]))

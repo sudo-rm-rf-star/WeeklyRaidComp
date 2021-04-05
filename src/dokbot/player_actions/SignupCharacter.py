@@ -1,15 +1,17 @@
+from datetime import datetime
 from typing import Tuple
 
 from dokbot.RaidContext import RaidContext
+from dokbot.entities.HelpMessage import HelpMessage
 from dokbot.interactions.OptionInteraction import OptionInteraction
 from dokbot.player_actions.Register import register
-from dokbot.entities.HelpMessage import HelpMessage
 from exceptions.InvalidInputException import InvalidInputException
 from logic.Character import Character
 from logic.Player import Player
 from logic.enums.SignupStatus import SignupStatus
 from persistence.PlayersResource import PlayersResource
 from persistence.RaidEventsResource import RaidEventsResource
+from utils.Constants import DATETIMESEC_FORMAT
 
 ADD_CHAR = 'Add a new character.'
 
@@ -54,6 +56,7 @@ async def signup_character(ctx: RaidContext, signup_status: SignupStatus):
     else:
         response = f"You will now sign up with {character.name}. You still need to sign for this raid."
     await ctx.reply_to_author(response)
+    await (await ctx.get_signup_history_channel()).send(f'{datetime.now().strftime(DATETIMESEC_FORMAT)} **{character.name}** {await ctx.bot.emoji(signup_status.name)}')
 
 
 class CharacterSelectionInteraction(OptionInteraction):

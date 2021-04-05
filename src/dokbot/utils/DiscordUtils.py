@@ -11,11 +11,6 @@ from logic.enums.SignupStatus import SignupStatus
 from utils.Constants import BASE_GUILD_IDS
 
 
-async def get_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
-    channels = await get_channels(guild)
-    return discord.utils.get(channels, name=channel_name)
-
-
 async def create_channel(guild: discord.Guild, channel_name: str) -> discord.TextChannel:
     return await guild.create_text_channel(channel_name)
 

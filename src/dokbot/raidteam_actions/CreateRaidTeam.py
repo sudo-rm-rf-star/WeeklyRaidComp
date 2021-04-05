@@ -26,11 +26,11 @@ async def create_raidteam(ctx: DokBotContext,
     events_channel = await DiscordChannelInteraction.interact(ctx=ctx, content=msg)
     msg = "Please select a channel where you want to manage this raiding team and its raids"
     manager_channel = await DiscordChannelInteraction.interact(ctx=ctx, content=msg)
-    msg = "Please select a channel to post all of the logs for this bot. This will contain additional information on any interaction with this bot."
-    logs_channel = await DiscordChannelInteraction.interact(ctx=ctx, content=msg)
+    msg = "Please select a channel where we can send all signup activity"
+    signup_history_channel = await DiscordChannelInteraction.interact(ctx=ctx, content=msg)
     raid_team = RaidTeam(guild_id=ctx.guild_id, team_name=team_name, raider_ids=[], realm=realm,
-                         region=region, manager_ids=[ctx.author.id], events_channel=events_channel.name,
-                         manager_channel=manager_channel.name, logs_channel=logs_channel.name)
+                         region=region, manager_ids=[ctx.author.id], events_channel=events_channel.id,
+                         manager_channel=manager_channel.id, signup_history_channel=signup_history_channel.id)
     RaidTeamsResource().create_raidteam(raid_team)
-    await ctx.author.send(f"Your raid team {raid_team} has successfully been created!")
+    await ctx.reply(f"Your raid team {raid_team} has successfully been created!")
     return raid_team
