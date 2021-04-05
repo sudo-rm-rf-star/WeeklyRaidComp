@@ -1,5 +1,6 @@
-from discord.ext.commands import Bot
 import discord
+from discord.ext.commands import Bot
+
 from dokbot.utils.DiscordUtils import get_emoji
 
 
@@ -8,6 +9,7 @@ class DokBot(Bot):
         super().__init__(command_prefix, **options)
         self.messages = {}
         self.channels = {}
+        self.interactions = set()
         self.check(guild_only)
 
     async def emoji(self, emoji_name: str) -> discord.Emoji:

@@ -30,6 +30,7 @@ from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
 from persistence.MessagesResource import MessagesResource
 from persistence.RaidTeamsResource import RaidTeamsResource
+from exceptions.BotException import BotException
 from utils.Constants import MAINTAINER_ID
 from .RaidTeamContext import RaidTeamContext
 import logging
@@ -85,28 +86,27 @@ class DokBotCog(Cog, name='DokBot'):
                 if not team_name:
                     return
                 guild = await self.bot.fetch_guild(payload.guild_id)
-                ctx = RaidTeamContext(bot=self.bot, guild=guild, author=user, channel=channel, team_name=team_name)
-                await handle_raid_team_action(ctx=ctx, action=ActionsRaidTeam[action_name])
+                with RaidTeamContext(bot=self.bot, guild=guild, author=user, channel=channel, team_name=team_name) as ctx:
+                    await handle_raid_team_action(ctx=ctx, action=ActionsRaidTeam[action_name])
             elif is_signup_action or is_raid_action:
                 message_ref = MessagesResource().get_message(message.id)
                 if not message_ref:
                     await user.send("Raid no longer exists")
                     return
                 guild = await self.bot.fetch_guild(message_ref.guild_id)
-                ctx = RaidContext(bot=self.bot, guild=guild, author=user, channel=channel,
-                                  team_name=message_ref.team_name,
-                                  raid_name=message_ref.raid_name, raid_datetime=message_ref.raid_datetime)
-                if is_raid_action:
-                    await handle_raid_action(ctx=ctx, action=ActionsRaid[action_name])
-                elif is_signup_action:
-                    if not ctx.raid_event.is_open and not isinstance(ctx.channel, discord.DMChannel):
-                        await message.remove_reaction(payload.emoji, user)
-                        await ctx.reply_to_author("An invitation is required to sign.")
-                        return
-                    await signup_character(ctx=ctx, signup_status=SignupStatus[action_name])
-
-        except InvalidInputException:
-            pass
+                with RaidContext(bot=self.bot, guild=guild, author=user, channel=channel,
+                                 team_name=message_ref.team_name,
+                                 raid_name=message_ref.raid_name, raid_datetime=message_ref.raid_datetime) as ctx:
+                    if is_raid_action:
+                        await handle_raid_action(ctx=ctx, action=ActionsRaid[action_name])
+                    elif is_signup_action:
+                        if not ctx.raid_event.is_open and not isinstance(ctx.channel, discord.DMChannel):
+                            await message.remove_reaction(payload.emoji, user)
+                            await ctx.reply_to_author("An invitation is required to sign.")
+                            return
+                        await signup_character(ctx=ctx, signup_status=SignupStatus[action_name])
+        except BotException as e:
+            await channel.send(e.message)
         except Exception as e:
             await channel.send("Unexpected issue! Try again later.")
             maintainer = await self.bot.fetch_user(MAINTAINER_ID)

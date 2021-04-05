@@ -1,5 +1,6 @@
 import discord
 from discord.ext.commands import Context
+from exceptions.OngoingCommandException import OngoingCommandException
 
 from .DokBot import DokBot
 
@@ -21,3 +22,12 @@ class DokBotContext:
 
     async def reply_to_author(self, content: str):
         await self.author.send(content=content)
+
+    def __enter__(self):
+        if (self.channel.id, self.author.id) in self.bot.interactions:
+            raise OngoingCommandException()
+        self.bot.interactions.add((self.channel.id, self.author.id))
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.bot.interactions.remove((self.channel.id, self.author.id))

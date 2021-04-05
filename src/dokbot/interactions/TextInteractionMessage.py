@@ -1,14 +1,14 @@
-from exceptions.InternalBotException import InternalBotException
-from exceptions.InvalidInputException import InvalidInputException
-from dokbot.entities.DiscordMessage import DiscordMessage
-from typing import Generic, TypeVar, Union, Any
-import discord
-from discord.ext.commands import Context
-from exceptions.CancelInteractionException import CancelInteractionException
 from typing import Optional
+from typing import Union, Any
+
+import discord
+
 from dokbot.DokBot import DokBot
 from dokbot.DokBotContext import DokBotContext
-
+from dokbot.entities.DiscordMessage import DiscordMessage
+from exceptions.CancelInteractionException import CancelInteractionException
+from exceptions.InternalBotException import InternalBotException
+from exceptions.InvalidInputException import InvalidInputException
 
 TRIES = 3
 
