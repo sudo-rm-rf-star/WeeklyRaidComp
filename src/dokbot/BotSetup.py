@@ -30,7 +30,8 @@ def run() -> None:
     intents = discord.Intents.default()
     intents.members = True
 
-    bot = DokBot(command_prefix='>', intents=intents)
+    prefix = '>' if os.getenv('APP_ENV') == 'development' else '!'
+    bot = DokBot(command_prefix=prefix, intents=intents)
     bot.add_cog(DokBotCog(bot))
     bot.add_cog(EventCog(bot))
 
