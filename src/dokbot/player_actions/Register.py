@@ -17,26 +17,26 @@ async def register(ctx: DokBotContext) -> Tuple[Player, Optional[Character]]:
     players_resource = PlayersResource()
     player_id = ctx.author.id
     player = players_resource.get_player_by_id(player_id)
-    char_name = await GetNameMesage.interact(ctx=ctx, characters=player.characters if player else [])
+    char_name = await GetNameMessage.interact(ctx=ctx, characters=player.characters if player else [])
     klass = await GetClassMessage.interact(ctx=ctx)
     spec = await ChooseSpecMessage.interact(ctx=ctx, klass=klass)
     if player is None:
         player = Player(discord_id=player_id, characters=[], selected_char=char_name)
     character = Character(discord_id=player_id, char_name=char_name, klass=klass, spec=spec)
-    player.characters.append(character)
+    player.add_character(character)
     players_resource.update_player(player)
     await ctx.author.send(content=f'You have successfully registered: {character}')
     return player, character
 
 
-class GetNameMesage(TextInteractionMessage):
+class GetNameMessage(TextInteractionMessage):
     def __init__(self, ctx: DokBotContext, characters: List[Character]):
         content = "Please respond with your character name"
         self.character_names = [char.name for char in characters]
-        super(GetNameMesage, self).__init__(ctx=ctx, content=content)
+        super(GetNameMessage, self).__init__(ctx=ctx, content=content)
 
     async def get_response(self) -> str:
-        name = (await super(GetNameMesage, self).get_response()).strip().capitalize()
+        name = (await super(GetNameMessage, self).get_response()).strip().capitalize()
         if re.search(r"\s", name) or re.search(r"\d", name):
             raise InvalidInputException('Please use your character name')
         if name in self.character_names:

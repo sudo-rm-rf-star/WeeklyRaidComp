@@ -30,6 +30,9 @@ class Player:
     def set_selected_raid_team_name(self, guild_id: int, team_name: str):
         self.selected_teams[str(guild_id)] = team_name
 
+    def add_character(self, character: Character):
+        self.characters.append(character)
+
     def __eq__(self, other) -> bool:
         return self.discord_id == other.discord_id
 

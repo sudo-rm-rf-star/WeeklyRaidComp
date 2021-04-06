@@ -7,8 +7,10 @@ class SignupStatus(Enum):
     Decline = 'Decline the raid invitation. You cannot attend.'
     Late = 'Accept the raid invitation, but you will be late.'
     Tentative = 'Accept the raid invitation, but you are not sure yet if you can attend.'
-    SwitchChar = 'Sign using another character or add a new one.'
-    SwitchSpec = 'Change your specialization.'
+    SwitchSpec = 'Change your specialization'
+    SwitchChar = 'Switch to a new character'
+    AddChar = 'Add a character'
+    RemoveChar = 'Remove a character'
     Unknown = f'Shows this help page. More questions? Contact an officer of your guild.'
 
     @staticmethod
