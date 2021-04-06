@@ -1,11 +1,11 @@
-from .DiscordMessage import DiscordMessage, field
-from dokbot.raidteam_actions.ActionsRaidTeam import ActionsRaidTeam
 from discord import Embed
+
+from dokbot.DokBotContext import DokBotContext
+from dokbot.interactions.RaidTeamSelectionInteraction import RaidTeamSelectionInteraction
+from dokbot.raidteam_actions.ActionsRaidTeam import ActionsRaidTeam
 from logic.RaidTeam import RaidTeam
 from persistence.RaidTeamsResource import RaidTeamsResource
-from dokbot.interactions.RaidTeamSelectionInteraction import RaidTeamSelectionInteraction
-from dokbot.DokBotContext import DokBotContext
-from dokbot.raidteam_actions.ActionsRaidTeam import ActionsRaidTeam
+from .DiscordMessage import DiscordMessage
 
 INDENT = 2
 

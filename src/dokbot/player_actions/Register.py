@@ -25,7 +25,7 @@ async def register(ctx: DokBotContext) -> Tuple[Player, Optional[Character]]:
     character = Character(discord_id=player_id, char_name=char_name, klass=klass, spec=spec)
     player.add_character(character)
     players_resource.update_player(player)
-    await ctx.author.send(content=f'You have successfully registered: {character}')
+    await ctx.author.send(content=f'You have successfully registered: {await ctx.bot.display_character(character)}')
     return player, character
 
 

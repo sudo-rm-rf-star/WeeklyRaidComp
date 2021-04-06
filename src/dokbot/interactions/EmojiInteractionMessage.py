@@ -7,6 +7,9 @@ import discord
 from dokbot.DokBotContext import DokBotContext
 from dokbot.entities.DiscordMessage import DiscordMessage
 from exceptions.InternalBotException import InternalBotException
+from exceptions.CancelInteractionException import CancelInteractionException
+
+import asyncio
 
 TRIES = 3
 
@@ -27,8 +30,11 @@ class EmojiInteractionMessage(DiscordMessage):
                 return user.id == self.ctx.author.id and reaction.emoji.name in self.emojis
             except:
                 return False
-        (reaction, user) = await self.ctx.bot.wait_for('reaction_add', check=check)
-        return reaction.emoji.name
+        try:
+            (reaction, user) = await self.ctx.bot.wait_for('reaction_add', check=check, timeout=60)
+            return reaction.emoji.name
+        except asyncio.TimeoutError:
+            raise CancelInteractionException("Operation timed out after one minute.")
 
     async def send_to(self, recipient) -> discord.Message:
         msgs = await super(EmojiInteractionMessage, self).send_to(recipient)

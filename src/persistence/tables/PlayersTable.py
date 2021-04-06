@@ -22,8 +22,8 @@ class PlayersTable(DynamoDBTable[Player]):
         key_condition_expression = index_expression(raid_team) & Key('name').eq(player_name)
         query_result = self.table.query(IndexName=PlayersTable.INDEX_NAME,
                                         KeyConditionExpression=key_condition_expression)
-
-        return _synthesize_player(query_result)
+        player = _synthesize_player(query_result)
+        return self.get_player_by_id(player.discord_id)
 
     def get_player_by_id(self, discord_id: int) -> Optional[Player]:
         return _synthesize_player(self.table.query(KeyConditionExpression=Key('discord_id').eq(str(discord_id))))
