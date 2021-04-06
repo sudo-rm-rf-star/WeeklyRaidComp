@@ -19,13 +19,13 @@ from dokbot.raid_actions.SendReminder import send_reminder
 from dokbot.raid_actions.UpdateRoster import update_roster
 from dokbot.raidteam_actions.ActionsRaidTeam import ActionsRaidTeam
 from dokbot.raidteam_actions.AddRaider import add_raider
+from dokbot.raidteam_actions.RemoveRaider import remove_raider
 from dokbot.raidteam_actions.AddRaiders import add_raiders
 from dokbot.raidteam_actions.AddRaidleader import add_raid_leader
 from dokbot.raidteam_actions.CreateRaid import create_raid
 from dokbot.raidteam_actions.ManageRaid import manage_raid
 from dokbot.raidteam_actions.ShowRaidTeam import show_raid_team
 from dokbot.raidteam_actions.SwitchRaidTeam import switch_raidteam
-from exceptions.InvalidInputException import InvalidInputException
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
 from persistence.MessagesResource import MessagesResource
@@ -100,11 +100,14 @@ class DokBotCog(Cog, name='DokBot'):
                     if is_raid_action:
                         await handle_raid_action(ctx=ctx, action=ActionsRaid[action_name])
                     elif is_signup_action:
-                        if not ctx.raid_event.is_open and not isinstance(ctx.channel, discord.DMChannel):
-                            await message.remove_reaction(payload.emoji, user)
+                        if not ctx.raid_event.is_open:
                             await ctx.reply_to_author("An invitation is required to sign.")
                             return
                         await signup_character(ctx=ctx, signup_status=SignupStatus[action_name])
+
+            if not isinstance(channel, discord.DMChannel):
+                await message.remove_reaction(payload.emoji, user)
+
         except BotException as e:
             await channel.send(e.message)
         except Exception as e:
@@ -128,6 +131,8 @@ async def handle_raid_team_action(ctx: RaidTeamContext, action: ActionsRaidTeam)
         await add_raider(ctx=ctx)
     elif action == ActionsRaidTeam.AddRaiders:
         await add_raiders(ctx=ctx)
+    elif action == ActionsRaidTeam.RemoveRaider:
+        await remove_raider(ctx=ctx)
     elif action == ActionsRaidTeam.ShowRaidTeam:
         await show_raid_team(ctx=ctx)
     elif action == ActionsRaidTeam.AddRaidLeader:

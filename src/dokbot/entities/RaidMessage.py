@@ -77,7 +77,7 @@ async def _get_description(ctx: RaidContext) -> str:
 
 def get_footer(raid_event: RaidEvent, for_raid_leaders: bool) -> Optional[Dict[str, str]]:
     if for_raid_leaders:
-        text = f"Generate this message again by typing: >raid {raid_event.name} {int(raid_event.datetime.timestamp())} {raid_event.team_name}"
+        text = f"Generate this message again by typing: !raid {raid_event.name} {int(raid_event.datetime.timestamp())} {raid_event.team_name}"
     else:
         text = f'Created at: {raid_event.created_at.strftime(DATETIMESEC_FORMAT)}. Last updated at: {raid_event.updated_at.strftime(DATETIMESEC_FORMAT)}'
 
