@@ -11,3 +11,4 @@ async def remove_raider(ctx: RaidTeamContext):
     ctx.raid_team.raider_ids.remove(member.id)
     RaidTeamsResource().update_raidteam(ctx.raid_team)
     await ctx.reply(f"Removed {member} from raid team.")
+    await member.send(f'You have been removed from {ctx.raid_team}')

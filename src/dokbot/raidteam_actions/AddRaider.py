@@ -10,4 +10,5 @@ async def add_raider(ctx: RaidTeamContext):
         return
     ctx.raid_team.raider_ids.append(member.id)
     RaidTeamsResource().update_raidteam(ctx.raid_team)
+    await member.send(f'You have been added to {ctx.raid_team}')
     await ctx.reply(f"Added {member} to raid team.")

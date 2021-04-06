@@ -11,3 +11,5 @@ async def add_raid_leader(ctx: RaidTeamContext):
     ctx.raid_team.manager_ids.append(member.id)
     RaidTeamsResource().update_raidteam(ctx.raid_team)
     await ctx.reply(f"Added {member} as manager for the raid team.")
+    await member.send(f'You are now a raid leader for {ctx.raid_team}.\n'
+                      f'You can start managing the raidteam and its raids by typing !dokbot in the channel #{await ctx.get_managers_channel()}')

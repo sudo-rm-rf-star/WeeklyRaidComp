@@ -15,7 +15,9 @@ async def add_raiders(ctx: RaidTeamContext):
     role = role[0]
     members = await ctx.guild.fetch_members(limit=None).flatten()
     new_raider_ids = [member.id for member in members if member.id not in ctx.raid_team.raider_ids and role in member.roles]
-    for raider_id in new_raider_ids:
-        ctx.raid_team.raider_ids.append(raider_id)
+    for member in members:
+        if member.id not in ctx.raid_team.raider_ids and role in member.roles:
+            ctx.raid_team.raider_ids.append(member.id)
+            await member.send(f'You have been added to {ctx.raid_team}')
     RaidTeamsResource().update_raidteam(ctx.raid_team)
     await ctx.reply(f"Added {len(new_raider_ids)} raider(s) to the to raid team.")
