@@ -80,6 +80,7 @@ class DokBotCog(Cog, name='DokBot'):
         is_raid_action = action_name in ActionsRaid.names()
         is_raid_team_action = action_name in ActionsRaidTeam.names()
         is_signup_action = action_name in SignupStatus.names()
+        is_dm = isinstance(channel, discord.DMChannel)
         try:
             if is_raid_team_action:
                 team_name = message.embeds[0].title.split(' ')[0].strip('<>')
@@ -100,12 +101,12 @@ class DokBotCog(Cog, name='DokBot'):
                     if is_raid_action:
                         await handle_raid_action(ctx=ctx, action=ActionsRaid[action_name])
                     elif is_signup_action:
-                        if not ctx.raid_event.is_open:
+                        if not ctx.raid_event.is_open and not is_dm:
                             await ctx.reply_to_author("An invitation is required to sign.")
                             return
                         await signup_character(ctx=ctx, signup_status=SignupStatus[action_name])
 
-            if not isinstance(channel, discord.DMChannel):
+            if not is_dm:
                 await message.remove_reaction(payload.emoji, user)
 
         except BotException as e:
