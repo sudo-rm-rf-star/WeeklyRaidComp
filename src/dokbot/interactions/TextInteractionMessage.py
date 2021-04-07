@@ -27,6 +27,10 @@ class TextInteractionMessage(DiscordMessage):
     async def interact(cls, ctx: DokBotContext, *args, **kwargs) -> Any:
         return await _interact(recipient=ctx.channel, message=cls(ctx=ctx, *args, **kwargs))
 
+    @classmethod
+    async def interact_with_author(cls, ctx: DokBotContext, *args, **kwargs) -> Any:
+        return await _interact(recipient=ctx.author, message=cls(ctx=ctx, *args, **kwargs))
+
     async def get_response(self) -> Optional[str]:
         try:
             msg = await self.bot.wait_for('message', check=lambda response: _check_if_response(bot=self.ctx.bot, interaction_msg=self, msg=response), timeout=60)

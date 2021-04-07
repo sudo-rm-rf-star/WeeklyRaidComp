@@ -24,6 +24,12 @@ class EmojiInteractionMessage(DiscordMessage):
         await msg.send_to(ctx.channel)
         return await msg.get_response()
 
+    @classmethod
+    async def interact_with_author(cls, ctx: DokBotContext, *args, **kwargs) -> Any:
+        msg = cls(ctx=ctx, *args, **kwargs)
+        await msg.send_to(ctx.author)
+        return await msg.get_response()
+
     async def get_response(self) -> Optional[str]:
         def check(reaction, user):
             try:

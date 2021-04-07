@@ -20,7 +20,7 @@ REMOVE_CHAR = 'Remove a character.'
 
 async def signup_character(ctx: RaidContext, signup_status: SignupStatus):
     if not ctx.raid_event.in_future():
-        await ctx.reply(f"Sorry, but you cannot sign for {ctx.raid_event} as it has already started or finished.")
+        await ctx.reply_to_author(f"Sorry, but you cannot sign for {ctx.raid_event} as it has already started or finished.")
         return
 
     if signup_status == SignupStatus.Unknown:
@@ -38,15 +38,15 @@ async def signup_character(ctx: RaidContext, signup_status: SignupStatus):
 
     if signup_status == SignupStatus.RemoveChar:
         content = "Please choose the character you want to remove."
-        _, character = await CharacterSelectionInteraction.interact(ctx=ctx, player=player, content=content)
+        _, character = await CharacterSelectionInteraction.interact_with_author(ctx=ctx, player=player, content=content)
         players_resource.remove_character(character)
-        await ctx.reply(f"Removed {character}")
+        await ctx.reply_to_author(f"Removed {character}")
         return
 
     if signup_status == SignupStatus.SwitchChar:
         signup_status = ctx.raid_event.get_signup_choice(player)  # Save previous signup state
         content = "Please choose the character you want to signup with for raids."
-        player, character = await CharacterSelectionInteraction.interact(ctx=ctx, player=player, content=content)
+        player, character = await CharacterSelectionInteraction.interact_with_author(ctx=ctx, player=player, content=content)
         player.set_selected_char(character.name)
         players_resource.update_player(player)
 
