@@ -1,5 +1,7 @@
 import discord
 from discord.ext.commands import Bot
+from logic.Character import Character
+from logic.enums.SignupStatus import SignupStatus
 
 from dokbot.utils.DiscordUtils import get_emoji
 
@@ -25,6 +27,12 @@ class DokBot(Bot):
         if channel_id not in self.channels:
             self.channels[channel_id] = await super(DokBot, self).fetch_channel(channel_id)
         return self.channels[channel_id]
+
+    async def display_character(self, character: Character, show_signup_indicator: bool = True) -> str:
+        signup_choice = character.get_signup_status()
+        visible_signup_statuses = [SignupStatus.Tentative, SignupStatus.Bench, SignupStatus.Late, SignupStatus.Decline]
+        signup_indicator = await self.emoji(signup_choice.name) if signup_choice in visible_signup_statuses and show_signup_indicator else ''
+        return f'{await self.emoji(character.klass.get_icon(character.spec))} {character.name} {signup_indicator}'
 
 
 async def guild_only(ctx):

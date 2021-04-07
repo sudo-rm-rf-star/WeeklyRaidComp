@@ -111,7 +111,7 @@ class DiscordMessage:
 
 
 async def show_characters_with_role(ctx: DokBotContext, characters: List[Character], role: Role) -> List[Dict[str, str]]:
-    chars_for_role = sorted([char for char in characters if char.role == role], key=lambda char: str(char.klass))
+    chars_for_role = sorted([char for char in characters if char.get_role() == role], key=lambda char: str(char.klass))
     i = 0
     fields = []
     while i < len(chars_for_role):
@@ -129,16 +129,16 @@ async def show_characters_with_role(ctx: DokBotContext, characters: List[Charact
 
 async def create_character_roster(ctx: DokBotContext, characters: List[Character], roles: List[Role]):
     chars_per_role = {
-        role: sorted([char for char in characters if char.role == role], key=lambda char: str(char.klass)) for role
+        role: sorted([char for char in characters if char.get_role() == role], key=lambda char: str(char.klass)) for role
         in roles}
     matrix = _create_character_matrix(chars_per_role, roles)
     fields = []
     for i, row in enumerate(matrix):
         for characters in row:
             if (len(characters)) > 0:
-                value = '\n'.join([await _get_character_line(ctx, char) for char in characters])
+                value = '\n'.join([await ctx.bot.display_character(char, show_signup_indicator=True) for char in characters])
                 if i == 0:
-                    role = characters[0].role
+                    role = characters[0].get_role()
                     value = f'{await role_emoji(ctx, role)} **__{role.name.capitalize()}__** ({len(chars_per_role[role])}):\n{value}'
                 fields.append(field(value, inline=True))
             else:
@@ -159,12 +159,6 @@ def _create_character_matrix(chars_per_role: Dict[Role, List[Character]], roles:
     return roster
 
 
-async def _get_character_line(ctx: DokBotContext, character: Character) -> str:
-    signup_choice = character.get_signup_status()
-    signup_choice_indicator = '' if signup_choice in [SignupStatus.Accept, SignupStatus.Unknown] else await ctx.bot.emoji(signup_choice.name)
-    return f'{await role_class_emoji(ctx, character)} {character.name} {signup_choice_indicator}'
-
-
 def field(content: str, inline: bool = True):
     return {'name': EMPTY_FIELD, 'value': content, 'inline': inline}
 
@@ -175,7 +169,3 @@ def empty_field(inline: bool = True):
 
 async def role_emoji(ctx: DokBotContext, role: Role) -> discord.Emoji:
     return await ctx.bot.emoji(ROLE_EMOJI[role])
-
-
-async def role_class_emoji(ctx: DokBotContext, character: Character) -> discord.Emoji:
-    return await ctx.bot.emoji(ROLE_CLASS_EMOJI[character.role][character.klass])

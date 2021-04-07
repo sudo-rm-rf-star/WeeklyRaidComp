@@ -29,7 +29,7 @@ class CompositionOptimizer:
                                   if character.get_signup_status() != SignupStatus.Decline
                                   and character.get_roster_status() != RosterStatus.Decline
                                   and not (character.get_signup_status() == SignupStatus.Unknown and character.get_roster_status() == RosterStatus.Undecided)],
-                                 key=lambda char: (char.role.name, char.klass.name))
+                                 key=lambda char: (char.get_role().name, char.klass.name))
         self.population_size = len(self.population)
 
     def make_raid_composition(self) -> List[Character]:

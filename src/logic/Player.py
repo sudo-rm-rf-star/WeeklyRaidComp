@@ -5,11 +5,8 @@ from datetime import datetime
 
 class Player:
     def __init__(self, *, discord_id: int, characters: List[Character] = None, selected_char: Optional[str] = None,
-                 created_at: Optional[float] = None, region: Optional[str] = None, realm: Optional[str] = None,
-                 selected_teams: Optional[Dict[str, str]] = None):
+                 created_at: Optional[float] = None, selected_teams: Optional[Dict[str, str]] = None):
         self.discord_id = discord_id
-        self.realm = realm
-        self.region = region
         self.selected_char = selected_char
         self.characters = characters if characters else []
         self.created_at = created_at if created_at else datetime.now().timestamp()
@@ -32,6 +29,9 @@ class Player:
 
     def set_selected_raid_team_name(self, guild_id: int, team_name: str):
         self.selected_teams[str(guild_id)] = team_name
+
+    def add_character(self, character: Character):
+        self.characters.append(character)
 
     def __eq__(self, other) -> bool:
         return self.discord_id == other.discord_id

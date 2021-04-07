@@ -181,5 +181,5 @@ class RaidCompositionEvaluator:
 
     def filter_characters(self, role: Role = None, klass: Class = None) -> List[Character]:
         return [char for char in self.characters
-                if (role is None or char.role == role)
+                if (role is None or char.get_role() == role)
                 and (klass is None or char.klass == klass)]

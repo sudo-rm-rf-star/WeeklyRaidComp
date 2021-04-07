@@ -24,7 +24,7 @@ ROLE_CLASS_EMOJI = {
         Class.WARLOCK: 'Warlock',
         Class.HUNTER: 'Hunter',
         Class.PRIEST: 'Shadow',
-        Class.DRUID: 'Balance'
+        Class.DRUID: 'Balance_Druid'
     },
     Role.MELEE: {
         Class.WARRIOR: 'Warrior',

@@ -20,5 +20,8 @@ class Class(Enum):
     def get_role(self, spec: str):
         return {x: y for x, y in self.specs}[spec]
 
+    def get_icon(self, spec: str):
+        return f'{spec}_{self.name.capitalize()}'
+
     def __lt__(self, other):
         return self.value < other.value

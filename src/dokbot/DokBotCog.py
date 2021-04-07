@@ -1,3 +1,5 @@
+import logging
+import traceback
 from datetime import datetime
 
 import discord
@@ -19,22 +21,21 @@ from dokbot.raid_actions.SendReminder import send_reminder
 from dokbot.raid_actions.UpdateRoster import update_roster
 from dokbot.raidteam_actions.ActionsRaidTeam import ActionsRaidTeam
 from dokbot.raidteam_actions.AddRaider import add_raider
-from dokbot.raidteam_actions.RemoveRaider import remove_raider
 from dokbot.raidteam_actions.AddRaiders import add_raiders
 from dokbot.raidteam_actions.AddRaidleader import add_raid_leader
 from dokbot.raidteam_actions.CreateRaid import create_raid
 from dokbot.raidteam_actions.ManageRaid import manage_raid
+from dokbot.raidteam_actions.RemoveRaider import remove_raider
 from dokbot.raidteam_actions.ShowRaidTeam import show_raid_team
+from dokbot.raidteam_actions.ShowRaider import show_raider
 from dokbot.raidteam_actions.SwitchRaidTeam import switch_raidteam
+from exceptions.BotException import BotException
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
 from persistence.MessagesResource import MessagesResource
 from persistence.RaidTeamsResource import RaidTeamsResource
-from exceptions.BotException import BotException
 from utils.Constants import MAINTAINER_ID
 from .RaidTeamContext import RaidTeamContext
-import logging
-import traceback
 
 
 class DokBotCog(Cog, name='DokBot'):
@@ -128,6 +129,8 @@ async def handle_raid_team_action(ctx: RaidTeamContext, action: ActionsRaidTeam)
         await create_raid(ctx=ctx)
     elif action == ActionsRaidTeam.ManageRaid:
         await manage_raid(ctx=ctx)
+    elif action == ActionsRaidTeam.ShowRaider:
+        await show_raider(ctx=ctx)
     elif action == ActionsRaidTeam.AddRaider:
         await add_raider(ctx=ctx)
     elif action == ActionsRaidTeam.AddRaiders:

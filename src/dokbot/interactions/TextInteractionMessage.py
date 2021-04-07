@@ -9,6 +9,7 @@ from dokbot.entities.DiscordMessage import DiscordMessage
 from exceptions.CancelInteractionException import CancelInteractionException
 from exceptions.InternalBotException import InternalBotException
 from exceptions.InvalidInputException import InvalidInputException
+import asyncio
 
 TRIES = 3
 
@@ -27,15 +28,16 @@ class TextInteractionMessage(DiscordMessage):
         return await _interact(recipient=ctx.channel, message=cls(ctx=ctx, *args, **kwargs))
 
     async def get_response(self) -> Optional[str]:
-        msg = await self.bot.wait_for('message',
-                                      check=lambda response: _check_if_response(bot=self.ctx.bot, interaction_msg=self,
-                                                                                msg=response))
-        content = msg.content
-        if content.strip() == '!skip':
-            return None
-        if content.strip() == '!done':
-            raise CancelInteractionException()
-        return content
+        try:
+            msg = await self.bot.wait_for('message', check=lambda response: _check_if_response(bot=self.ctx.bot, interaction_msg=self, msg=response), timeout=60)
+            content = msg.content
+            if content.strip() == '!skip':
+                return None
+            if content.strip() == '!done':
+                raise CancelInteractionException("Stopping interaction")
+            return content
+        except asyncio.TimeoutError:
+            raise CancelInteractionException("Operation timed out after one minute.")
 
     async def send_to(self, recipient: Union[discord.Member, discord.TextChannel]) -> discord.Message:
         msgs = await super(TextInteractionMessage, self).send_to(recipient)
@@ -63,7 +65,7 @@ async def _interact(recipient, message: TextInteractionMessage) -> Any:
             finished = True
         except InvalidInputException as ex:
             if trie >= TRIES:
-                raise InvalidInputException("Exceeded retries, aborting signup.")
+                raise InvalidInputException("Exceeded retries, aborting interaction.")
             await recipient.send(content=str(ex))
             trie += 1
 

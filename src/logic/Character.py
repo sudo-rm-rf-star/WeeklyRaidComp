@@ -9,13 +9,15 @@ from typing import List, Tuple
 
 
 class Character:
-    def __init__(self, *, char_name: str, klass: Class, role: Role, spec: str, discord_id: int,
+    def __init__(self, *, char_name: str, klass: Class, spec: str, discord_id: int,
                  created_at: Optional[float] = None,
                  roster_statuses: Optional[List[Tuple[RosterStatus, int]]] = None,
-                 signup_statuses: Optional[List[Tuple[SignupStatus, int]]] = None):
+                 signup_statuses: Optional[List[Tuple[SignupStatus, int]]] = None,
+                 realm: str = None, region: str = None):
         self.name = char_name
+        self.realm = realm
+        self.region = region
         self.klass = klass
-        self.role = role
         self.spec = spec
         self.discord_id = discord_id
         self.roster_statuses = roster_statuses if roster_statuses else []
@@ -43,11 +45,13 @@ class Character:
     def is_declined(self) -> bool:
         return self.get_signup_status() == SignupStatus.Decline and self.get_roster_status() != RosterStatus.Accept
 
+    def get_role(self) -> str:
+        return self.klass.get_role(self.spec)
+
     @staticmethod
     def from_dict(item: Dict[str, Any]):
         return Character(char_name=item['name'],
                          klass=Class[item['class']],
-                         role=Role[item['role']],
                          spec=item.get('spec', None),
                          discord_id=item.get('discord_id', None),
                          signup_statuses=[(SignupStatus[signup_status], timestamp) for
@@ -61,7 +65,6 @@ class Character:
             'name': self.name,
             'discord_id': self.discord_id,
             'class': self.klass.name,
-            'role': self.role.name,
             'spec': self.spec,
             'roster_statuses': [(roster_status.name, timestamp) for roster_status, timestamp in self.roster_statuses],
             'signup_statuses': [(signup_status.name, timestamp) for signup_status, timestamp in self.signup_statuses],
@@ -72,7 +75,7 @@ class Character:
         return self.name == other.name and self.discord_id == other.discord_id
 
     def __str__(self) -> str:
-        return f'{self.role.name.capitalize()} {self.klass.name.capitalize()} {self.name}'
+        return f'{self.klass.name.capitalize()} {self.name}'
 
     def __repr__(self) -> str:
         return str(self)
