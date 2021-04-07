@@ -17,9 +17,9 @@ async def register(ctx: DokBotContext) -> Tuple[Player, Optional[Character]]:
     players_resource = PlayersResource()
     player_id = ctx.author.id
     player = players_resource.get_player_by_id(player_id)
-    char_name = await GetNameMessage.interact(ctx=ctx, characters=player.characters if player else [])
-    klass = await GetClassMessage.interact(ctx=ctx)
-    spec = await ChooseSpecMessage.interact(ctx=ctx, klass=klass)
+    char_name = await GetNameMessage.interact_with_author(ctx=ctx, characters=player.characters if player else [])
+    klass = await GetClassMessage.interact_with_author(ctx=ctx)
+    spec = await ChooseSpecMessage.interact_with_author(ctx=ctx, klass=klass)
     if player is None:
         player = Player(discord_id=player_id, characters=[], selected_char=char_name)
     character = Character(discord_id=player_id, char_name=char_name, klass=klass, spec=spec)
