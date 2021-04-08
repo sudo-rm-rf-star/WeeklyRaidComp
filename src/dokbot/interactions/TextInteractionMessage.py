@@ -22,6 +22,7 @@ class TextInteractionMessage(DiscordMessage):
         # These variables will be filled once the message is sent
         self.channel_id = None
         self.recipient_id = None
+        self.is_dm = False
 
     @classmethod
     async def interact(cls, ctx: DokBotContext, *args, **kwargs) -> Any:
@@ -35,6 +36,8 @@ class TextInteractionMessage(DiscordMessage):
         try:
             msg = await self.bot.wait_for('message', check=lambda response: _check_if_response(bot=self.ctx.bot, interaction_msg=self, msg=response), timeout=60)
             content = msg.content
+            if not self.is_dm:
+                await msg.delete(delay=5)
             if content.strip() == '!skip':
                 return None
             if content.strip() == '!done':
@@ -49,6 +52,7 @@ class TextInteractionMessage(DiscordMessage):
             raise InternalBotException("Unhandled case")
         msg = msgs[0]
         self.channel_id = msg.channel.id
+        self.is_dm = isinstance(msg.channel, discord.DMChannel)
         self.recipient_id = recipient.id
         return msg
 
@@ -59,13 +63,14 @@ def _check_if_response(bot: DokBot, interaction_msg: TextInteractionMessage, msg
 
 
 async def _interact(recipient, message: TextInteractionMessage) -> Any:
-    await message.send_to(recipient)
+    msg = await message.send_to(recipient)
     response = None
     finished = False
     trie = 0
     while not finished:
         try:
             response = await message.get_response()
+            await msg.delete(delay=5)
             finished = True
         except InvalidInputException as ex:
             if trie >= TRIES:

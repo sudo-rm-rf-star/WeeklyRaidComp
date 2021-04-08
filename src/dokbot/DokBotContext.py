@@ -18,7 +18,8 @@ class DokBotContext:
         return DokBotContext(bot=ctx.bot, guild=ctx.guild, author=ctx.author, channel=ctx.channel)
 
     async def reply(self, content: str):
-        await self.channel.send(content=content)
+        message = await self.channel.send(content=content)
+        await message.delete(delay=30)
 
     async def reply_to_author(self, content: str):
         await self.author.send(content=content)

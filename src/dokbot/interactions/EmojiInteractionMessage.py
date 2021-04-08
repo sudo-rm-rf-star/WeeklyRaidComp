@@ -17,6 +17,8 @@ TRIES = 3
 class EmojiInteractionMessage(DiscordMessage):
     def __init__(self, ctx: DokBotContext, content: str, reactions: List[str], *args, **kwargs):
         super(EmojiInteractionMessage, self).__init__(ctx=ctx, content=content, reactions=reactions, *args, **kwargs)
+        self.msg = None
+        self.is_dm = False
 
     @classmethod
     async def interact(cls, ctx: DokBotContext, *args, **kwargs) -> Any:
@@ -38,6 +40,8 @@ class EmojiInteractionMessage(DiscordMessage):
                 return False
         try:
             (reaction, user) = await self.ctx.bot.wait_for('reaction_add', check=check, timeout=60)
+            if not self.is_dm:
+                await self.msg.delete(delay=5)
             return reaction.emoji.name
         except asyncio.TimeoutError:
             raise CancelInteractionException("Operation timed out after one minute.")
@@ -46,4 +50,7 @@ class EmojiInteractionMessage(DiscordMessage):
         msgs = await super(EmojiInteractionMessage, self).send_to(recipient)
         if len(msgs) != 1:
             raise InternalBotException("Unhandled case")
-        return msgs[0]
+        msg = msgs[0]
+        self.is_dm = isinstance(msg.channel, discord.DMChannel)
+        self.msg = msg
+        return msg
