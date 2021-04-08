@@ -129,7 +129,7 @@ async def show_characters_with_role(ctx: DokBotContext, characters: List[Charact
 
 async def create_character_roster(ctx: DokBotContext, characters: List[Character], roles: List[Role]):
     chars_per_role = {
-        role: sorted([char for char in characters if char.get_role() == role], key=lambda char: str(char.klass)) for role
+        role: sorted([char for char in characters if char.get_role() == role], key=lambda char: char.spec) for role
         in roles}
     matrix = _create_character_matrix(chars_per_role, roles)
     fields = []
