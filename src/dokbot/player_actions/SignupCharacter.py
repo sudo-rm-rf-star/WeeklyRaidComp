@@ -69,7 +69,7 @@ async def signup_character(ctx: RaidContext, signup_status: SignupStatus):
         character.region = ctx.raid_team.region
         players_resource.update_player(player)
 
-    display_character = await ctx.bot.display_character(character)
+    display_character = await ctx.bot.display_character(character, show_signup_indicator=False)
     if character.get_signup_status() == SignupStatus.Accept:
         response = f'{display_character} - Thanks for accepting {raid_event}. See you then !'
     elif character.get_signup_status() == SignupStatus.Decline:
@@ -84,7 +84,7 @@ async def signup_character(ctx: RaidContext, signup_status: SignupStatus):
         response = f"You will now sign up with {display_character}. You still need to sign for this raid."
     await ctx.reply_to_author(response)
     await (await ctx.get_signup_history_channel()).send(
-        f'{datetime.now().strftime(DATETIMESEC_FORMAT)} **{display_character}** {await ctx.bot.emoji(signup_status.name)}')
+        f'{datetime.now().strftime(DATETIMESEC_FORMAT)} {ctx.raid_event} **{display_character}** {await ctx.bot.emoji(signup_status.name)}')
 
 
 class CharacterSelectionInteraction(OptionInteraction):

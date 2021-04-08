@@ -111,9 +111,9 @@ class DokBotCog(Cog, name='DokBot'):
                 await message.remove_reaction(payload.emoji, user)
 
         except BotException as e:
-            await channel.send(e.message)
+            await user.send(e.message)
         except Exception as e:
-            await channel.send("Unexpected issue! Try again later.")
+            await user.send("Unexpected issue! Try again later.")
             maintainer = await self.bot.fetch_user(MAINTAINER_ID)
             error_msg = f"Unexpected issue. {user.name}, {user}, {action_name}, {e}\n{traceback.format_exc()}"
             logging.getLogger().error(error_msg)
