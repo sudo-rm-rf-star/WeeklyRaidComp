@@ -72,7 +72,7 @@ class RaidEvent:
             (not klass or char.klass == Class[klass.upper()]) and
             (not signup_choice or char.get_signup_status() == signup_choice) and
             (not roster_choice or char.get_roster_status() == roster_choice)
-        ], key=lambda char: (char.get_role, char.klass, char.get_roster_status().name, char.get_signup_status().name, char.name))
+        ], key=lambda char: (char.get_role(), char.klass, char.get_roster_status().name, char.get_signup_status().name, char.name))
 
     def get_signup_choice(self, player: Player) -> Optional[SignupStatus]:
         for char in self.get_signed_characters():
