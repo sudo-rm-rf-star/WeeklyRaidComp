@@ -1,9 +1,10 @@
 from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
+from logic.Raid import Raid
 from persistence.RaidEventsResource import RaidEventsResource
 from exceptions.InvalidInputException import InvalidInputException
 from dokbot.RaidTeamContext import RaidTeamContext
 from dokbot.interactions.OptionInteraction import OptionInteraction
-from utils.Constants import raid_names, DATE_FORMAT, TIME_FORMAT
+from utils.Constants import DATE_FORMAT, TIME_FORMAT
 from datetime import datetime
 
 TRIES = 3
@@ -23,15 +24,15 @@ async def create_raid(ctx: RaidTeamContext):
 class GetRaidNameMessage(OptionInteraction):
     def __init__(self, ctx: RaidTeamContext):
         content = "Please choose the name of the raid"
-        options = raid_names.keys()
+        options = list(member.full_name for member in Raid.__members__.values())
         super(GetRaidNameMessage, self).__init__(ctx=ctx, content=content, options=options)
 
     async def get_response(self) -> str:
         response = (await super(GetRaidNameMessage, self).get_response())
-        try:
-            return raid_names[response]
-        except KeyError:
-            raise InvalidInputException(f'{response} is not a valid raid name.')
+        for raid_name, raid in Raid.__members__.items():
+            if raid.full_name == response:
+                return raid_name
+        raise InvalidInputException(f'{response} is not a valid raid name.')
 
 
 class GetDateMessage(TextInteractionMessage):

@@ -1,3 +1,4 @@
+from logic.Raid import Raid
 from logic.raid_composition.AQRaidCompositionEvaluator import AQRaidCompositionEvaluator
 from logic.raid_composition.BWLRaidCompositionEvaluator import BWLRaidCompositionEvaluator
 from logic.raid_composition.RaidCompositionEvaluator import RaidCompositionEvaluator
@@ -19,6 +20,7 @@ EVALUATORS = {
 class CompositionOptimizer:
     def __init__(self, raid_name: str, characters: List[Character]):
         self.raid_name = raid_name
+        self.raid_size = Raid[raid_name].player_size
         self.characters = characters
         self.evaluator = EVALUATORS.get(raid_name, lambda chars: RaidCompositionEvaluator(raid_name, chars))
         self.fitness_cache = {}  # This function is hard to compute
@@ -88,7 +90,7 @@ class CompositionOptimizer:
     def choose_initial_candidate(self):
         """ Candidates are presented as bit vector where 1 indicates an accepted player and 0 declined. """
         candidate = 0
-        subset = sample(range(self.population_size), 40) if len(self.population) > 40 else range(len(self.population))
+        subset = sample(range(self.population_size), self.raid_size) if len(self.population) > self.raid_size else range(len(self.population))
         for i in subset:
             candidate |= 1 << i
         return candidate

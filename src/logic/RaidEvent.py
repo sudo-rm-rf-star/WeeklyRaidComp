@@ -1,10 +1,10 @@
 from logic.Player import Player
+from logic.Raid import Raid
 from logic.enums.SignupStatus import SignupStatus
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.Class import Class
 from logic.enums.Role import Role
 from logic.Roster import Roster
-from utils.Constants import full_raid_names
 from datetime import datetime, date
 from typing import List, Dict, Any, Optional
 from logic.Character import Character
@@ -87,7 +87,7 @@ class RaidEvent:
         return False
 
     def get_name(self, abbrev: bool = False) -> str:
-        return self.name if abbrev else full_raid_names[self.name]
+        return self.name if abbrev else Raid[self.name].full_name
 
     def in_future(self) -> bool:
         return self.datetime > datetime.now()

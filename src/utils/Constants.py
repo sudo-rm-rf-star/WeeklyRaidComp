@@ -13,15 +13,3 @@ DATETIMESEC_FORMAT = '%d-%m-%Y %H:%M:%S'
 FILE_DATETIME_FORMAT = DATETIME_FORMAT.replace(' ', '_').replace(':', '')
 USE_SIGNUP_HISTORY = False
 VERBOSE = False
-
-raid_names = {
-    'Molten Core': 'mc',
-    'Blackwing Lair': 'bwl',
-    "Zul'Gurub": 'zg',
-    'Onyxia': 'ony',
-    "Temple of Ahn'Qiraj": 'aq',
-    "Ruins of Ahn'Qiraj": 'aq20',
-    'Naxxramas': 'naxx'
-}
-
-full_raid_names = {v: k for k, v in raid_names.items()}

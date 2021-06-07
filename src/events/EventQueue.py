@@ -20,17 +20,29 @@ class EventQueue(metaclass=Singleton):
         secret_key = os.getenv('AWS_SECRET_KEY')
         sqs = boto3.resource('sqs', region_name='eu-west-1', aws_access_key_id=access_key,
                              aws_secret_access_key=secret_key)
-        self.bot_queue = sqs.get_queue_by_name(QueueName=QUEUE_NAME)
+        try:
+            self.bot_queue = sqs.get_queue_by_name(QueueName=QUEUE_NAME)
+        except Exception:
+            self.bot_queue = None
+            print("# Queues are not supported yet. Make one through the console first with name: " + QUEUE_NAME)
 
     def send_event(self, event: Event, ctx: DokBotContext = None):
         if ctx:
             # We don't actually need to send events if we are already within the bot
             process(ctx, event)
         else:
+            if self.bot_queue is None:
+                print("Cannot send an outgoing message.")
+                return
+
             Log.info(f"Sending event {event}")
             self.bot_queue.send_message(MessageBody=str({"event": event.to_message()}))
 
     async def listen(self, event_handler_factory: EventHandlerFactory):
+        if self.bot_queue is None:
+            print("Cannot listen to incoming messages.")
+            return
+
         messages = self.bot_queue.receive_messages(MaxNumberOfMessages=10, WaitTimeSeconds=QUEUE_POLLING_PERIOD_SECS)
         for message in messages:
             event = Event.from_message(eval(message.body)["event"])

@@ -1,4 +1,5 @@
 from logic.Player import Player
+from logic.Raid import Raid
 from logic.RaidTeam import RaidTeam
 from exceptions.InvalidInputException import InvalidInputException
 from dokbot.interactions.OptionInteraction import OptionInteraction
@@ -6,7 +7,6 @@ from dokbot.raidteam_actions.CreateRaidTeam import create_raidteam
 from persistence.RaidEventsResource import RaidEventsResource
 from persistence.PlayersResource import PlayersResource
 from dokbot.RaidTeamContext import RaidTeamContext
-from utils.Constants import full_raid_names
 
 ADD_RAID_TEAM = 'Add a new raid team.'
 
@@ -15,9 +15,10 @@ class RaidSelectionInteraction(OptionInteraction):
     def __init__(self, ctx: RaidTeamContext, *args, **kwargs):
         self.raids_resource = RaidEventsResource(ctx)
         days = 30
-        self.raids = self.raids_resource.list_raids_within_days(guild_id=ctx.guild_id, team_name=ctx.team_name, days=30)
-        options = [f'{full_raid_names[raid.name]} at {raid.datetime.strftime("%A, %d. %B %Y %H:%M")}'
-                   for raid in self.raids]
+        self.raid_events = self.raids_resource.list_raids_within_days(guild_id=ctx.guild_id, team_name=ctx.team_name, days=30)
+
+        options = [f'{Raid[raid_event.name].full_name} at {raid_event.datetime.strftime("%A, %d. %B %Y %H:%M")}'
+                   for raid_event in self.raid_events]
         message = f"All raids within {days} days for {ctx.team_name}:"
         super().__init__(ctx=ctx, options=options, content=message, *args, **kwargs)
 

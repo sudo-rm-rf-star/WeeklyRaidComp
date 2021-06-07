@@ -5,8 +5,6 @@ from dokbot.entities.DiscordMessage import field, DiscordMessage
 from dokbot.DokBotContext import DokBotContext
 from typing import List
 from discord import Embed
-from dokbot.DokBot import DokBot
-import discord
 
 
 class OptionInteraction(TextInteractionMessage):
