@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  dokbot:
+    container_name: dokbot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./.env:/app/.env
+      - ./logs:/app/logs
