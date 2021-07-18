@@ -23,62 +23,23 @@ def create_admin_blueprint(app):
     def guild_controller():
         return ControllerFactory(discord_session).create_guild_controller()
 
-    @admin.route('/')
-    def home():
-        return home_controller().home()
-
-    @admin.route('/guilds')
+    @admin.route('/raids/<int:guild_id>/<team_name>', methods=["GET", "POST"])
     @requires_authorization
-    def guilds():
-        return guild_controller().index()
-
-    @admin.route('/guild/<int:guild_id>')
-    @requires_authorization
-    def guild(guild_id):
-        return guild_controller().show(guild_id)
-
-    @admin.route('/raids', methods=["GET", "POST"])
-    @requires_authorization
-    def raids():
+    def raids(guild_id, team_name):
         if request.method == "GET":
-            return raid_controller().index()
+            return raid_controller().index(guild_id=guild_id, team_name=team_name)
 
-        return raid_controller().store(request.form)
+        if request.method == "POST":
+            return raid_controller().store(request.form)
 
-    @admin.route('/raids/create')
+    @admin.route('/raids/<int:guild_id>/<team_name>/<raid_name>/<int:raid_datetime>', methods=["GET", "PUT"])
     @requires_authorization
-    def create():
-        return raid_controller().create()
+    def raid(guild_id, team_name, raid_name, raid_datetime):
+        if request.method == "GET":
+            return raid_controller().get(guild_id=guild_id, team_name=team_name, raid_name=raid_name, raid_datetime=raid_datetime)
 
-    @admin.route('/raids/<team_id>/<name>/<int:timestamp>')
-    @requires_authorization
-    def raid(team_id, name, timestamp):
-        return raid_controller().show(team_id, name, timestamp)
-
-    @admin.route('/raids/<team_id>/<name>/<int:timestamp>/signup-remind')
-    @requires_authorization
-    def send_reminder(team_id, name, timestamp):
-        return raid_controller().send_reminder(team_id, name, timestamp)
-
-    @admin.route('/raids/<team_id>/<name>/<int:timestamp>/create-roster')
-    @requires_authorization
-    def create_roster(team_id, name, timestamp):
-        return raid_controller().create_roster(team_id, name, timestamp)
-
-    @admin.route('/raids/<team_id>/<name>/<int:timestamp>/invite-player')
-    @requires_authorization
-    def invite_player(team_id, name, timestamp):
-        return raid_controller().invite_player(team_id, name, timestamp)
-
-    @admin.route('/players')
-    @requires_authorization
-    def players():
-        return player_controller().index()
-
-    @admin.route('/player/<int:discord_id>')
-    @requires_authorization
-    def player(discord_id):
-        return player_controller().show(discord_id)
+        if request.method == "PUT":
+            return raid_controller().store(request.form)
 
     @admin.route("/login/")
     def login():
@@ -87,15 +48,16 @@ def create_admin_blueprint(app):
     @admin.route("/logout/")
     def logout():
         discord_session.revoke()
-        return redirect(url_for('.home'))
+        return {'data': discord_session.get_authorization_token()}
 
-    @admin.route("/dokbot/redirect")
+    @admin.route("/discord/redirect")
     def callback():
         discord_session.callback()
-        return redirect(url_for(".home"))
+        return redirect("http://localhost:5000")
 
     @admin.errorhandler(Unauthorized)
     def redirect_unauthorized(e):
-        return redirect(url_for(".login"))
+        # TODO
+        return {'error': "UNAUTHORIZED"}, 403
 
     return admin

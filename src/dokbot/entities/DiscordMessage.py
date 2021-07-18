@@ -110,23 +110,6 @@ class DiscordMessage:
         return fields
 
 
-async def show_characters_with_role(ctx: DokBotContext, characters: List[Character], role: Role) -> List[Dict[str, str]]:
-    chars_for_role = sorted([char for char in characters if char.get_role() == role], key=lambda char: str(char.klass))
-    i = 0
-    fields = []
-    while i < len(chars_for_role):
-        chars = chars_for_role[i:i + MAX_CHARACTERS_PER_ROLE]
-        player_lines = '\n'.join([await _get_character_line(ctx, char) for char in chars])
-        if i == 0:
-            value = f'{role_emoji(ctx, role)} **__{role.name.capitalize()}__** ({len(chars_for_role)}):\n{player_lines}'
-            fields.append(field(value, inline=True))
-        else:
-            value = player_lines
-            fields.append(field(value, inline=True))
-        i += MAX_CHARACTERS_PER_ROLE
-    return fields
-
-
 async def create_character_roster(ctx: DokBotContext, characters: List[Character], roles: List[Role]):
     chars_per_role = {
         role: sorted([char for char in characters if char.get_role() == role], key=lambda char: char.spec) for role

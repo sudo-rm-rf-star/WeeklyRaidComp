@@ -2,8 +2,8 @@
 CUR_DIR=$(pwd)
 cd "$(dirname "$0")"
 git pull
-git checkout production
-git reset --hard origin/production
+git checkout frontend
+git reset --hard origin/frontend
 docker-compose build
 docker-compose up -d
 cd $CUR_DIR

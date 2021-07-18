@@ -63,11 +63,11 @@ class Character:
     def to_dict(self) -> Dict[str, Any]:
         return {
             'name': self.name,
-            'discord_id': self.discord_id,
+            'discord_id': int(self.discord_id),
             'class': self.klass.name,
             'spec': self.spec,
-            'roster_statuses': [(roster_status.name, timestamp) for roster_status, timestamp in self.roster_statuses],
-            'signup_statuses': [(signup_status.name, timestamp) for signup_status, timestamp in self.signup_statuses],
+            'roster_statuses': [(roster_status.name, int(timestamp)) for roster_status, timestamp in self.roster_statuses],
+            'signup_statuses': [(signup_status.name, int(timestamp)) for signup_status, timestamp in self.signup_statuses],
             'created_at': int(self.created_at if self.created_at else datetime.now().timestamp())
         }
 

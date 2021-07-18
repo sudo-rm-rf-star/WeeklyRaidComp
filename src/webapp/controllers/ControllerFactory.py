@@ -13,8 +13,9 @@ class ControllerFactory:
         self.user = session.fetch_user()
         table_factory = TableFactory()
         self.player = table_factory.get_players_table().get_player_by_id(self.user.id)
-        self.raidteam = table_factory.get_raid_teams_table().get_raidteam(self.player.selected_guild_id,
-                                                                          self.player.selected_team_name)
+        # TODO: Let player choose his guild/team.
+        guild_id, team_name = list(self.player.selected_teams.items())[0]
+        self.raidteam = table_factory.get_raid_teams_table().get_raidteam(guild_id=guild_id, team_name=team_name)
 
     def create_raid_controller(self):
         return RaidController(**self._abstract_controller_kwargs())
