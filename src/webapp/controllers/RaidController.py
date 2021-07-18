@@ -1,6 +1,9 @@
+import json
+
+from logic.RaidEvent import RaidEvent
 from .AbstractController import AbstractController
 from datetime import datetime
-from utils.Constants import full_raid_names
+from logic.Raid import Raid
 from exceptions.InvalidInputException import InvalidInputException
 import logging
 from persistence.RaidEventsResource import RaidEventsResource
@@ -14,20 +17,27 @@ class RaidController(AbstractController):
     def view_directory(self):
         return 'raid'
 
-    def index(self):
-        since = datetime.now()
-        raids = sorted(self.raids_table.list_raid_events_for_guild(self.guild, since=since.timestamp()),
-                       key=lambda event: event.get_datetime())
-        return self.view('index', raids=raids)
+    def index(self, guild_id, team_name):
+        return {'data': [raid.to_dict() for raid in
+                         sorted(self.raids_resource.list_raids_within_days(guild_id, team_name, days=90),
+                                key=lambda event: event.get_datetime())]}
+
+    def get(self, guild_id, team_name, raid_name, raid_datetime):
+        return {'data': self.raids_resource.get_raid(raid_name=raid_name, raid_datetime=raid_datetime,
+                                                     guild_id=guild_id, team_name=team_name).to_dict()}
 
     def create(self, errors=None):
-        raid_options = list(full_raid_names.items())
-        team_options = [(raid_group.id, raid_group.name) for raid_group in self.guild.raid_groups]
-        return self.view('create', raid_options=raid_options, team_options=team_options, errors=errors)
+        options = list(member.full_name for member in Raid.__members__.values())
+        return self.view('create', raid_options=options, errors=errors)
 
-    def show(self, team_id, name, timestamp):
+    def update(self, form):
+        raid_event = RaidEvent.from_dict(form)
+        self.raids_resource.update_raid(raid_event)
+        return {'data': raid_event.to_dict()}
+
+    def show(self, name, timestamp):
         dt = datetime.fromtimestamp(timestamp)
-        raid = self.raids_table.get_raid(self.guild_id, team_id, name, dt)
+        raid = self.raids_resource.get_raid(name, dt, self.raidteam.guild_id, self.raidteam.name)
         return self.view('show', raid=raid, player=self.player)
 
     def store(self, form):
@@ -53,14 +63,11 @@ class RaidController(AbstractController):
         form_date = form.get('date')
         form_time = form.get('time')
         form_name = form.get('name')
-        form_team_id = form.get('team_id')
         raid_event = None
         if not form_date:
             errors.append('Date must be set.')
         if not form_time:
             errors.append('Time must be set.')
-        if not form_team_id:
-            errors.append('Team must be set')
         if not form_name:
             errors.append('Raid name must be set')
         if form_date and form_time:
@@ -68,10 +75,10 @@ class RaidController(AbstractController):
             if raid_datetime < datetime.now():
                 errors.append('Raid must be in future')
             else:
-                if form_name and form_team_id:
-                    try:
-                        raid_event = self.raids_resource.create_raid(raid_name=form['name'], raid_datetime=raid_datetime,
-                                                                     guild_id=self.guild_id, group_id=form['team_id'])
-                    except InvalidInputException as e:
-                        errors.append(e.message)
+                try:
+                    raid_event = self.raids_resource.create_raid(raid_name=form['name'], raid_datetime=raid_datetime,
+                                                                 guild_id=self.raidteam.guild_id,
+                                                                 team_name=self.raidteam.name)
+                except InvalidInputException as e:
+                    errors.append(e.message)
         return raid_event, errors

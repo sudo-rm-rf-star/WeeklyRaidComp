@@ -69,7 +69,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
     def _to_key(self, guild_id: int, team_name: str, raid_name: str, raid_datetime: datetime) -> Dict[str, Any]:
         return {
             'name#guild_id#team_name': f'{raid_name}#{guild_id}#{team_name}',
-            'timestamp': int(raid_datetime.timestamp())
+            'timestamp': raid_datetime if isinstance(raid_datetime, int) else int(raid_datetime.timestamp())
         }
 
     def _table_kwargs(self):
