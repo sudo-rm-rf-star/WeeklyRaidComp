@@ -5,9 +5,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
-COPY *.py .
-COPY *.json .
-COPY *.js .
+COPY *.py /
+COPY *.json /
+COPY *.js /
 COPY ["src/", "src/"]
 COPY ["static/", "static/"]
 
