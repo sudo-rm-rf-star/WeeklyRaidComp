@@ -3,14 +3,16 @@ import { useDrop } from 'react-dnd';
 import dragTypes from './DragTypes.js';
 import RosterSpot from './RosterSpot.js';
 
+import './Roster.scss';
+
 export default function Roster({ size, data, assignSignupToRoster, unassignSignupFromRoster, onDelete, onRename }) {
   const [{ isOver }, dropRef] = useDrop(
     () => ({
       accept: dragTypes.SIGNUP,
       drop: (item) => {
-        if (item && item.signup) {
+        if (item) {
           if (data.spots.length < size) {
-            assignSignupToRoster(item.signup, data);
+            assignSignupToRoster(item, data);
           }
         }
       },
@@ -28,7 +30,7 @@ export default function Roster({ size, data, assignSignupToRoster, unassignSignu
     </header>
     <div className="roster-spots">
       {data.spots
-        .map(spot => <RosterSpot key={spot.signup.name} data={spot} onDelete={() => unassignSignupFromRoster(spot.signup, data)} />)
+        .map(spot => <RosterSpot key={spot.name} data={spot} onDelete={() => unassignSignupFromRoster(spot, data)} />)
         .concat(data.spots.length < size ? [<div key="placeholder" className="roster-spot-placeholder">drop signups here</div>] : [])}
     </div>
   </div>;

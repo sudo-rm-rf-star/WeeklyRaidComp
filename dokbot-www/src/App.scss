@@ -25,13 +25,14 @@
     .raid-event {
       padding: 20px;
       
-      header {
+      > header {
         display: flex;
         flex-direction: column;
         margin-bottom: 20px;
+        text-align: center;
 
         .raid-event-title {
-          font-size: 1.2em;
+          font-size: 2em;
           font-weight: 600;
           margin-bottom: 10px;
         }
@@ -45,98 +46,90 @@
         }
       }
 
-      .signups {
+      .raid-event-body {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        gap: 20px;
 
-        header {
-          font-size: 1.1em;
-        }
-
-        .signup-roles {
+        .signups {
+          flex: 0 0 250px;
+          
           display: flex;
-          gap: 10px;
-          .signup-role {
-            font-weight: 600;
-            text-decoration: underline;
+          flex-direction: column;
+
+          > header {
+            font-size: 1.2em;
+            margin-bottom: 10px;
           }
-        }
-      }
 
-      .rosters {
-        display: flex;
-        flex-direction: column;
-
-        header {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          gap: 10px;
-          font-size: 1.1em;
-        }
-
-        .roster-items {
-          display: flex;
-          flex-direction: row;
-          gap: 10px;
-          flex-wrap: wrap;
-
-          .roster {
-            border: 1px solid #e0e1dd;
-            width: 400px;
-            padding: 10px;
-
+          .signup-roles {
             display: flex;
             flex-direction: column;
-            
-            &.allow-drop {
-              border: 3px dashed;
-            }
 
-            header {
-              display: flex;
-
-              border-bottom: 1px solid;
-              padding-bottom: 5px;
-
-              input {
-                flex-grow: 1;
-              }
-              i {
-                flex: 0 0 20px;
-              }
-            }
-
-            .roster-spots {
+            .signup-role {
               display: flex;
               flex-direction: column;
               gap: 10px;
 
-              .roster-spot {
-                background: #415a77;
-                display: flex;
-                justify-items: center;
-                align-items: center;
-                padding: 5px;
-
-                span {
-                  flex-grow: 1;
-                }
-
-                i {
-                  flex: 0 0 20px;
-                }
+              > header {
+                font-weight: 600;
+                text-decoration: underline;
               }
-              .roster-spot-placeholder {
-                text-align: center;
-                padding: 5px;
+
+              .signup-role-items {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                margin-left: 10px;
               }
             }
           }
         }
+
+        .rosters {
+          flex-grow: 1;
+
+          display: flex;
+          flex-direction: column;
+
+          > header {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+          }
+
+          .roster-items {
+            flex-grow: 1;            
+
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-wrap: wrap;
+
+            .roster-add {
+              border: 1px solid #e0e1dd;
+              padding: 10px;
+
+              text-align: center;
+
+              i {
+                font-size: 64px;
+              }
+            }
+          }
+        }
+
+        .benched {
+          flex: 0 0 250px;
+
+          > header {
+            text-align: right;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+          }
+        }
       }
     }
-
   }
 }
 
@@ -147,4 +140,44 @@
 
 .btn {
   cursor: pointer;
+}
+
+.druid {
+    background: #ff7d0a;
+}
+
+.hunter {
+    background: #abd473;
+}
+
+.mage {
+    background: #69ccf0;
+}
+
+.monk {
+    background: #00ff96;
+}
+
+.paladin {
+    background: #f58cba;
+}
+
+.priest {
+    background: #ffffff;
+}
+
+.rogue {
+    background: #fff569;
+}
+
+.shaman {
+    background: #0070de;
+}
+
+.warlock {
+    background: #9482c9;
+}
+
+.warrior {
+    background: #c79c6e;
 }

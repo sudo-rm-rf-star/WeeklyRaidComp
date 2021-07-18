@@ -17,13 +17,14 @@ window.Array.prototype.groupBy = function (keySelector, valueSelector) {
   }
   return result;
 };
-window.Array.prototype.except = function (items) {
+window.Array.prototype.except = function (items, comparator) {
   const result = [];
+  comparator = comparator || ((l, r) => l === r);
   for (let i = 0; i < this.length; i++) {
     let item = this[i];
     let found = false;
     for (let j = 0; j < items.length; j++) {
-      if (item === items[j]) {
+      if (comparator(item, items[j])) {
         found = true;
       }
     }

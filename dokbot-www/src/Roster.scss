@@ -1,0 +1,61 @@
+.roster {
+  border: 1px solid #e0e1dd;
+  padding: 10px;
+
+  display: flex;
+  flex-direction: column;
+  
+  &.allow-drop {
+    border: 3px dashed;
+  }
+
+  > header {
+    display: flex;
+
+    border-bottom: 1px solid;
+    padding-bottom: 5px;
+
+    input {
+      flex-grow: 1;
+    }
+    i {
+      flex: 0 0 20px;
+    }
+  }
+
+  .roster-spots {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .roster-spot {
+      display: flex;
+      justify-items: center;
+      align-items: center;
+      padding: 5px;
+      gap: 10px;
+
+      img {
+        height: 20px;
+      }
+
+      span {
+        padding: 2px;
+        color: black;
+      }
+
+      div {
+        flex-grow: 1;
+      }
+
+      i {
+        flex: 0 0 20px;
+        color: #1b263b;
+      }
+    }
+    .roster-spot-placeholder {
+      text-align: center;
+      padding: 5px;
+    }
+  }
+}
