@@ -1,0 +1,150 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  > header {
+    background-color: #0d1b2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    color: #e0e1dd;
+    flex: 0 0 75px;
+
+    img {
+      width: 50px;
+    }
+  }
+
+  main {
+    background-color: #1b263b;
+    color: #e0e1dd;
+    flex-grow: 1;
+
+    .raid-event {
+      padding: 20px;
+      
+      header {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+
+        .raid-event-title {
+          font-size: 1.2em;
+          font-weight: 600;
+          margin-bottom: 10px;
+        }
+
+        .raid-event-date i {
+          margin-right: 5px;
+          
+        }
+        .raid-event-time i {
+          margin-right: 5px;
+        }
+      }
+
+      .signups {
+        display: flex;
+        flex-direction: column;
+
+        header {
+          font-size: 1.1em;
+        }
+
+        .signup-roles {
+          display: flex;
+          gap: 10px;
+          .signup-role {
+            font-weight: 600;
+            text-decoration: underline;
+          }
+        }
+      }
+
+      .rosters {
+        display: flex;
+        flex-direction: column;
+
+        header {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 10px;
+          font-size: 1.1em;
+        }
+
+        .roster-items {
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          flex-wrap: wrap;
+
+          .roster {
+            border: 1px solid #e0e1dd;
+            width: 400px;
+            padding: 10px;
+
+            display: flex;
+            flex-direction: column;
+            
+            &.allow-drop {
+              border: 3px dashed;
+            }
+
+            header {
+              display: flex;
+
+              border-bottom: 1px solid;
+              padding-bottom: 5px;
+
+              input {
+                flex-grow: 1;
+              }
+              i {
+                flex: 0 0 20px;
+              }
+            }
+
+            .roster-spots {
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+
+              .roster-spot {
+                background: #415a77;
+                display: flex;
+                justify-items: center;
+                align-items: center;
+                padding: 5px;
+
+                span {
+                  flex-grow: 1;
+                }
+
+                i {
+                  flex: 0 0 20px;
+                }
+              }
+              .roster-spot-placeholder {
+                text-align: center;
+                padding: 5px;
+              }
+            }
+          }
+        }
+      }
+    }
+
+  }
+}
+
+.horizontal-break {
+  margin: 10px 0;
+  border-bottom: 2px #778da9 solid;
+}
+
+.btn {
+  cursor: pointer;
+}
