@@ -6,7 +6,7 @@ sys.path.append(str(cwd))
 
 import os
 from flask import Flask
-from src.webapp.admin import create_admin_blueprint
+from src.api.admin import create_admin_blueprint
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -24,5 +24,5 @@ application.register_blueprint(create_admin_blueprint(application))
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
-    application.run()
+    application.run(host="0.0.0.0")
     application.debug = str(os.getenv('APP_ENV') == 'production')

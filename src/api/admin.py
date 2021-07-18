@@ -5,8 +5,8 @@ from .controllers.ControllerFactory import ControllerFactory
 
 def create_admin_blueprint(app):
     admin = Blueprint('admin', __name__,
-                      template_folder='webapp/templates',
-                      static_folder='webapp/static',
+                      template_folder='api/templates',
+                      static_folder='api/static',
                       root_path='src')
 
     discord_session = DiscordOAuth2Session(app=app)
@@ -22,6 +22,10 @@ def create_admin_blueprint(app):
 
     def guild_controller():
         return ControllerFactory(discord_session).create_guild_controller()
+
+    @admin.route('/')
+    def home():
+        return {'data': 'Hello World!'}
 
     @admin.route('/raids/<int:guild_id>/<team_name>', methods=["GET", "POST"])
     @requires_authorization
