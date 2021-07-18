@@ -9,3 +9,12 @@ services:
     volumes:
       - ./.env:/app/.env
       - ./logs:/app/logs
+
+  dokbot-www:
+    container_name: dokbot-www
+    build:
+      context: dokbot-www
+      dockerfile: Dockerfile
+    ports:
+      - 5100:5000
+    stdin_open: true
