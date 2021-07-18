@@ -21,7 +21,7 @@ def create_admin_blueprint(app):
             return raid_controller.index(guild_id=guild_id, team_name=team_name)
 
         if request.method == "POST":
-            return raid_controller.update(guild_id=guild_id, team_name=team_name, form=request.form)
+            return raid_controller.store(guild_id=guild_id, team_name=team_name, form=request.form)
 
     @admin.route('/raids/<int:guild_id>/<team_name>/<raid_name>/<int:raid_datetime>', methods=["GET", "PUT"])
     def raid(guild_id, team_name, raid_name, raid_datetime):
@@ -30,6 +30,6 @@ def create_admin_blueprint(app):
                                        raid_datetime=raid_datetime)
 
         if request.method == "PUT":
-            return raid_controller.store(guild_id=guild_id, team_name=team_name, form=request.form)
+            return raid_controller.update(data=request.json)
 
     return admin

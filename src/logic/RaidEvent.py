@@ -112,6 +112,7 @@ class RaidEvent:
 
     @staticmethod
     def from_dict(item: Dict[str, Any]):
+        print(item)
         raid_name = item['name']
         return RaidEvent(name=raid_name,
                          raid_datetime=datetime.fromtimestamp(int(item['timestamp'])),

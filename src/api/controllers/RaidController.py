@@ -23,11 +23,9 @@ class RaidController:
         return {'data': self.raids_resource.get_raid(raid_name=raid_name, raid_datetime=raid_datetime,
                                                      guild_id=guild_id, team_name=team_name).to_dict()}
 
-    def update(self, guild_id, team_name, form):
-        form['guild_id'] = guild_id
-        form['team_name'] = team_name
-        logging.getLogger(f'Creating raid event using {form}')
-        raid_event = RaidEvent.from_dict(form)
+    def update(self, data):
+        logging.getLogger(f'Creating raid event using {data}')
+        raid_event = RaidEvent.from_dict(data)
         self.raids_resource.update_raid(raid_event)
         return {'data': raid_event.to_dict()}
 
