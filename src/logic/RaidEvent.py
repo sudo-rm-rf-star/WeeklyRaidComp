@@ -62,9 +62,9 @@ class RaidEvent:
 
     def get_characters(self, role: str = None, klass: str = None, signup_choice=None, roster_choice=None):
         if signup_choice and isinstance(signup_choice, str):
-            signup_choice = SignupStatus[signup_choice.upper()]
+            signup_choice = SignupStatus[signup_choice.capitalize()]
         if roster_choice and isinstance(roster_choice, str):
-            roster_choice = RosterStatus[roster_choice.upper()]
+            roster_choice = RosterStatus[roster_choice.capitalize()]
 
         return sorted([
             char for char in self.get_signed_characters() if

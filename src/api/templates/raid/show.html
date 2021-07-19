@@ -10,11 +10,6 @@
             <h1 class="text-5xl">{{raid.get_name()}}</h1>
             <h2 class="text-xl">{{raid.relative_time()}}</h2>
         </div>
-        <div class="flex-none flex w-1/3 min-h">
-            {{raid_button('.create_roster', 'Create roster', raid, "bg-gray-700")}}
-            {{raid_button('.send_reminder', 'Send reminder', raid)}}
-            {{raid_button('.invite_player', 'Invite player', raid)}}
-        </div>
     </div>
     <div class="grid grid-flow-col items-start w-max font-thin text-sm ml-8">
         {% for role, icon in
@@ -37,7 +32,7 @@
                     {% set signup_emoji = dict(emojis) -%}
                     {% for character in characters %}
                     <a class="block py-0.5 px-2 {{character.klass.name.lower()}} hover-bold"
-                       href="{{url_for('.player', discord_id=character.discord_id)}}">
+                       href="#">
                         {% if character.get_roster_status().name != 'DECLINE' and character.get_signup_status().name != 'ACCEPT' %}
                         {{signup_emoji[character.get_signup_status().name.capitalize()]}}
                         {% endif %}

@@ -1,4 +1,5 @@
 import json
+from flask import render_template, redirect, url_for
 
 from logic.RaidEvent import RaidEvent
 from datetime import datetime
@@ -63,3 +64,8 @@ class RaidController:
                 except InvalidInputException as e:
                     errors.append(e.message)
         return raid_event, errors
+
+    def show(self, guild_id, team_name, raid_name, raid_datetime):
+        raid = self.raids_resource.get_raid(raid_name=raid_name, raid_datetime=raid_datetime, guild_id=guild_id,
+                                            team_name=team_name)
+        return render_template('raid/show.html', raid=raid)

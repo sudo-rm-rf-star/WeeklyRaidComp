@@ -32,4 +32,11 @@ def create_admin_blueprint(app):
         if request.method == "PUT":
             return raid_controller.update(data=request.json)
 
+
+    @admin.route('/show_raid/<int:guild_id>/<team_name>/<raid_name>/<int:raid_datetime>', methods=["GET", "PUT"])
+    def show_raid(guild_id, team_name, raid_name, raid_datetime):
+        return raid_controller.show(guild_id=guild_id, team_name=team_name, raid_name=raid_name,
+                                    raid_datetime=raid_datetime)
+
+
     return admin
