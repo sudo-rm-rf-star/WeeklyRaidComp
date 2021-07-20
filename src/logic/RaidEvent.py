@@ -9,11 +9,12 @@ from datetime import datetime, date
 from typing import List, Dict, Any, Optional
 from logic.Character import Character
 from logic.MessageRef import MessageRef
+from uuid import uuid4
 import arrow
 
 
 class RaidEvent:
-    def __init__(self, name: str, raid_datetime: datetime, guild_id: int, team_name: str,
+    def __init__(self, token: str, name: str, raid_datetime: datetime, guild_id: int, team_name: str,
                  roster=None, created_at: datetime = None, updated_at: datetime = None,
                  message_refs: List[MessageRef] = None, is_open: bool = False):
         self.name = name
@@ -26,6 +27,7 @@ class RaidEvent:
         self.roster = Roster(name) if not roster else roster
         self.message_refs = [] if not message_refs else message_refs
         self.is_open = is_open
+        self.token = token
 
     def compose_roster(self) -> List[Character]:
         self.updated_at = datetime.now()
@@ -112,9 +114,9 @@ class RaidEvent:
 
     @staticmethod
     def from_dict(item: Dict[str, Any]):
-        print(item)
         raid_name = item['name']
-        return RaidEvent(name=raid_name,
+        return RaidEvent(token=item.get('token', str(uuid4())),
+                         name=raid_name,
                          raid_datetime=datetime.fromtimestamp(int(item['timestamp'])),
                          guild_id=int(item['guild_id']),
                          team_name=item['team_name'],
@@ -126,6 +128,7 @@ class RaidEvent:
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            'token': self.token,
             'name': self.name,
             'guild_id': str(self.guild_id),
             'team_name': str(self.team_name),

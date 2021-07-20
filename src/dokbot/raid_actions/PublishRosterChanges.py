@@ -28,14 +28,3 @@ async def _handle_roster_choice(ctx: RaidContext, character: Character) -> None:
     formatted_msg = f'{character.name}, you were {verb} for {ctx.raid_event.get_name()} on {ctx.raid_event.get_date()} ({ctx.raid_event.get_weekday()})'
     member = await ctx.guild.fetch_member(character.discord_id)
     await member.send(content=formatted_msg)
-    await _set_roster_status(ctx=ctx, character=character, member=member)
-
-
-async def _set_roster_status(ctx: RaidContext, character: Character, member: discord.Member):
-    roster_status = character.get_roster_status()
-    signup_status = character.get_signup_status()
-    roster_role = await get_role(ctx.guild, "Roster")
-    if roster_status in [RosterStatus.Accept, RosterStatus.Extra] and signup_status != SignupStatus.Decline:
-        await member.add_roles(roster_role)
-    else:
-        await member.remove_roles(roster_role)

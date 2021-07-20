@@ -11,6 +11,7 @@ from exceptions.InvalidInputException import InvalidInputException
 class RaidEventsTable(DynamoDBTable[RaidEvent]):
     TABLE_NAME = 'raid_events'
     INDEX_NAME = 'team-timestamp_index'
+    TOKEN_INDEX_NAME = 'token_index'
 
     def __init__(self, ddb):
         super().__init__(ddb, RaidEventsTable.TABLE_NAME)
@@ -26,6 +27,11 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
     def get_raid_event(self, guild_id: int, team_name: str, raid_name: str, raid_datetime: datetime) -> Optional[RaidEvent]:
         return super(RaidEventsTable, self).get_item(guild_id=guild_id, team_name=team_name, raid_name=raid_name,
                                                      raid_datetime=raid_datetime)
+
+    def get_raid_event_by_token(self, token: str) -> Optional[RaidEvent]:
+        items = self.table.query(IndexName=RaidEventsTable.TOKEN_INDEX_NAME,
+                                 KeyConditionExpression=Key('token').eq(token))['Items']
+        return self._to_object(items[0]) if len(items) > 0 else None
 
     def list_raid_events(self, guild_id: int, raid_team_name: str,
                          since: Optional[Union[float, datetime]] = 0,
@@ -82,7 +88,7 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
                 {
                     'AttributeName': 'timestamp',
                     'KeyType': 'RANGE'
-                }
+                },
             ],
             'AttributeDefinitions': [
                 {
@@ -95,6 +101,10 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
                 },
                 {
                     'AttributeName': 'guild_id#team_name',
+                    'AttributeType': 'S'
+                },
+                {
+                    'AttributeName': 'token',
                     'AttributeType': 'S'
                 }
             ],
@@ -123,5 +133,21 @@ class RaidEventsTable(DynamoDBTable[RaidEvent]):
                         'WriteCapacityUnits': 2
                     }
                 },
+                {
+                    'IndexName': RaidEventsTable.TOKEN_INDEX_NAME,
+                    'KeySchema': [
+                        {
+                            'AttributeName': 'token',
+                            'KeyType': 'HASH'
+                        }
+                    ],
+                    'Projection': {
+                        'ProjectionType': 'ALL',
+                    },
+                    'ProvisionedThroughput': {
+                        'ReadCapacityUnits': 2,
+                        'WriteCapacityUnits': 2
+                    }
+                }
             ],
         }

@@ -15,13 +15,9 @@ def create_admin_blueprint(app):
     def home():
         return {'data': 'Hello World!'}
 
-    @admin.route('/raids/<int:guild_id>/<team_name>', methods=["GET", "POST"])
-    def raids(guild_id, team_name):
-        if request.method == "GET":
-            return raid_controller.index(guild_id=guild_id, team_name=team_name)
-
-        if request.method == "POST":
-            return raid_controller.store(guild_id=guild_id, team_name=team_name, form=request.form)
+    @admin.route('/raids/<token>', methods=["GET"])
+    def raids(token):
+        return raid_controller.get(token=token)
 
     @admin.route('/raids/<int:guild_id>/<team_name>/<raid_name>/<int:raid_datetime>', methods=["GET", "PUT"])
     def raid(guild_id, team_name, raid_name, raid_datetime):

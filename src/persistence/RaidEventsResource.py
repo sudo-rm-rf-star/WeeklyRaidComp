@@ -45,6 +45,9 @@ class RaidEventsResource:
                 raise InvalidInputException(f"There's no raid for {full_raid_name} on {raid_datetime}.")
         return raid_event
 
+    def get_raid_by_token(self, token: str) -> Optional[RaidEvent]:
+        return self.table.get_raid_event_by_token(token)
+
     def get_raid_by_message(self, message: MessageRef):
         return self.table.get_raid_event(raid_name=message.raid_name, raid_datetime=message.raid_datetime,
                                          team_name=message.team_name, guild_id=message.guild_id)

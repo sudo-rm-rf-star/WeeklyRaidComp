@@ -13,15 +13,9 @@ class RaidController:
         super(RaidController, self).__init__(*args, **kwargs)
         self.raids_resource = RaidEventsResource()
 
-    def index(self, guild_id, team_name):
-        print(guild_id, team_name)
-        return {'data': [raid.to_dict() for raid in
-                         sorted(self.raids_resource.list_raids_within_days(guild_id=guild_id, team_name=team_name, days=90),
-                                key=lambda event: event.get_datetime())]}
-
-    def get(self, guild_id, team_name, raid_name, raid_datetime):
-        return {'data': self.raids_resource.get_raid(raid_name=raid_name, raid_datetime=raid_datetime,
-                                                     guild_id=guild_id, team_name=team_name).to_dict()}
+    def get(self, token):
+        raid = self.raids_resource.get_raid_by_token(token)
+        return {'data': raid.to_dict() if raid else None}
 
     def update(self, data):
         logging.getLogger(f'Creating raid event using {data}')

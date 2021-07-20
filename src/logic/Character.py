@@ -80,7 +80,7 @@ class Character:
             'discord_id': int(self.discord_id),
             'class': self.klass.name,
             'spec': self.spec,
-            'roster_statuses': [(roster_status.name, int(timestamp), team_index) for
+            'roster_statuses': [(roster_status.name, int(timestamp), int(team_index)) for
                                 roster_status, timestamp, team_index in self.roster_statuses],
             'signup_statuses': [(signup_status.name, int(timestamp)) for signup_status, timestamp in
                                 self.signup_statuses],
