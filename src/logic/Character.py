@@ -55,10 +55,17 @@ class Character:
         else:
             return RosterStatus.Undecided
 
+    def get_team_index(self) -> int:
+        if len(self.roster_statuses) > 0:
+            return self.roster_statuses[-1][-1]
+        else:
+            return 0
+
+
     def is_declined(self) -> bool:
         return self.get_signup_status() == SignupStatus.Decline and self.get_roster_status() != RosterStatus.Accept
 
-    def get_role(self) -> str:
+    def get_role(self) -> Role:
         return self.klass.get_role(self.spec)
 
     @staticmethod
@@ -80,6 +87,10 @@ class Character:
             'discord_id': int(self.discord_id),
             'class': self.klass.name,
             'spec': self.spec,
+            'role': self.get_role().name,
+            'roster_status': self.get_roster_status().name,
+            'team_index': int(self.get_team_index()),
+            'signup_status': self.get_signup_status().name,
             'roster_statuses': [(roster_status.name, int(timestamp), int(team_index)) for
                                 roster_status, timestamp, team_index in self.roster_statuses],
             'signup_statuses': [(signup_status.name, int(timestamp)) for signup_status, timestamp in

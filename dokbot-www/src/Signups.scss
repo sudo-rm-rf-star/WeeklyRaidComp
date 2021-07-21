@@ -1,0 +1,25 @@
+.signups {
+  border: 1px solid #e0e1dd;
+  padding: 10px;
+
+  display: flex;
+  flex-direction: column;
+
+  &.allow-drop {
+    border: 2px dashed;
+  }
+
+  > header {
+    display: flex;
+
+    border-bottom: 1px solid;
+    padding-bottom: 5px;
+
+    input {
+      flex-grow: 1;
+    }
+    i {
+      flex: 0 0 20px;
+    }
+  }
+}

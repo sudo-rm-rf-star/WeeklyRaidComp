@@ -30,6 +30,8 @@
         flex-direction: column;
         margin-bottom: 20px;
         text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, .5);
+        padding: 12px;
 
         .raid-event-title {
           font-size: 2em;
@@ -37,24 +39,22 @@
           margin-bottom: 10px;
         }
 
-        .raid-event-date i {
-          margin-right: 5px;
-          
+        .raid-event-date {
+          margin-right: 32px;;
         }
-        .raid-event-time i {
-          margin-right: 5px;
-        }
+
       }
 
       .raid-event-body {
         display: flex;
         flex-direction: row;
-        gap: 20px;
+        gap: 8px;
+
 
         .signups {
-          flex: 0 0 250px;
-          
+          width: 15%;
           display: flex;
+          flex: 0 0 250px;
           flex-direction: column;
 
           > header {
@@ -62,35 +62,10 @@
             margin-bottom: 10px;
           }
 
-          .signup-roles {
-            display: flex;
-            flex-direction: column;
-
-            .signup-role {
-              display: flex;
-              flex-direction: column;
-              gap: 10px;
-
-              > header {
-                font-weight: 600;
-                text-decoration: underline;
-              }
-
-              .signup-role-items {
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-                margin-left: 10px;
-              }
-            }
-          }
         }
 
         .rosters {
           flex-grow: 1;
-
-          display: flex;
-          flex-direction: column;
 
           > header {
             text-align: center;
@@ -98,29 +73,9 @@
             margin-bottom: 10px;
           }
 
-          .roster-items {
-            flex-grow: 1;            
-
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex-wrap: wrap;
-
-            .roster-add {
-              border: 1px solid #e0e1dd;
-              padding: 10px;
-
-              text-align: center;
-
-              i {
-                font-size: 64px;
-              }
-            }
-          }
         }
 
         .benched {
-          flex: 0 0 250px;
 
           > header {
             text-align: right;
@@ -133,51 +88,15 @@
   }
 }
 
-.horizontal-break {
-  margin: 10px 0;
-  border-bottom: 2px #778da9 solid;
+.loading, .not-found, .internal-error {
+  position: absolute;
+  margin:auto;
+  top: 50%;
+  left: 45%;
+  font-size: 2em;
 }
+
 
 .btn {
   cursor: pointer;
-}
-
-.druid {
-    background: #ff7d0a;
-}
-
-.hunter {
-    background: #abd473;
-}
-
-.mage {
-    background: #69ccf0;
-}
-
-.monk {
-    background: #00ff96;
-}
-
-.paladin {
-    background: #f58cba;
-}
-
-.priest {
-    background: #ffffff;
-}
-
-.rogue {
-    background: #fff569;
-}
-
-.shaman {
-    background: #0070de;
-}
-
-.warlock {
-    background: #9482c9;
-}
-
-.warrior {
-    background: #c79c6e;
 }

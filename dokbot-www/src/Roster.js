@@ -1,37 +1,31 @@
-import { useDrop } from 'react-dnd';
+import {useApi} from './Api';
+import Players from './Players';
+import usePlayerDrop from "./usePlayerDrop";
 
-import dragTypes from './DragTypes.js';
-import RosterSpot from './RosterSpot.js';
+export default function Roster({roster}) {
+  const {assignSignupToRoster, raidEvent: {size}, changeRosterName, deleteRoster} = useApi();
+  const onPlayerDrop = (player) => assignSignupToRoster(player, roster)
+  const [{isOver}, dropRef] = usePlayerDrop(onPlayerDrop, [roster]); // depend on data updates so we get current spot count
 
-import './Roster.scss';
-
-export default function Roster({ size, data, assignSignupToRoster, unassignSignupFromRoster, onDelete, onRename }) {
-  const [{ isOver }, dropRef] = useDrop(
-    () => ({
-      accept: dragTypes.SIGNUP,
-      drop: (item) => {
-        if (item) {
-          if (data.spots.length < size) {
-            assignSignupToRoster(item, data);
-          }
+  return (
+    <div ref={dropRef} className={`roster${isOver ? ' allow-drop' : ''}`}>
+      <header>
+        <input
+          type="text"
+          placeholder="Group name"
+          value={roster.name}
+          onChange={(e) => changeRosterName(roster, e.target.value)}
+        />
+        <span > ( <span className={roster.spots.length > size ? 'length-warning' : ''}>{roster.spots.length}</span> / {size} ) </span>
+        <i className="btn fas fa-trash-alt" onClick={() => deleteRoster(roster)}/>
+      </header>
+      <div className="roster-spots">
+        {
+          !(roster.spots?.length) ?
+            (<div key="placeholder" className="roster-spot-placeholder">drag signups here</div>) :
+            (<Players players={roster.spots} horizontal={true}/>)
         }
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-      }),
-    })
-    , [data]); // depend on data updates so we get current spot count
-
-  return <div ref={dropRef} className={`roster${isOver ? " allow-drop" : ""}`}>
-    <header>
-      <input type="text" placeholder="Groep naam" value={data.name} onChange={(e) => onRename(data, e.target.value)} />
-      <span>({data.spots.length}/{size})</span>
-      <i className="btn fas fa-trash-alt" onClick={() => onDelete(data)} ></i>
-    </header>
-    <div className="roster-spots">
-      {data.spots
-        .map(spot => <RosterSpot key={spot.name} data={spot} onDelete={() => unassignSignupFromRoster(spot, data)} />)
-        .concat(data.spots.length < size ? [<div key="placeholder" className="roster-spot-placeholder">drop signups here</div>] : [])}
+      </div>
     </div>
-  </div>;
+  );
 }

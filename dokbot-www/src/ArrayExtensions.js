@@ -1,27 +1,31 @@
 window.Array.prototype.orderBy = function (valueSelector) {
-  var result = this.slice(0).sort(function (a, b) {
-    var leftValue = valueSelector ? valueSelector(a) : a;
-    var rightValue = valueSelector ? valueSelector(b) : b;
+  return this.slice(0).sort((a, b) => {
+    const leftValue = valueSelector ? valueSelector(a) : a;
+    const rightValue = valueSelector ? valueSelector(b) : b;
     return (leftValue < rightValue) ? -1 : (leftValue === rightValue ? 0 : 1);
   });
-  return result;
 };
 window.Array.prototype.groupBy = function (keySelector, valueSelector) {
-  var result: any = {};
-  for (var i = 0; i < this.length; ++i) {
-    var item = this[i];
-    var key = keySelector(item);
+  const result = {};
+  for (let i = 0; i < this.length; ++i) {
+    const item = this[i];
+    const key = keySelector(item);
     if (!(key in result)) result[key] = [];
-    var value = valueSelector ? valueSelector(item) : item;
+    const value = valueSelector ? valueSelector(item) : item;
     result[key].push(value);
   }
   return result;
 };
+
+window.Array.prototype.groupByRole = function () {
+  return this.groupBy((x) => x.role);
+};
+
 window.Array.prototype.except = function (items, comparator) {
   const result = [];
   comparator = comparator || ((l, r) => l === r);
   for (let i = 0; i < this.length; i++) {
-    let item = this[i];
+    const item = this[i];
     let found = false;
     for (let j = 0; j < items.length; j++) {
       if (comparator(item, items[j])) {
@@ -34,3 +38,20 @@ window.Array.prototype.except = function (items, comparator) {
   }
   return result;
 };
+
+window.Array.prototype.max = function (valueSelector) {
+  let max = 0;
+  this.forEach((x) => {
+    const value = valueSelector ? valueSelector(x) : x;
+    max = value > max ? value : max;
+  });
+  return max;
+};
+
+window.Array.prototype.uniqueBy = function( valueSelector ) {
+  return [...new Map(this.map(item => [valueSelector(item), item])).values()];
+}
+
+window.Array.prototype.uniqueById = function () {
+  return this.uniqueBy(({id}) => id)
+}

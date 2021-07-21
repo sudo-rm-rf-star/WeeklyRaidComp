@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from flask_cors import CORS
 
 cwd = Path(__file__).parent / 'src'
 sys.path.append(str(cwd))
@@ -10,6 +11,7 @@ from src.api.admin import create_admin_blueprint
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
+CORS(application)
 application.secret_key = os.getenv("API_KEY")
 os.environ['TZ'] = 'Europe/Brussels'
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = str(os.getenv('APP_ENV') == 'production')

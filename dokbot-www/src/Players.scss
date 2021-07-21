@@ -1,0 +1,96 @@
+
+.players-vertical {
+  flex-direction: column;
+}
+
+.players-horizontal {
+  flex-direction: row;
+}
+
+.players {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+
+
+  .player-list  {
+    flex: 1;
+  }
+
+  .player div {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+  }
+
+  .player {
+    color: black;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8em;
+
+    img {
+      height: 16px;
+    }
+
+    .status-icon {
+      margin-left: auto;
+    }
+
+    &:hover {
+      font-weight: bolder;
+    }
+  }
+}
+
+
+.druid {
+  background: #ff7d0a;
+}
+
+.hunter {
+  background: #abd473;
+}
+
+.mage {
+  background: #69ccf0;
+}
+
+.monk {
+  background: #00ff96;
+}
+
+.paladin {
+  background: #f58cba;
+}
+
+.priest {
+  background: #ffffff;
+}
+
+.rogue {
+  background: #fff569;
+}
+
+.shaman {
+  background: #0070de;
+}
+
+.warlock {
+  background: #9482c9;
+}
+
+.warrior {
+  background: #c79c6e;
+}
+
+div[draggable="true"] {
+  cursor: grab;
+}
+
+div[draggable="true"]:active {
+  cursor: grabbing;
+}
+

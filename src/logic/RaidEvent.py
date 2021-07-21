@@ -130,6 +130,8 @@ class RaidEvent:
         return {
             'token': self.token,
             'name': self.name,
+            'full_name': Raid[self.name].full_name,
+            'raid_size': Raid[self.name].player_size,
             'guild_id': str(self.guild_id),
             'team_name': str(self.team_name),
             'timestamp': int(self.datetime.timestamp()),
