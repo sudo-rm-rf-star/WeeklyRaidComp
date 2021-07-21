@@ -7,6 +7,7 @@ ENV NODE_PATH src/
 
 RUN npm install react-scripts@4.0.3 -g --silent --only=prod
 
+COPY package.json /app/package-lock.json
 COPY package.json /app/package.json
 RUN npm install --silent --only=prod
 
