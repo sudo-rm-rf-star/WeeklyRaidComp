@@ -48,10 +48,6 @@ export const ApiProvider = ({children}) => {
     }
   }, [data])
 
-  // if(raidEvent) {
-  //   console.log(formatRaidEventInputForApi({data, assignedSignups, unassignedSignups, declined}))
-  // }
-
   useEffect(() => {
     if (raidEvent) {
       const {
