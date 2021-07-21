@@ -21,7 +21,8 @@ export const ApiProvider = ({children}) => {
   const [declined, setDeclined] = useState([]);
 
   const tokenPath = window.location.pathname;
-  const APP_URL = 'http://localhost:5000';
+  // const APP_URL = 'http://localhost:5000';
+  const APP_URL = 'https://dokbot.pupu.be'
   const raidUrl = `${APP_URL}/raids${tokenPath}`;
 
   const getRaidEvent = async () => fetch(raidUrl)

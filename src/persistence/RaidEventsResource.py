@@ -12,6 +12,7 @@ from logic.MessageRef import MessageRef
 from logic.Raid import Raid
 from logic.RaidEvent import RaidEvent
 from .tables.TableFactory import TableFactory
+from uuid import uuid4
 
 
 class RaidEventsResource:
@@ -21,7 +22,7 @@ class RaidEventsResource:
         self.ctx = ctx
 
     def create_raid(self, raid_name: str, raid_datetime: datetime, guild_id: int, team_name: str):
-        raid_event = RaidEvent(name=raid_name, raid_datetime=raid_datetime, guild_id=guild_id, team_name=team_name)
+        raid_event = RaidEvent(token=str(uuid4()), name=raid_name, raid_datetime=raid_datetime, guild_id=guild_id, team_name=team_name)
         self.table.create_raid_event(raid_event)
         self.queue.send_event(RaidEventCreated(raid_event), ctx=self.ctx)
         return raid_event
