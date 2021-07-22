@@ -65,6 +65,7 @@ class Roster:
         raise InternalBotException(f'{player} in the event more than once.')
 
     def to_dict(self) -> Dict[str, Any]:
+        print( [character.to_dict() for character in self.characters])
         return {
             'characters': [character.to_dict() for character in self.characters],
         }

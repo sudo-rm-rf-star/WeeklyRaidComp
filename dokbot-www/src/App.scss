@@ -96,7 +96,32 @@
   font-size: 2em;
 }
 
-
 .btn {
   cursor: pointer;
+}
+
+.publish {
+  padding: 0.8em 1.5em;
+  border:0.1em solid #000000;
+  border-radius:0.12em;
+  text-decoration:none;
+  font-weight:300;
+  color:#000000;
+  text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+  background-color:#42cc8c;
+  text-align:center;
+  transition: all 0.15s;
+  width: 100%;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 70%;
+  }
+
+  &:not([disabled]):hover {
+    text-shadow: 0 0 2em rgba(255,255,255,1);
+    color:#FFFFFF;
+    border-color:#FFFFFF;
+  }
+
 }

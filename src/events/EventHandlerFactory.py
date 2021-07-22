@@ -13,6 +13,7 @@ class EventHandlerFactory:
         event_name = type(event).__name__
         name = fullname(event).replace(event_name, event_name + "Handler")
         try:
+            print(name)
             return locate(name)(bot=self.bot)
         except TypeError as e:
             raise InternalBotException(f"Could not initialize handler {name} for {type(event)} because of {e}")

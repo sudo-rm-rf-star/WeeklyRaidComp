@@ -22,16 +22,12 @@ export const ApiProvider = ({children}) => {
   const [rosterChanges, setRosterChanges] = useState({});
 
   const tokenPath = window.location.pathname;
-  const APP_URL = 'http://localhost:5000';
-  // const APP_URL = '/api'
+  // const APP_URL = 'http://localhost:5000';
+  const APP_URL = '/api'
   const raidUrl = `${APP_URL}/raids${tokenPath}`;
 
   const getRaidEvent = async () => fetch(raidUrl)
     .then((response) => response.json())
-    .then((res) => {
-      console.log(res)
-      return res;
-    })
     .then(({data}) => data)
 
   const {data, isLoading, isError} = useQuery(
@@ -42,14 +38,18 @@ export const ApiProvider = ({children}) => {
 
   const saveRosterChanges = async () => fetch(`${raidUrl}/roster`, {
     method: 'PUT',
-    headers: {' Content-Type': 'application/json'},
-    body: rosterChanges
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(rosterChanges)
   })
 
-  const updateRosterMutation = useMutation(saveRosterChanges);
+  const saveRosterChangesMutation = useMutation(saveRosterChanges);
+  console.log(JSON.stringify(rosterChanges))
 
   useEffect(() => {
     if(data) {
+      console.log(data)
       setRaidEvent(mapRaidEventFromApi(data))
     }
   }, [data])
@@ -84,7 +84,7 @@ export const ApiProvider = ({children}) => {
 
   const updateSignup = (player, rosterStatus, teamIndex = undefined) => {
     const playerId = player.id;
-    setRosterChanges((previous) => ({...previous, playerId: [rosterStatus, teamIndex]}))
+    setRosterChanges((previous) => ({...previous, [playerId]: [rosterStatus, teamIndex]}))
     return setRaidEvent((raidEvent) => ({
       ...raidEvent,
       signups: [...raidEvent.signups.filter(({id}) => id !== playerId), {
@@ -97,9 +97,11 @@ export const ApiProvider = ({children}) => {
 
   const assignSignupToRoster = (signup, roster) => updateSignup(signup, "Accept", roster.id);
 
-  const benchSignup = (signup) => updateSignup(signup, "Extra");
+  const benchSignup = (signup) => updateSignup(signup, "Extra", 0);
 
-  const unassignPlayer = (signup) => updateSignup(signup, "Undecided");
+  const unassignPlayer = (signup) => updateSignup(signup, "Undecided", 0);
+
+  console.log(raidEvent)
 
   return <Context.Provider value={{
     raidEvent,
@@ -119,6 +121,7 @@ export const ApiProvider = ({children}) => {
     isLoading,
     isError,
 
-    updateRaidEventMutation: updateRosterMutation,
+    hasRosterChanges: Object.keys(rosterChanges).length > 0,
+    saveRosterChangesMutation
   }}>{children}</Context.Provider>
 }

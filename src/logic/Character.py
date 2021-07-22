@@ -84,7 +84,7 @@ class Character:
     def to_dict(self) -> Dict[str, Any]:
         return {
             'name': self.name,
-            'discord_id': int(self.discord_id),
+            'discord_id': str(self.discord_id),
             'class': self.klass.name,
             'spec': self.spec,
             'role': self.get_role().name,
