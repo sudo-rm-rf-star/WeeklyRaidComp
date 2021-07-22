@@ -20,6 +20,7 @@ chronology==1.1
 click==7.1.2
 colorama==0.4.3
 cors==1.0.1
+Flask-Cors==3.0.10
 cryptography==3.3.2
 discord.py==1.6.0
 docker==4.4.1
