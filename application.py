@@ -1,9 +1,9 @@
 import sys
 from pathlib import Path
 
-from src.api.controllers.RaidController import RaidController
 cwd = Path(__file__).parent / 'src'
 sys.path.append(str(cwd))
+from api.controllers.RaidController import RaidController
 
 import os
 from flask import Flask, request
