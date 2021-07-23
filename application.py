@@ -1,8 +1,7 @@
 import sys
 from pathlib import Path
 
-from api.controllers.RaidController import RaidController
-
+from src.api.controllers.RaidController import RaidController
 cwd = Path(__file__).parent / 'src'
 sys.path.append(str(cwd))
 
