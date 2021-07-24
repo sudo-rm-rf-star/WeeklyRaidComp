@@ -22,7 +22,7 @@ export const ApiProvider = ({children}) => {
   const [rosterChanges, setRosterChanges] = useState({});
 
   const tokenPath = window.location.pathname;
-  // const APP_URL = 'http://localhost:5000';
+//  const APP_URL = 'http://localhost:5000';
   const APP_URL = '/api'
   const raidUrl = `${APP_URL}/raids${tokenPath}`;
 
