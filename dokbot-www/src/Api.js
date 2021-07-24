@@ -30,7 +30,7 @@ export const ApiProvider = ({children}) => {
     .then((response) => response.json())
     .then(({data}) => data)
 
-  const {data, isLoading, isError} = useQuery(
+  const {data, isLoading, isError, refetch} = useQuery(
     ['raid', tokenPath],
     getRaidEvent,
     // We don't want to override changes of the user to the raid event so we cannot refetch data.
@@ -42,14 +42,12 @@ export const ApiProvider = ({children}) => {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(rosterChanges)
-  })
+  }).then(() => setRosterChanges({}))
 
   const saveRosterChangesMutation = useMutation(saveRosterChanges);
-  console.log(JSON.stringify(rosterChanges))
 
   useEffect(() => {
     if(data) {
-      console.log(data)
       setRaidEvent(mapRaidEventFromApi(data))
     }
   }, [data])
@@ -68,12 +66,14 @@ export const ApiProvider = ({children}) => {
   }, [raidEvent]);
 
   const addRoster = () => {
-    setRosters((x) => [...x, {id: rosters.length, name: `Group ${rosters.length + 1}`, spots: []}]);
+    setRosters((x) => [...x, {id: rosters.length, name: `Roster ${rosters.length + 1}`, spots: []}]);
   };
 
   /** Not supported yet by back-end */
   const deleteRoster = (roster) => {
-    setAssignedSignups((x) => x.except(roster.spots, compareById));
+    roster.spots.forEach((player) => {
+      unassignPlayer(player)
+    })
     setRosters((x) => x.except([roster], compareById));
   };
 
@@ -99,9 +99,15 @@ export const ApiProvider = ({children}) => {
 
   const benchSignup = (signup) => updateSignup(signup, "Extra", 0);
 
+  const declineSignup = (signup) => updateSignup(signup, "Decline", 0);
+
   const unassignPlayer = (signup) => updateSignup(signup, "Undecided", 0);
 
-  console.log(raidEvent)
+  const clearRosterChanges = async () => {
+    setRaidEvent(mapRaidEventFromApi(data))
+    setRosterChanges([])
+    await refetch()
+  }
 
   return <Context.Provider value={{
     raidEvent,
@@ -116,12 +122,14 @@ export const ApiProvider = ({children}) => {
     changeRosterName,
     assignSignupToRoster,
     benchSignup,
+    declineSignup,
     unassignPlayer,
 
     isLoading,
     isError,
 
     hasRosterChanges: Object.keys(rosterChanges).length > 0,
-    saveRosterChangesMutation
+    saveRosterChangesMutation,
+    clearRosterChanges
   }}>{children}</Context.Provider>
 }

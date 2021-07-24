@@ -24,11 +24,12 @@ class Roster:
         optimizer = CompositionOptimizer(self.raid_name, self.characters)
         return optimizer.make_raid_composition()
 
-    def put_character(self, character: Character, roster_status: RosterStatus = None, signup_status: SignupStatus = None):
+    def put_character(self, character: Character, roster_status: RosterStatus = None,
+                      signup_status: SignupStatus = None, team_index=0):
         try:
             i = self.characters.index(character)
             prev_character = self.characters[i]
-            character.set_roster_status(prev_character.get_roster_status())
+            character.set_roster_status(prev_character.get_roster_status(), prev_character.get_team_index())
             character.set_signup_status(prev_character.get_signup_status())
         except ValueError:
             i = len(self.characters)
@@ -43,7 +44,7 @@ class Roster:
             roster_status = RosterStatus.Undecided
 
         if roster_status and roster_status != character.get_roster_status():
-            character.set_roster_status(roster_status)
+            character.set_roster_status(roster_status, team_index)
 
         if signup_status and signup_status != character.get_signup_status():
             character.set_signup_status(signup_status)
@@ -54,18 +55,15 @@ class Roster:
     def remove_player(self, player: Player) -> None:
         self.characters = [character for character in self.characters if character.discord_id != player.discord_id]
 
-    def get_signed_character(self, player: Player) -> Optional[Character]:
-        if player is None:
+    def get_signed_character(self, discord_id: str) -> Optional[Character]:
+        if discord_id is None:
             return None
-        players = [char for char in self.characters if char.discord_id == player.discord_id]
+        players = [char for char in self.characters if char.discord_id == discord_id]
         if len(players) == 0:
             return None
-        if len(players) == 1:
-            return players[0]
-        raise InternalBotException(f'{player} in the event more than once.')
+        return players[0]
 
     def to_dict(self) -> Dict[str, Any]:
-        print( [character.to_dict() for character in self.characters])
         return {
             'characters': [character.to_dict() for character in self.characters],
         }

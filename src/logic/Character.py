@@ -22,7 +22,7 @@ def map_roster_statuses(roster_statuses: List[Tuple]):
 
 
 class Character:
-    def __init__(self, *, char_name: str, klass: Class, spec: str, discord_id: int,
+    def __init__(self, *, char_name: str, klass: Class, spec: str, discord_id: str,
                  created_at: Optional[float] = None,
                  roster_statuses: Optional[List[Tuple[RosterStatus, int, int]]] = None,
                  signup_statuses: Optional[List[Tuple[SignupStatus, int]]] = None,
@@ -73,7 +73,7 @@ class Character:
         return Character(char_name=item['name'],
                          klass=Class[item['class']],
                          spec=item.get('spec', None),
-                         discord_id=item.get('discord_id', None),
+                         discord_id=str(item.get('discord_id', None)),
                          signup_statuses=[(SignupStatus[signup_status], timestamp) for
                                           signup_status, timestamp in item.get('signup_statuses', [])],
                          roster_statuses=[(RosterStatus[roster_status], timestamp, team_index) for
@@ -99,7 +99,8 @@ class Character:
         }
 
     def __eq__(self, other) -> bool:
-        return self.name == other.name and self.discord_id == other.discord_id
+        return self.name == other.name and str(self.discord_id) == str(other.discord_id)
+
 
     def __str__(self) -> str:
         return f'{self.klass.name.capitalize()} {self.name}'

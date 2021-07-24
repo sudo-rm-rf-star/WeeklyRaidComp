@@ -1,4 +1,3 @@
-import './Signups.scss';
 import { useApi } from './Api';
 import Players from './Players';
 import usePlayerDrop from "./usePlayerDrop";
@@ -11,9 +10,9 @@ export default function Signups() {
   return (
     <div ref={dropRef} className={`signups${isOver ? ' allow-drop' : ''}`}>
       <header>
-        Unassigned signups ( {unassignedSignups.length} )
+        Signups ( {unassignedSignups.length} )
       </header>
-      <div className="signup-roles">
+      <div className="spots">
         <Players players={unassignedSignups} />
       </div>
     </div>

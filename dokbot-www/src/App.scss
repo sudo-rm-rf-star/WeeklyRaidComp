@@ -17,6 +17,15 @@
     }
   }
 
+  .success {
+    margin: auto;
+    color: #42cc8c;
+  }
+
+  .error {
+    color: crimson;
+  }
+
   main {
     background-color: #1b263b;
     color: #e0e1dd;
@@ -50,18 +59,16 @@
         flex-direction: row;
         gap: 8px;
 
+        .controls {
+          margin-bottom: 5px;
+          padding-left: 10px;
+          padding-right: 10px;
 
-        .signups {
-          width: 15%;
-          display: flex;
-          flex: 0 0 250px;
-          flex-direction: column;
-
-          > header {
-            font-size: 1.2em;
-            margin-bottom: 10px;
+          .buttons {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
           }
-
         }
 
         .rosters {
@@ -75,13 +82,31 @@
 
         }
 
-        .benched {
+        .bench, .declined, .signups {
+          width: 300px;
+          padding: 10px;
+
+          display: flex;
+          flex-direction: column;
+
+          &.allow-drop {
+            border: 2px dashed;
+          }
 
           > header {
-            text-align: right;
-            font-size: 1.2em;
-            margin-bottom: 10px;
+            display: flex;
+
+            border-bottom: 1px solid;
+            padding-bottom: 5px;
+
+            input {
+              flex-grow: 1;
+            }
+            i {
+              flex: 0 0 20px;
+            }
           }
+
         }
       }
     }
@@ -89,29 +114,25 @@
 }
 
 .loading, .not-found, .internal-error {
-  position: absolute;
-  margin:auto;
-  top: 50%;
-  left: 45%;
   font-size: 2em;
+  text-align: center;
+  margin-top: 100px;
 }
 
 .btn {
   cursor: pointer;
 }
 
-.publish {
-  padding: 0.8em 1.5em;
+.publish, .discard {
+  height: 50px;
   border:0.1em solid #000000;
   border-radius:0.12em;
   text-decoration:none;
   font-weight:300;
   color:#000000;
   text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
-  background-color:#42cc8c;
   text-align:center;
   transition: all 0.15s;
-  width: 100%;
 
   &:disabled {
     cursor: not-allowed;
@@ -124,4 +145,12 @@
     border-color:#FFFFFF;
   }
 
+}
+
+.publish {
+  background-color:#42cc8c;
+}
+
+.discard {
+  background-color: #ce3d61;
 }

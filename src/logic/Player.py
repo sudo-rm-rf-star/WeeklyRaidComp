@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class Player:
-    def __init__(self, *, discord_id: int, characters: List[Character] = None, selected_char: Optional[str] = None,
+    def __init__(self, *, discord_id: str, characters: List[Character] = None, selected_char: Optional[str] = None,
                  created_at: Optional[float] = None, selected_teams: Optional[Dict[str, str]] = None):
         self.discord_id = discord_id
         self.selected_char = selected_char

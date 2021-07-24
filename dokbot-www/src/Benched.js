@@ -1,4 +1,3 @@
-import './Benched.scss';
 import {useApi} from './Api';
 import usePlayerDrop from "./usePlayerDrop";
 import Players from "./Players";
@@ -12,7 +11,7 @@ export default function Benched() {
       <header>
         Benched ( {benched.length} )
       </header>
-      <div className="bench-spots">
+      <div className="spots">
         {
           (!benched?.length) ?
             (<div key="placeholder" className="roster-spot-placeholder">drag signups here</div>) :

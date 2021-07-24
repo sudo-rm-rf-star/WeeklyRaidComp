@@ -33,21 +33,24 @@ class RaidEvent:
         self.updated_at = datetime.now()
         return self.roster.compose()
 
+    def get_signed_character(self, discord_id: str) -> Optional[Character]:
+        return self.roster.get_signed_character(discord_id)
+
     def add_to_signees(self, player: Player, signee_choice: SignupStatus) -> Character:
         self.updated_at = datetime.now()
-        signed_character = self.roster.get_signed_character(player)
+        signed_character = self.get_signed_character(player.discord_id)
         selected_character = player.get_selected_char()
         if signed_character and signed_character != selected_character:
             self.roster.remove_player(player)
         return self.roster.put_character(character=selected_character, signup_status=signee_choice)
 
-    def add_to_roster(self, player: Player, roster_choice: RosterStatus) -> Character:
+    def add_to_roster(self, player: Player, roster_choice: RosterStatus, team_index=0) -> Character:
         self.updated_at = datetime.now()
-        character = self.roster.get_signed_character(player)
+        character = self.get_signed_character(player.discord_id)
         if character is None:
             character = player.get_selected_char()
         character = player.get_char(character.name)
-        return self.roster.put_character(character=character, roster_status=roster_choice)
+        return self.roster.put_character(character=character, roster_status=roster_choice, team_index=team_index)
 
     def has_char_signed(self, character: Character) -> bool:
         return any(char for char in self.roster.characters if char == character)

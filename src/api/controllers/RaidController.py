@@ -16,5 +16,8 @@ class RaidController:
         return {'data': raid.to_dict() if raid else None}
 
     def publish_roster_changes(self, token: str, roster_changes: Dict[int, Tuple[str, int]]):
-        self.event_queue.send_event(RosterUpdated(token, roster_changes))
-        return {'data': "PROCESSING"}
+        raid = self.raids_resource.get_raid_by_token(token)
+        updated_characters = []
+        if raid:
+            updated_characters = self.raids_resource.update_roster(raid, roster_changes)
+        return {'data': [char.to_dict() for char in updated_characters]}

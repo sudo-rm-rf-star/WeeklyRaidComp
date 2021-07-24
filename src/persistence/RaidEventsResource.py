@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Dict, Tuple
 from typing import Optional
 
 from dokbot.DokBotContext import DokBotContext
@@ -7,10 +7,13 @@ from events.EventQueue import EventQueue
 from events.raid.RaidEventCreated import RaidEventCreated
 from events.raid.RaidEventRemoved import RaidEventRemoved
 from events.raid.RaidEventUpdated import RaidEventUpdated
+from events.raid.RosterUpdated import RosterUpdated
 from exceptions.InvalidInputException import InvalidInputException
 from logic.MessageRef import MessageRef
 from logic.Raid import Raid
 from logic.RaidEvent import RaidEvent
+from logic.enums.RosterStatus import RosterStatus
+from .PlayersResource import PlayersResource
 from .tables.TableFactory import TableFactory
 from uuid import uuid4
 
@@ -66,3 +69,16 @@ class RaidEventsResource:
 
     def delete_raid(self, raid_event: RaidEvent) -> None:
         self.table.remove_raid_event(raid_event)
+
+    def update_roster(self, raid_event: RaidEvent, roster_changes: Dict[int, Tuple[str, int]]):
+        players_resource = PlayersResource()
+
+        updated_characters = []
+        for discord_id, (roster_status, team_index) in roster_changes.items():
+            player = players_resource.get_player_by_id(discord_id)
+            updated_character = raid_event.add_to_roster(player, RosterStatus[roster_status], team_index)
+            updated_characters.append(updated_character)
+        self.update_raid(raid_event)
+        self.queue.send_event(
+            RosterUpdated(raid_event.token, [updated_character.discord_id for updated_character in updated_characters]))
+        return updated_characters

@@ -26,5 +26,5 @@ def publish_roster_changes(ctx: RaidContext, characters: List[Character]):
 async def _handle_roster_choice(ctx: RaidContext, character: Character) -> None:
     verb = VERBS[character.get_roster_status()]
     formatted_msg = f'{character.name}, you were {verb} for {ctx.raid_event.get_name()} on {ctx.raid_event.get_date()} ({ctx.raid_event.get_weekday()})'
-    member = await ctx.guild.fetch_member(character.discord_id)
+    member = await ctx.guild.fetch_member(int(character.discord_id))
     await member.send(content=formatted_msg)

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import Dict, Tuple
+from typing import List
 
 from events.Event import Event
 
 
 @dataclass
 class RosterUpdated(Event):
-    def __init__(self, raid_token: str, roster_changes: Dict[int, Tuple[str, int]]):
+    def __init__(self, raid_token: str, character_ids: List[str]):
         self.raid_token = raid_token
-        self.roster_changes = roster_changes
+        self.character_ids = character_ids

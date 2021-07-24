@@ -26,7 +26,7 @@ export const bucketedPlayers = (players) => {
 
   const maxTeamIndex = players.max(({teamIndex}) => teamIndex);
   for (let i = 0; i < maxTeamIndex + 1; i++) {
-    rosters.push({id: i, name: `Group ${i + 1}`, spots: []});
+    rosters.push({id: i, name: `Roster ${i + 1}`, spots: []});
   }
 
   players.forEach((player) => {

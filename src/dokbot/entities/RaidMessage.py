@@ -12,9 +12,10 @@ from logic.enums.SignupStatus import SignupStatus
 from persistence.MessagesResource import MessagesResource
 from persistence.RaidEventsResource import RaidEventsResource
 from utils.Constants import DATETIMESEC_FORMAT
-from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI
+from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI, ROSTER_URL_EMOJI
 from exceptions.InternalBotException import InternalBotException
 import discord
+import os
 
 
 class RaidMessage(DiscordMessage):
@@ -72,7 +73,8 @@ def _get_title(raid_event: RaidEvent) -> str:
 
 async def _get_description(ctx: RaidContext) -> str:
     return f'{await get_emoji(ctx.bot, CALENDAR_EMOJI)} {ctx.raid_event.get_date()} ({ctx.raid_event.get_weekday().capitalize()})\n' \
-           f'{await get_emoji(ctx.bot, CLOCK_EMOJI)} {ctx.raid_event.get_time()}\n'
+           f'{await get_emoji(ctx.bot, CLOCK_EMOJI)} {ctx.raid_event.get_time()}\n' \
+           f"{await get_emoji(ctx.bot, ROSTER_URL_EMOJI)} {os.getenv('BASE_URL')}/{ctx.raid_event.token}\n"
 
 
 def get_footer(raid_event: RaidEvent, for_raid_leaders: bool) -> Optional[Dict[str, str]]:
