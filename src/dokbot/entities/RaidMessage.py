@@ -26,7 +26,7 @@ class RaidMessage(DiscordMessage):
     async def get_embed(cls, ctx: RaidContext, **kwargs) -> Optional[discord.Embed]:
         for_raid_leaders = kwargs['for_raid_leaders']
         embed = {'title': _get_title(raid_event=ctx.raid_event),
-                 'description': await _get_description(ctx=ctx),
+                 'description': await _get_description(ctx=ctx, for_raid_leaders=for_raid_leaders),
                  'fields': await _get_fields(ctx=ctx),
                  'footer': get_footer(raid_event=ctx.raid_event, for_raid_leaders=for_raid_leaders),
                  'color': 2171428,
@@ -71,10 +71,11 @@ def _get_title(raid_event: RaidEvent) -> str:
     return f'{raid_event.get_name()}'
 
 
-async def _get_description(ctx: RaidContext) -> str:
-    return f'{await get_emoji(ctx.bot, CALENDAR_EMOJI)} {ctx.raid_event.get_date()} ({ctx.raid_event.get_weekday().capitalize()})\n' \
-           f'{await get_emoji(ctx.bot, CLOCK_EMOJI)} {ctx.raid_event.get_time()}\n' \
-           f"{await get_emoji(ctx.bot, ROSTER_URL_EMOJI)} {os.getenv('BASE_URL')}/{ctx.raid_event.token}\n"
+async def _get_description(ctx: RaidContext, for_raid_leaders: bool) -> str:
+    date_part = f'{await get_emoji(ctx.bot, CALENDAR_EMOJI)} {ctx.raid_event.get_date()} ({ctx.raid_event.get_weekday().capitalize()})'
+    time_part = f'\n{await get_emoji(ctx.bot, CLOCK_EMOJI)} {ctx.raid_event.get_time()}'
+    url_part = f"\n{await get_emoji(ctx.bot, ROSTER_URL_EMOJI)} {os.getenv('BASE_URL')}/{ctx.raid_event.token}" if for_raid_leaders else ''
+    return f'{date_part}{time_part}{url_part}'
 
 
 def get_footer(raid_event: RaidEvent, for_raid_leaders: bool) -> Optional[Dict[str, str]]:
