@@ -20,7 +20,7 @@ export default function Player({ player }) {
   );
   return (
     <div className={`player ${player.class}`} ref={dragRef}>
-      <img src={`${process.env.PUBLIC_URL}/emojis/${player.spec}_${player.class}.png`} alt="" />
+      <img src={`https://raw.githubusercontent.com/orourkek/Wow-Icons/master/images/spec/${player.class.toLowerCase()}/${player.spec.toLowerCase()}.png`} alt="" />
       <span>{player.name}</span>
       <span className="status-icon">{SignupStatusIcons[player.signupStatus]}</span>
     </div>
