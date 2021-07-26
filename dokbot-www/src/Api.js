@@ -19,11 +19,10 @@ export const ApiProvider = ({children}) => {
   const [assignedSignups, setAssignedSignups] = useState([]);
   const [unassignedSignups, setUnassignedSignups] = useState([]);
   const [declined, setDeclined] = useState([]);
-  const [rosterChanges, setRosterChanges] = useState({});
+  const [rosterChanges, setRosterChanges] = useState([]);
 
   const tokenPath = window.location.pathname;
-// const APP_URL = 'http://localhost:5000';
-   const APP_URL = '/api'
+  const APP_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : '/api';
   const raidUrl = `${APP_URL}/raids${tokenPath}`;
 
   const getRaidEvent = async () => fetch(raidUrl)
@@ -64,6 +63,9 @@ export const ApiProvider = ({children}) => {
       setUnassignedSignups(unassignedSignups)
     }
   }, [raidEvent]);
+
+
+  const hasRosterChanges = Object.keys(rosterChanges).length > 0
 
   const addRoster = () => {
     setRosters((x) => [...x, {id: rosters.length, name: `Roster ${rosters.length + 1}`, spots: []}]);
@@ -128,7 +130,7 @@ export const ApiProvider = ({children}) => {
     isLoading,
     isError,
 
-    hasRosterChanges: Object.keys(rosterChanges).length > 0,
+    hasRosterChanges,
     saveRosterChangesMutation,
     clearRosterChanges
   }}>{children}</Context.Provider>

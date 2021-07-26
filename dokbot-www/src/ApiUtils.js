@@ -13,7 +13,7 @@ export const mapRaidEventFromApi = (data) => (data ? {
   title: data.full_name,
   size: data.raid_size,
   eventAt: new Date(data.timestamp * 1000),
-  signups: data.roster.characters.map(mapPlayerFromApi).filter(({signupStatus}) => signupStatus !== 'Undecided'),
+  signups: data.roster.characters.map(mapPlayerFromApi).filter(({signupStatus, rosterStatus}) => signupStatus !== 'Unknown' || rosterStatus !== 'Undecided'),
 } : null);
 
 

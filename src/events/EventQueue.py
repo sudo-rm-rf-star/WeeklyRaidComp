@@ -20,11 +20,13 @@ class EventQueue(metaclass=Singleton):
         secret_key = os.getenv('AWS_SECRET_KEY')
         sqs = boto3.resource('sqs', region_name='eu-west-1', aws_access_key_id=access_key,
                              aws_secret_access_key=secret_key)
+        queue_name = f'Dev{QUEUE_NAME}' if os.getenv('APP_ENV') == 'development' else QUEUE_NAME
         try:
-            self.bot_queue = sqs.get_queue_by_name(QueueName=QUEUE_NAME)
+
+            self.bot_queue = sqs.get_queue_by_name(QueueName=queue_name)
         except Exception:
             self.bot_queue = None
-            print("# Queues are not supported yet. Make one through the console first with name: " + QUEUE_NAME)
+            print("# Queues are not supported yet. Make one through the console first with name: " + queue_name)
 
     def send_event(self, event: Event, ctx: DokBotContext = None):
         if ctx:
