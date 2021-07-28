@@ -6,7 +6,6 @@ from dokbot.RaidContext import RaidContext
 from dokbot.entities.DiscordMessage import DiscordMessage, field
 from dokbot.raid_actions.ActionsRaid import ActionsRaid
 from logic.Character import Character
-from logic.Raid import Raid
 from logic.RaidEvent import RaidEvent
 from logic.enums.RosterStatus import RosterStatus
 from logic.enums.SignupStatus import SignupStatus
@@ -17,7 +16,6 @@ from utils.EmojiNames import CALENDAR_EMOJI, CLOCK_EMOJI, ROSTER_URL_EMOJI
 from exceptions.InternalBotException import InternalBotException
 import discord
 import os
-from collections import defaultdict
 
 
 class RaidMessage(DiscordMessage):
@@ -96,17 +94,7 @@ async def _get_fields(ctx: RaidContext) -> List[Dict[str, str]]:
         characters_by_status[character.get_roster_status()].append(character)
 
     fields = []
-    characters_by_team = defaultdict(list)
-    for char in characters_by_status[RosterStatus.Accept]:
-        characters_by_team[char.get_team_index()].append(char)
-
-    for team_index in sorted(characters_by_team.keys()):
-        characters = characters_by_team[team_index]
-        if len(characters) > 0:
-            fields.append(field(f"**__Roster {team_index+1}__** ({len(characters)}/{Raid[ctx.raid_event.name].player_size})", inline=False))
-            fields.extend(await DiscordMessage.show_characters(ctx=ctx, characters=characters))
-
-    for roster_status in [RosterStatus.Undecided, RosterStatus.Extra]:
+    for roster_status in [RosterStatus.Accept, RosterStatus.Undecided, RosterStatus.Extra]:
         characters = [char for char in characters_by_status[roster_status] if not (
                 char.get_roster_status() == RosterStatus.Undecided and char.get_signup_status() == SignupStatus.Unknown)]
         if len(characters) > 0:
@@ -133,6 +121,7 @@ def _get_title_for_roster_status(characters: List[Character], roster_status: Ros
     title = {
         RosterStatus.Accept: "Roster",
         RosterStatus.Extra: "Standby",
+        RosterStatus.Decline: "Declined",
         RosterStatus.Undecided: "Signees"
     }
     return field(f"**__{title[roster_status]}__** ({len(characters)})", inline=False)
