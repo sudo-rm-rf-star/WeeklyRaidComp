@@ -93,7 +93,7 @@ class DokBotCog(Cog, name='DokBot'):
                     await handle_raid_team_action(ctx=ctx, action=ActionsRaidTeam[action_name])
             elif is_signup_action or is_raid_action:
                 message_ref = MessagesResource().get_message(message.id)
-                if not message_ref and os.getenv('APP_ENV') == 'production':
+                if not message_ref:
                     # Do not send out this message as development bot.
                     if os.getenv('APP_ENV') == 'production':
                         await user.send("Raid no longer exists")

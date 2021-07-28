@@ -1,23 +1,22 @@
-import {useApi} from './Api';
 import Players from './Players';
 import usePlayerDrop from "./usePlayerDrop";
+import {useStore} from "./RaidEventStoreContext";
+import {observer} from 'mobx-react-lite'
 
-export default function Roster({roster}) {
-  const {assignSignupToRoster, raidEvent: {size}, changeRosterName, deleteRoster} = useApi();
-  const onPlayerDrop = (player) => assignSignupToRoster(player, roster)
+
+const Roster = observer(({roster}) => {
+  const {raidEvent} = useStore();
+  const { size } = raidEvent;
+
+  const onPlayerDrop = (player) => raidEvent.assignSignupToRoster(player, roster)
   const [{isOver}, dropRef] = usePlayerDrop(onPlayerDrop, [roster]); // depend on data updates so we get current spot count
 
   return (
     <div ref={dropRef} className={`roster${isOver ? ' allow-drop' : ''}`}>
       <header>
-        <input
-          type="text"
-          placeholder="Group name"
-          value={roster.name}
-          onChange={(e) => changeRosterName(roster, e.target.value)}
-        />
+        <span className="roster-name">{roster.name}</span>
         <span > ( <span className={roster.spots.length > size ? 'length-warning' : ''}>{roster.spots.length}</span> / {size} ) </span>
-        <i className="btn fas fa-trash-alt" onClick={() => deleteRoster(roster)}/>
+        <i className="btn fas fa-trash-alt" onClick={() => raidEvent.deleteRoster(roster)}/>
       </header>
       <div className="roster-spots">
         {
@@ -28,4 +27,6 @@ export default function Roster({roster}) {
       </div>
     </div>
   );
-}
+})
+
+export default Roster;

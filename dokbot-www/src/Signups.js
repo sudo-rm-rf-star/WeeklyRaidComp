@@ -1,11 +1,14 @@
-import { useApi } from './Api';
 import Players from './Players';
 import usePlayerDrop from "./usePlayerDrop";
+import {useStore} from "./RaidEventStoreContext";
+import {observer} from 'mobx-react-lite'
 
 
-export default function Signups() {
-  const { unassignedSignups, unassignPlayer } = useApi();
-  const [{isOver}, dropRef] = usePlayerDrop(unassignPlayer, [unassignedSignups]); // depend on data updates so we get current spot count
+const Signups = observer(() => {
+  const {raidEvent} = useStore();
+  const unassignedSignups = raidEvent.getUnassignedSignups();
+
+  const [{isOver}, dropRef] = usePlayerDrop((player) => raidEvent.unassignPlayer(player), [unassignedSignups]);
 
   return (
     <div ref={dropRef} className={`signups${isOver ? ' allow-drop' : ''}`}>
@@ -18,4 +21,6 @@ export default function Signups() {
     </div>
 
   );
-}
+})
+
+export default Signups;

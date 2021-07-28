@@ -1,13 +1,9 @@
 import './App.scss';
-import {QueryClient, QueryClientProvider} from 'react-query';
 import React from 'react';
 import RaidEvent from './RaidEvent';
-import {ApiProvider} from "./Api";
-
+import {StoreProvider} from "./RaidEventStoreContext";
 
 function App() {
-  const queryClient = new QueryClient();
-
   return (
     <div className="App">
       <header>
@@ -15,11 +11,9 @@ function App() {
         <span>DokBot</span>
       </header>
       <main>
-        <QueryClientProvider client={queryClient}>
-          <ApiProvider>
-            <RaidEvent/>
-          </ApiProvider>
-        </QueryClientProvider>
+        <StoreProvider>
+          <RaidEvent/>
+        </StoreProvider>
       </main>
     </div>
   );

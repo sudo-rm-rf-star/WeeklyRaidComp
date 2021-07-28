@@ -1,9 +1,11 @@
 import './Rosters.scss';
-import {useApi} from './Api';
 import Roster from "./Roster";
+import {useStore} from "./RaidEventStoreContext";
+import {observer} from 'mobx-react-lite'
 
-export default function Rosters() {
-  const {rosters, addRoster} = useApi();
+const Rosters = observer(() => {
+  const {raidEvent} = useStore();
+  const rosters = raidEvent.getRosters();
 
   return (
     <div className="rosters">
@@ -12,9 +14,8 @@ export default function Rosters() {
           <Roster key={roster.name} roster={roster}/>
         ))}
       </div>
-      <div className="roster-add">
-        <i className="btn fas fa-plus" onClick={addRoster}></i>
-      </div>
     </div>
   );
-}
+})
+
+export default Rosters;

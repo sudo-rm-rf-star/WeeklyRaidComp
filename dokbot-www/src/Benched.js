@@ -1,10 +1,13 @@
-import {useApi} from './Api';
 import usePlayerDrop from "./usePlayerDrop";
 import Players from "./Players";
+import {useStore} from "./RaidEventStoreContext";
+import {observer} from 'mobx-react-lite'
 
-export default function Benched() {
-  const {benched, benchSignup} = useApi();
-  const [{isOver}, dropRef] = usePlayerDrop(benchSignup, [benched]); // depend on data updates so we get current spot count
+
+const Benched = observer(() => {
+  const {raidEvent} = useStore();
+  const benched = raidEvent.getBenchedSignups();
+  const [{isOver}, dropRef] = usePlayerDrop((player) => raidEvent.benchSignup(player), [benched]);
 
   return (
     <div ref={dropRef} className={`bench${isOver ? ' allow-drop' : ''}`}>
@@ -20,4 +23,6 @@ export default function Benched() {
       </div>
     </div>
   );
-}
+})
+
+export default Benched;

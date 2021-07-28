@@ -1,10 +1,13 @@
-import {useApi} from './Api';
 import usePlayerDrop from "./usePlayerDrop";
 import Players from "./Players";
+import {useStore} from "./RaidEventStoreContext";
+import {observer} from 'mobx-react-lite'
 
-export default function Declined() {
-  const {declined, declineSignup} = useApi();
-  const [{isOver}, dropRef] = usePlayerDrop(declineSignup, [declined]); // depend on data updates so we get current spot count
+const Declined = observer(() => {
+  const {raidEvent} = useStore();
+  const declined = raidEvent.getDeclinedSignups();
+
+  const [{isOver}, dropRef] = usePlayerDrop((player) => raidEvent.declineSignup(player), [declined]);
 
   return (
     <div ref={dropRef} className={`declined${isOver ? ' allow-drop' : ''}`}>
@@ -20,4 +23,6 @@ export default function Declined() {
       </div>
     </div>
   );
-}
+})
+
+export default Declined;
