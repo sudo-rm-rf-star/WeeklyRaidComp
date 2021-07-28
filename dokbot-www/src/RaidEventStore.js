@@ -34,17 +34,18 @@ export class RaidEventStore {
       })
   }
 
-  saveRaidEvent() {
+  async saveRaidEvent() {
     this.isSaving = true;
-    return fetch(`${this.raidUrl}/roster`, {
+    await fetch(`${this.raidUrl}/roster`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(this.raidEvent.rosterChanges)
-    }).then(() => {
+      body: JSON.stringify(this.raidEvent.rosterChanges[this.raidEvent.token])
+    }).then(({data}) => {
       runInAction(() => {
-        this.raidEvent.rosterChanges = [];
+        this.raidEvent.json = data
+        this.raidEvent.clearRosterChanges();
         this.isSaving = false;
       })
     })
@@ -55,6 +56,7 @@ export class RaidEventStore {
 export class RaidEvent {
   store = null
   json = null
+  token = null
 
   title = null
   size = null
@@ -70,11 +72,15 @@ export class RaidEvent {
     this.json = json
     const savedChanges = localStorage.getItem("rosterChanges");
     this.rosterChanges = savedChanges != null ? JSON.parse(savedChanges)  : {}
+    if(!this.rosterChanges.hasOwnProperty(json.token)) {
+      this.rosterChanges[json.token] = {}
+    }
+
     this.updateFromJson()
 
 
     autorun(() => {
-      if(this.hasRosterChanges()) {
+      if(this.rosterChanges != null) {
         localStorage.setItem('rosterChanges', JSON.stringify(this.rosterChanges));
       }
     })
@@ -132,7 +138,7 @@ export class RaidEvent {
   };
 
   hasRosterChanges() {
-    return Object.keys(this.rosterChanges).length > 0;
+    return Object.keys(this.rosterChanges[this.token]).length > 0;
   }
 
   updateSignup (player, rosterStatus, teamIndex = undefined) {
@@ -141,7 +147,7 @@ export class RaidEvent {
       rosterStatus,
       teamIndex: teamIndex ?? player.teamIndex
     }]
-    this.rosterChanges[player.id] = [rosterStatus, teamIndex];
+    this.rosterChanges[this.token][player.id] = [rosterStatus, teamIndex];
   }
 
   assignSignupToRoster(signup, roster) {
@@ -161,18 +167,19 @@ export class RaidEvent {
   }
 
   clearRosterChanges() {
-    localStorage.removeItem('rosterChanges');
-    this.rosterChanges = {};
+    this.rosterChanges = {...this.rosterChanges, [this.token]: {}};
     this.updateFromJson()
   }
 
   updateFromJson() {
+    if(!this.json) return;
+    this.token = this.json.token
     this.title = this.json.full_name;
     this.size = this.json.raid_size;
     this.eventAt = new Date(this.json.timestamp * 1000);
     this.signups = this.json.roster.characters
       .map(({discord_id, name, role, class: klass, spec, team_index, roster_status, signup_status}) => {
-        const [rosterStatus, teamIndex] = this.rosterChanges[discord_id] ?? [roster_status, team_index]
+        const [rosterStatus, teamIndex] = this.rosterChanges[this.token][discord_id] ?? [roster_status, team_index]
         return {
           id: discord_id,
           name,

@@ -41,7 +41,10 @@ const RaidEvent = observer(() => {
     clearMessages()
     store.saveRaidEvent()
       .then(() => setSuccessMessage("Successfully published your changes!"))
-      .catch(() => setErrorMessage("Failed to publish your changes :-("))
+      .catch((err) => {
+        setErrorMessage("Failed to publish your changes :-(")
+        console.error(err)
+      })
   }
 
   const onDiscard = () => {

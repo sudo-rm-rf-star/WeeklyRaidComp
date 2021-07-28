@@ -20,4 +20,4 @@ class RaidController:
         updated_characters = []
         if raid:
             updated_characters = self.raids_resource.update_roster(raid, roster_changes)
-        return {'data': [char.to_dict() for char in updated_characters]}
+        return {'data': raid.to_dict()}
