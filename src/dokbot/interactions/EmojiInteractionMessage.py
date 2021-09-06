@@ -48,10 +48,13 @@ class EmojiInteractionMessage(DiscordMessage):
         except asyncio.TimeoutError:
             raise CancelInteractionException("Operation timed out after one minute.")
 
-    async def send_to(self, recipient) -> discord.Message:
+    async def send_to(self, recipient) -> Optional[discord.Message]:
         msgs = await super(EmojiInteractionMessage, self).send_to(recipient)
         if len(msgs) != 1:
             Log.warn(f'Unhandled case: message to {recipient} has an issue:\n{msgs}')
+        if len(msgs) == 0:
+            return None
+
         msg = msgs[0]
         self.is_dm = isinstance(msg.channel, discord.DMChannel)
         self.msg = msg

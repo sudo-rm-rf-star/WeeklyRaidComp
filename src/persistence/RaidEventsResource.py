@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Dict, Tuple
 from typing import Optional
 
 from dokbot.DokBotContext import DokBotContext
@@ -7,11 +7,15 @@ from events.EventQueue import EventQueue
 from events.raid.RaidEventCreated import RaidEventCreated
 from events.raid.RaidEventRemoved import RaidEventRemoved
 from events.raid.RaidEventUpdated import RaidEventUpdated
+from events.raid.RosterUpdated import RosterUpdated
 from exceptions.InvalidInputException import InvalidInputException
 from logic.MessageRef import MessageRef
 from logic.Raid import Raid
 from logic.RaidEvent import RaidEvent
+from logic.enums.RosterStatus import RosterStatus
+from .PlayersResource import PlayersResource
 from .tables.TableFactory import TableFactory
+from uuid import uuid4
 
 
 class RaidEventsResource:
@@ -21,7 +25,7 @@ class RaidEventsResource:
         self.ctx = ctx
 
     def create_raid(self, raid_name: str, raid_datetime: datetime, guild_id: int, team_name: str):
-        raid_event = RaidEvent(name=raid_name, raid_datetime=raid_datetime, guild_id=guild_id, team_name=team_name)
+        raid_event = RaidEvent(token=str(uuid4()), name=raid_name, raid_datetime=raid_datetime, guild_id=guild_id, team_name=team_name)
         self.table.create_raid_event(raid_event)
         self.queue.send_event(RaidEventCreated(raid_event), ctx=self.ctx)
         return raid_event
@@ -45,6 +49,9 @@ class RaidEventsResource:
                 raise InvalidInputException(f"There's no raid for {full_raid_name} on {raid_datetime}.")
         return raid_event
 
+    def get_raid_by_token(self, token: str) -> Optional[RaidEvent]:
+        return self.table.get_raid_event_by_token(token)
+
     def get_raid_by_message(self, message: MessageRef):
         return self.table.get_raid_event(raid_name=message.raid_name, raid_datetime=message.raid_datetime,
                                          team_name=message.team_name, guild_id=message.guild_id)
@@ -62,3 +69,16 @@ class RaidEventsResource:
 
     def delete_raid(self, raid_event: RaidEvent) -> None:
         self.table.remove_raid_event(raid_event)
+
+    def update_roster(self, raid_event: RaidEvent, roster_changes: Dict[int, Tuple[str, int]]):
+        players_resource = PlayersResource()
+
+        updated_characters = []
+        for discord_id, (roster_status, team_index) in roster_changes.items():
+            player = players_resource.get_player_by_id(discord_id)
+            updated_character = raid_event.add_to_roster(player, RosterStatus[roster_status], team_index)
+            updated_characters.append(updated_character)
+        self.update_raid(raid_event)
+        self.queue.send_event(
+            RosterUpdated(raid_event.token, [updated_character.discord_id for updated_character in updated_characters]))
+        return updated_characters

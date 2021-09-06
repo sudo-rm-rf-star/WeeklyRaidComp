@@ -11,12 +11,13 @@ class EventHandler:
     def __init__(self, bot: DokBot):
         self.bot = bot
 
-    async def process(self, event: Event):
+    async def process(self, event):
         raise MissingImplementationException(self)
 
     async def process_failed(self, exception: Exception, event: Event):
         if isinstance(exception, InvalidInputException):
             return
-        Log.error(f"Failed to process {event} because of {exception}")
+
+        Log.error(f"Failed to process {event} because of {exception}\n{traceback.format_exc()}")
         maintainer = await self.bot.fetch_user(MAINTAINER_ID)
         await maintainer.send(f"Unexpected issue. {event}, {exception}")

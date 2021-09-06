@@ -1,5 +1,5 @@
 const dragTypes = {
-  SIGNUP: "SINGUP",
+  PLAYER: 'SIGNUP',
 };
 
 export default dragTypes;

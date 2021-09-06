@@ -119,7 +119,7 @@ class PlayersTable(DynamoDBTable[Player]):
 def _synthesize_players(items: Dict[str, Any]) -> List[Player]:
     players = {}
     for item in items['Items']:
-        discord_id = int(item['discord_id'])
+        discord_id = str(item['discord_id'])
         created_at = float(item['created_at'])
         char_name = item['name']
         klass = Class[item['class']]

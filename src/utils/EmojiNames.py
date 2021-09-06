@@ -10,6 +10,7 @@ BENCH_EMOJI = "Bench"
 LATE_EMOJI = 'Late'
 TENTATIVE_EMOJI = 'Tentative'
 MISSING_EMOJI = 'Missing'
+ROSTER_URL_EMOJI = 'RosterUrl'
 
 ROLE_EMOJI = {
     Role.RANGED: 'Ranged',

@@ -17,6 +17,15 @@
     }
   }
 
+  .success {
+    margin: auto;
+    color: #42cc8c;
+  }
+
+  .error {
+    color: crimson;
+  }
+
   main {
     background-color: #1b263b;
     color: #e0e1dd;
@@ -25,126 +34,123 @@
     .raid-event {
       padding: 20px;
       
-      header {
+      > header {
         display: flex;
         flex-direction: column;
         margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, .5);
+        padding: 12px;
 
         .raid-event-title {
-          font-size: 1.2em;
+          font-size: 2em;
           font-weight: 600;
           margin-bottom: 10px;
         }
 
-        .raid-event-date i {
-          margin-right: 5px;
-          
+        .raid-event-date {
+          margin-right: 32px;;
         }
-        .raid-event-time i {
-          margin-right: 5px;
-        }
+
       }
 
-      .signups {
+      .raid-event-body {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        gap: 8px;
 
-        header {
-          font-size: 1.1em;
-        }
+        .controls {
+          margin-bottom: 5px;
+          padding-left: 10px;
+          padding-right: 10px;
 
-        .signup-roles {
-          display: flex;
-          gap: 10px;
-          .signup-role {
-            font-weight: 600;
-            text-decoration: underline;
-          }
-        }
-      }
-
-      .rosters {
-        display: flex;
-        flex-direction: column;
-
-        header {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          gap: 10px;
-          font-size: 1.1em;
-        }
-
-        .roster-items {
-          display: flex;
-          flex-direction: row;
-          gap: 10px;
-          flex-wrap: wrap;
-
-          .roster {
-            border: 1px solid #e0e1dd;
-            width: 400px;
-            padding: 10px;
-
+          .buttons {
             display: flex;
             flex-direction: column;
-            
-            &.allow-drop {
-              border: 3px dashed;
+            justify-content: flex-start;
+          }
+        }
+
+        .rosters {
+          flex-grow: 1;
+
+          > header {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+          }
+
+        }
+
+        .bench, .declined, .signups {
+          width: 300px;
+          padding: 10px;
+
+          display: flex;
+          flex-direction: column;
+
+          &.allow-drop {
+            border: 2px dashed;
+          }
+
+          > header {
+            display: flex;
+
+            border-bottom: 1px solid;
+            padding-bottom: 5px;
+
+            input {
+              flex-grow: 1;
             }
-
-            header {
-              display: flex;
-
-              border-bottom: 1px solid;
-              padding-bottom: 5px;
-
-              input {
-                flex-grow: 1;
-              }
-              i {
-                flex: 0 0 20px;
-              }
-            }
-
-            .roster-spots {
-              display: flex;
-              flex-direction: column;
-              gap: 10px;
-
-              .roster-spot {
-                background: #415a77;
-                display: flex;
-                justify-items: center;
-                align-items: center;
-                padding: 5px;
-
-                span {
-                  flex-grow: 1;
-                }
-
-                i {
-                  flex: 0 0 20px;
-                }
-              }
-              .roster-spot-placeholder {
-                text-align: center;
-                padding: 5px;
-              }
+            i {
+              flex: 0 0 20px;
             }
           }
+
         }
       }
     }
-
   }
 }
 
-.horizontal-break {
-  margin: 10px 0;
-  border-bottom: 2px #778da9 solid;
+.loading, .not-found, .internal-error {
+  font-size: 2em;
+  text-align: center;
+  margin-top: 100px;
 }
 
 .btn {
   cursor: pointer;
+}
+
+.publish, .discard {
+  height: 50px;
+  border:0.1em solid #000000;
+  border-radius:0.12em;
+  text-decoration:none;
+  font-weight:300;
+  color:#000000;
+  text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+  text-align:center;
+  transition: all 0.15s;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  &:not([disabled]):hover {
+    text-shadow: 0 0 2em rgba(255,255,255,1);
+    color:#FFFFFF;
+    border-color:#FFFFFF;
+  }
+
+}
+
+.publish {
+  background-color:#42cc8c;
+}
+
+.discard {
+  background-color: #ce3d61;
 }

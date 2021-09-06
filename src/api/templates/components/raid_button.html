@@ -1,9 +1,0 @@
-{% macro raid_button(url, text, raid, class) -%}
-<div class="mx-1">
-    <a href="{{url_for(url, name=raid.name, team_id=raid.team_id, timestamp=raid.timestamp)}}"
-       class="bg-gray-500 p-2 flex justify-center items-center w-full text-white rounded-md
-   focus:outline-none hover:bg-gray-900 cursor-not-allowed {{class}}">
-        {{text}}
-    </a>
-</div>
-{%- endmacro %}

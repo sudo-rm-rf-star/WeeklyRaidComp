@@ -1,4 +1,5 @@
 import logging
+import os
 import traceback
 from datetime import datetime
 
@@ -93,7 +94,9 @@ class DokBotCog(Cog, name='DokBot'):
             elif is_signup_action or is_raid_action:
                 message_ref = MessagesResource().get_message(message.id)
                 if not message_ref:
-                    await user.send("Raid no longer exists")
+                    # Do not send out this message as development bot.
+                    if os.getenv('APP_ENV') == 'production':
+                        await user.send("Raid no longer exists")
                     return
                 guild = await self.bot.fetch_guild(message_ref.guild_id)
                 with RaidContext(bot=self.bot, guild=guild, author=user, channel=channel,

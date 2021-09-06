@@ -1,0 +1,51 @@
+.rosters {
+  flex-grow: 1;
+
+  display: flex;
+  flex-direction: column;
+
+
+  .roster {
+    border: 1px solid #e0e1dd;
+    padding: 32px;
+
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+
+    &.allow-drop {
+      border: 2px dashed;
+    }
+
+    > header {
+      display: flex;
+
+      border-bottom: 1px solid;
+      padding-bottom: 5px;
+
+      .roster-name {
+        flex-grow: 1;
+      }
+
+      i {
+        flex: 0 0 20px;
+      }
+
+    }
+  }
+
+  .roster-add {
+    border: 1px dotted #e0e1dd;
+    text-align: center;
+    padding: 32px;
+
+
+    i {
+      font-size: 32px;
+    }
+  }
+
+  .length-warning {
+    color: #ff9966;
+  }
+}

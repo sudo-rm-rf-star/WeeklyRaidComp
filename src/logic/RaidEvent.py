@@ -9,11 +9,12 @@ from datetime import datetime, date
 from typing import List, Dict, Any, Optional
 from logic.Character import Character
 from logic.MessageRef import MessageRef
+from uuid import uuid4
 import arrow
 
 
 class RaidEvent:
-    def __init__(self, name: str, raid_datetime: datetime, guild_id: int, team_name: str,
+    def __init__(self, token: str, name: str, raid_datetime: datetime, guild_id: int, team_name: str,
                  roster=None, created_at: datetime = None, updated_at: datetime = None,
                  message_refs: List[MessageRef] = None, is_open: bool = False):
         self.name = name
@@ -26,26 +27,30 @@ class RaidEvent:
         self.roster = Roster(name) if not roster else roster
         self.message_refs = [] if not message_refs else message_refs
         self.is_open = is_open
+        self.token = token
 
     def compose_roster(self) -> List[Character]:
         self.updated_at = datetime.now()
         return self.roster.compose()
 
+    def get_signed_character(self, discord_id: str) -> Optional[Character]:
+        return self.roster.get_signed_character(discord_id)
+
     def add_to_signees(self, player: Player, signee_choice: SignupStatus) -> Character:
         self.updated_at = datetime.now()
-        signed_character = self.roster.get_signed_character(player)
+        signed_character = self.get_signed_character(player.discord_id)
         selected_character = player.get_selected_char()
         if signed_character and signed_character != selected_character:
             self.roster.remove_player(player)
         return self.roster.put_character(character=selected_character, signup_status=signee_choice)
 
-    def add_to_roster(self, player: Player, roster_choice: RosterStatus) -> Character:
+    def add_to_roster(self, player: Player, roster_choice: RosterStatus, team_index=0) -> Character:
         self.updated_at = datetime.now()
-        character = self.roster.get_signed_character(player)
+        character = self.get_signed_character(player.discord_id)
         if character is None:
             character = player.get_selected_char()
         character = player.get_char(character.name)
-        return self.roster.put_character(character=character, roster_status=roster_choice)
+        return self.roster.put_character(character=character, roster_status=roster_choice, team_index=team_index)
 
     def has_char_signed(self, character: Character) -> bool:
         return any(char for char in self.roster.characters if char == character)
@@ -113,7 +118,8 @@ class RaidEvent:
     @staticmethod
     def from_dict(item: Dict[str, Any]):
         raid_name = item['name']
-        return RaidEvent(name=raid_name,
+        return RaidEvent(token=item.get('token', str(uuid4())),
+                         name=raid_name,
                          raid_datetime=datetime.fromtimestamp(int(item['timestamp'])),
                          guild_id=int(item['guild_id']),
                          team_name=item['team_name'],
@@ -125,7 +131,10 @@ class RaidEvent:
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            'token': self.token,
             'name': self.name,
+            'full_name': Raid[self.name].full_name,
+            'raid_size': Raid[self.name].player_size,
             'guild_id': str(self.guild_id),
             'team_name': str(self.team_name),
             'timestamp': int(self.datetime.timestamp()),
