@@ -8,6 +8,8 @@ from dokbot.DokBotContext import DokBotContext
 from dokbot.entities.DiscordMessage import DiscordMessage
 from exceptions.InternalBotException import InternalBotException
 from exceptions.CancelInteractionException import CancelInteractionException
+import utils.Logger as Log
+
 
 import asyncio
 
@@ -49,7 +51,7 @@ class EmojiInteractionMessage(DiscordMessage):
     async def send_to(self, recipient) -> discord.Message:
         msgs = await super(EmojiInteractionMessage, self).send_to(recipient)
         if len(msgs) != 1:
-            raise InternalBotException("Unhandled case")
+            Log.warn(f'Unhandled case: message to {recipient} has an issue:\n{msgs}')
         msg = msgs[0]
         self.is_dm = isinstance(msg.channel, discord.DMChannel)
         self.msg = msg
