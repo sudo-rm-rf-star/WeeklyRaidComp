@@ -9,3 +9,5 @@ class Raid(Enum):
     kara = ("Karazhan", 10)
     ml = ("Magtheridon's Lair", 25)
     gl = ("Gruul's Lair", 25)
+    tk = ("Tempest Keep", 25)
+    ssc = ("Serpentshrine Cavern", 25)
