@@ -1,11 +1,8 @@
-import discord
-
-from dokbot.utils.DiscordUtils import get_member, get_member_by_id
+from dokbot.utils.DiscordUtils import get_member
 from dokbot.RaidTeamContext import RaidTeamContext
 from dokbot.interactions.TextInteractionMessage import TextInteractionMessage
 from exceptions.InvalidInputException import InvalidInputException
 from persistence.PlayersResource import PlayersResource
-from utils.Constants import BOT_NAME
 from logic.Player import Player
 
 

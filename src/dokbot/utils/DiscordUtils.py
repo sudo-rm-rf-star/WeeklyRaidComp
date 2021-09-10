@@ -51,8 +51,11 @@ async def get_member(guild: discord.Guild, user_name: str) -> Optional[discord.M
     return None
 
 
-async def get_member_by_id(guild: discord.Guild, user_id: int) -> discord.Member:
-    return await guild.fetch_member(user_id)
+async def get_member_by_id(guild: discord.Guild, user_id: int) -> Optional[discord.Member]:
+    try:
+        return await guild.fetch_member(user_id)
+    except discord.errors.NotFound:
+        return None
 
 
 async def get_role(guild: discord.Guild, role_name: str) -> discord.Role:

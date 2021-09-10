@@ -22,5 +22,6 @@ class FindMemberInteraction(TextInteractionMessage):
             if player:
                 member = await get_member_by_id(self.ctx.guild, player.discord_id)
         if member is None:
-            raise InvalidInputException(f'Could not find a member with the name {player_name} on this Discord. Try again.')
+            raise InvalidInputException(
+                f'Could not find a member with the name {player_name} on this Discord server. Try again.')
         return member
