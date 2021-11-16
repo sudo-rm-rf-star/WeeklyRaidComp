@@ -9,6 +9,7 @@ services:
     volumes:
       - ./.env:/app/.env
       - ./logs:/app/logs
+    restart: unless-stopped
 
   dokbot-api:
     container_name: dokbot-api
@@ -20,6 +21,7 @@ services:
       - ./logs:/app/logs
     ports:
       - 5000:5000
+    restart: unless-stopped
 
   dokbot-www:
     container_name: dokbot-www
@@ -29,3 +31,4 @@ services:
     ports:
       - 5100:5000
     stdin_open: true
+    restart: unless-stopped
