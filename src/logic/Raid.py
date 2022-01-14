@@ -11,3 +11,7 @@ class Raid(Enum):
     gl = ("Gruul's Lair", 25)
     tk = ("Tempest Keep", 25)
     ssc = ("Serpentshrine Cavern", 25)
+    bt = ('Black Temple', 25)
+    mh = ('Mount Hyjal', 25)
+    za = ("Zul'Aman", 10)
+    sp = ('Sunwell Plateau', 25)
